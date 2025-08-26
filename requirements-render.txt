@@ -1,0 +1,36 @@
+# Production requirements for Render deployment - Simplified for Autonomous Interviewer
+# Core FastAPI and web framework
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
+
+# Database and ORM
+sqlalchemy==2.0.43
+psycopg2-binary==2.9.10
+
+# AI and Google API
+google-generativeai==0.8.5
+
+# Data validation
+pydantic==2.11.7
+
+# HTTP and networking
+httpx==0.28.1
+requests==2.32.5
+
+# Redis for session management
+redis==6.4.0
+
+# Environment and configuration
+python-dotenv==1.1.1
+
+# Async and concurrency
+anyio==4.10.0
+
+# Utility libraries
+click==8.2.1
+
+# Date and time
+python-dateutil==2.9.0.post0
+
+# Production server
+gunicorn==21.2.0

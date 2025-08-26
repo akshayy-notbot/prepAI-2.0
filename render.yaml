@@ -1,0 +1,40 @@
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: prepai-database
+    env: postgresql
+    plan: free
+    region: oregon
+    ipAllowList: []
+    
+  # Redis Service (for session management)
+  - type: redis
+    name: prepai-redis
+    plan: free
+    region: oregon
+    maxmemoryPolicy: allkeys-lru
+    
+  # FastAPI Backend
+  - type: web
+    name: prepai-api
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements-render.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        sync: false  # Use existing secret
+      - key: DATABASE_URL
+        sync: false  # Use existing secret
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: prepai-redis
+          property: connectionString
+      - key: GOOGLE_API_KEY
+        sync: false  # Use existing secret
+      - key: ENVIRONMENT
+        value: production
+    healthCheckPath: /health
+    autoDeploy: true

@@ -55,6 +55,11 @@ class AutonomousInterviewer:
             for i, turn in enumerate(conversation_history):
                 print(f"  Turn {i+1}: {turn['role']} - {turn['content'][:100]}...")
             
+            print(f"📝 FULL PROMPT SENT TO AUTONOMOUS INTERVIEWER:")
+            print(f"================================================")
+            print(prompt)
+            print(f"================================================")
+            
             # Get LLM response
             model = self._get_model()
             print(f"🤖 Calling Gemini API for interview turn...")
@@ -68,8 +73,17 @@ class AutonomousInterviewer:
                 response_text = response_text[:-3]
             
             print(f"🔍 Parsing interview response...")
+            print(f"📨 RAW RESPONSE FROM GEMINI:")
+            print(f"================================================")
+            print(response_text)
+            print(f"================================================")
+            
             result = json.loads(response_text.strip())
-            print(f"✅ Interview response parsed: {result.get('response_text', 'No response text')[:100]}...")
+            print(f"✅ Interview response parsed successfully")
+            print(f"🔍 FULL PARSED RESPONSE:")
+            print(f"  - Chain of Thought: {result.get('chain_of_thought', [])}")
+            print(f"  - Response Text: {result.get('response_text', 'No response text')}")
+            print(f"  - Interview State: {result.get('interview_state', {})}")
             
             # Add performance metrics
             result["latency_ms"] = round((time.time() - start_time) * 1000, 2)
@@ -78,11 +92,16 @@ class AutonomousInterviewer:
             return result
             
         except Exception as e:
+            print(f"❌ ERROR in conduct_interview_turn: {e}")
+            print(f"❌ Error type: {type(e).__name__}")
+            print(f"❌ Full error details: {str(e)}")
+            
             # Fallback response in case of API failure
-            return {
+            fallback_response = {
                 "chain_of_thought": [
                     "Error occurred during interview turn",
-                    "Falling back to default follow-up question"
+                    f"Error details: {str(e)}",
+                    "Using fallback response"
                 ],
                 "response_text": "I see. Can you tell me more about your approach to this problem?",
                 "interview_state": {
@@ -94,6 +113,9 @@ class AutonomousInterviewer:
                 "error": str(e),
                 "timestamp": time.time()
             }
+            
+            print(f"🔄 Returning fallback response: {fallback_response}")
+            return fallback_response
     
     def _build_prompt(self, role: str, seniority: str, skill: str, 
                       interview_stage: str, conversation_history: List[Dict], 

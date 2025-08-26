@@ -261,6 +261,14 @@ async def submit_answer(request: SubmitAnswerRequest):
             for i, turn in enumerate(ai_conversation_history):
                 print(f"  Turn {i+1}: {turn['role']} - {turn['content'][:50]}...")
             
+            print(f"🔍 Calling autonomous_interviewer.conduct_interview_turn with:")
+            print(f"  - role: {session_data['role']}")
+            print(f"  - seniority: {session_data['seniority']}")
+            print(f"  - skill: {session_data['skill']}")
+            print(f"  - interview_stage: {session_data['current_stage']}")
+            print(f"  - conversation_history: {len(ai_conversation_history)} turns")
+            print(f"  - session_context: {session_tracker.get_session_context(request.session_id)}")
+            
             # Process the user response using autonomous interviewer
             interviewer_result = autonomous_interviewer.conduct_interview_turn(
                 role=session_data["role"],
@@ -280,6 +288,10 @@ async def submit_answer(request: SubmitAnswerRequest):
             next_focus = interviewer_result["interview_state"]["next_focus"]
             
             print(f"✅ Autonomous Interviewer generated response")
+            print(f"🔍 FULL INTERVIEWER RESULT:")
+            print(f"  - Chain of Thought: {interviewer_result.get('chain_of_thought', [])}")
+            print(f"  - Response Text: {interviewer_result.get('response_text', 'No response text')}")
+            print(f"  - Interview State: {interviewer_result.get('interview_state', {})}")
             print(f"📊 Current stage: {current_stage}")
             print(f"🎯 Skill progress: {skill_progress}")
             print(f"🎯 Next focus: {next_focus}")

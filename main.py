@@ -33,6 +33,7 @@ except Exception as e:
 try:
     from agents.autonomous_interviewer import AutonomousInterviewer
     from agents.session_tracker import SessionTracker
+    from agents.evaluation import evaluate_answer
     print("✅ Autonomous interviewer components imported successfully")
 except Exception as e:
     print(f"❌ Failed to import autonomous interviewer components: {e}")
@@ -323,6 +324,107 @@ async def submit_answer(request: SubmitAnswerRequest):
     except Exception as e:
         print(f"❌ Unexpected error in submit_answer: {e}")
         return {"error": f"Answer processing failed: {str(e)}"}, 500
+
+@app.post("/api/interview/{session_id}/complete")
+async def complete_interview(session_id: str):
+    """
+    Completes an interview session and provides comprehensive evaluation.
+    """
+    try:
+        print(f"🏁 Completing interview session {session_id}")
+        
+        # Retrieve conversation history from Redis
+        try:
+            redis_url = os.environ.get('REDIS_URL')
+            if not redis_url:
+                raise ValueError("REDIS_URL environment variable is required")
+            redis_client = redis.from_url(redis_url)
+            
+            history_json = redis_client.get(f"history:{session_id}")
+            if not history_json:
+                return {"error": "Interview history not found. Session may have expired."}, 404
+            
+            conversation_history = json.loads(history_json.decode('utf-8'))
+            
+        except Exception as redis_error:
+            print(f"❌ Failed to retrieve data from Redis: {redis_error}")
+            return {"error": f"Failed to retrieve interview data: {str(redis_error)}"}, 500
+        
+        # Get session data
+        try:
+            session_tracker = SessionTracker()
+            session_data = session_tracker.get_session(session_id)
+            
+            if not session_data:
+                return {"error": "Session not found"}, 404
+                
+        except Exception as session_error:
+            print(f"❌ Failed to get session data: {session_error}")
+            return {"error": f"Failed to get session data: {str(session_error)}"}, 500
+        
+        # Extract Q&A pairs for evaluation
+        qa_pairs = []
+        for i, turn in enumerate(conversation_history):
+            if turn.get("question") and turn.get("answer"):
+                qa_pairs.append({
+                    "question": turn["question"],
+                    "answer": turn["answer"]
+                })
+        
+        if not qa_pairs:
+            return {"error": "No questions and answers found for evaluation"}, 400
+        
+        print(f"📊 Found {len(qa_pairs)} Q&A pairs for evaluation")
+        
+        # Evaluate each answer using the evaluation agent
+        evaluations = []
+        skills_to_assess = session_data.get("skills", ["Problem Solving", "Communication", "Technical Knowledge"])
+        
+        for qa in qa_pairs:
+            print(f"🔍 Evaluating Q: {qa['question'][:50]}...")
+            evaluation = evaluate_answer(qa["answer"], qa["question"], skills_to_assess)
+            evaluations.append({
+                "question": qa["question"],
+                "answer": qa["answer"],
+                "evaluation": evaluation
+            })
+        
+        # Calculate overall scores
+        all_scores = []
+        for eval_data in evaluations:
+            if "evaluation" in eval_data and "scores" in eval_data["evaluation"]:
+                scores = eval_data["evaluation"]["scores"]
+                for skill, score_data in scores.items():
+                    if isinstance(score_data, dict) and "score" in score_data:
+                        all_scores.append(score_data["score"])
+        
+        overall_score = round(sum(all_scores) / len(all_scores), 1) if all_scores else 0
+        
+        # Generate comprehensive feedback
+        overall_summary = f"Interview completed with {len(qa_pairs)} questions. Overall performance score: {overall_score}/5"
+        
+        # Prepare detailed feedback structure
+        feedback_data = {
+            "overall_score": overall_score,
+            "overall_summary": overall_summary,
+            "questions_evaluated": len(qa_pairs),
+            "skills_assessed": skills_to_assess,
+            "detailed_evaluations": evaluations,
+            "session_id": session_id,
+            "role": session_data.get("role"),
+            "seniority": session_data.get("seniority"),
+            "completed_at": datetime.now().isoformat()
+        }
+        
+        # Mark session as completed
+        session_tracker.update_session(session_id, {"status": "completed"})
+        
+        print(f"✅ Interview completion and evaluation finished for session {session_id}")
+        return {"success": True, "data": feedback_data}
+        
+    except Exception as e:
+        print(f"❌ Unexpected error in complete_interview: {e}")
+        return {"error": f"Interview completion failed: {str(e)}"}, 500
 
 @app.get("/api/interview/{session_id}/status")
 async def get_interview_status(session_id: str):

@@ -751,33 +751,38 @@ function displayUserMessage(message) {
 // which uses the cleaner, more standard approach from the LLM code
 
 async function endInterview() {
-    // Stop the timer
-    stopTimer();
-    
-    showScreen('analysis');
-
-    // Use the live Render backend URL
-    const API_BASE_URL = BACKEND_URL; 
+    console.log('🚪 Exit button clicked! Starting endInterview function...');
     
     try {
-        const response = await fetch(`${API_BASE_URL}/api/interviews/${interviewId}/complete`, {
+        // Stop the timer
+        console.log('⏱️ Stopping timer...');
+        stopTimer();
+        console.log('✅ Timer stopped successfully');
+        
+        console.log('📊 Showing analysis screen...');
+        showScreen('analysis');
+
+        // Use the live Render backend URL
+        const API_BASE_URL = BACKEND_URL; 
+        
+        console.log('🌐 Using API URL:', API_BASE_URL);
+        
+        console.log('📤 Sending completion request to backend...');
+        const response = await fetch(`${API_BASE_URL}/api/interview/${sessionId}/complete`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                transcript: transcript,
-                session_id: sessionId,  // Pass session ID for database tracking
-                role: interviewConfig.role,  // Pass role for context
-                seniority: interviewConfig.seniority,  // Pass seniority for context
-                skills: interviewConfig.skills  // Pass skills for context
-            })
+            headers: { 'Content-Type': 'application/json' }
         });
 
+        console.log('📥 Response received:', response.status, response.statusText);
+
         if (!response.ok) {
-            throw new Error('Analysis request failed');
+            throw new Error(`Analysis request failed: ${response.status} ${response.statusText}`);
         }
 
         const result = await response.json();
+        console.log('✅ Analysis completed successfully:', result);
 
+        console.log('📋 Interview completed! Showing feedback screen...');
         showScreen('feedback');
         
         // Format the feedback in a user-friendly way
@@ -788,6 +793,7 @@ async function endInterview() {
                     <div class="text-center">
                         <h3 class="text-2xl font-bold text-gray-900 mb-2">Interview Analysis Complete!</h3>
                         ${data.overall_score ? `<div class="text-4xl font-bold text-blue-600">${data.overall_score}/5</div>` : ''}
+                        <p class="text-gray-600 mt-2">${data.questions_evaluated} questions evaluated</p>
                     </div>
                     
                     ${data.overall_summary ? `
@@ -797,47 +803,40 @@ async function endInterview() {
                         </div>
                     ` : ''}
                     
-                    ${data.scores && data.scores.length > 0 ? `
+                    ${data.skills_assessed && data.skills_assessed.length > 0 ? `
                         <div class="bg-gray-50 p-4 rounded-lg">
-                            <h4 class="font-semibold text-gray-800 mb-3">Detailed Scores</h4>
-                            <div class="space-y-3">
-                                ${data.scores.map(score => `
-                                    <div class="flex justify-between items-start">
-                                        <div class="flex-1">
-                                            <div class="font-medium text-gray-700">${score.criterion}</div>
-                                            <div class="text-sm text-gray-600 mt-1">${score.justification}</div>
-                                        </div>
-                                        <div class="ml-4 text-2xl font-bold text-blue-600">${score.score}/5</div>
-                                    </div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Skills Assessed</h4>
+                            <div class="flex flex-wrap gap-2">
+                                ${data.skills_assessed.map(skill => `
+                                    <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">${skill}</span>
                                 `).join('')}
                             </div>
                         </div>
                     ` : ''}
                     
-                    ${data.key_strengths && data.key_strengths.length > 0 ? `
-                        <div class="bg-green-50 p-4 rounded-lg">
-                            <h4 class="font-semibold text-green-800 mb-2">Key Strengths</h4>
-                            <ul class="list-disc list-inside text-green-700 space-y-1">
-                                ${data.key_strengths.map(strength => `<li>${strength}</li>`).join('')}
-                            </ul>
-                        </div>
-                    ` : ''}
-                    
-                    ${data.areas_for_improvement && data.areas_for_improvement.length > 0 ? `
-                        <div class="bg-yellow-50 p-4 rounded-lg">
-                            <h4 class="font-semibold text-yellow-800 mb-2">Areas for Improvement</h4>
-                            <ul class="list-disc list-inside text-yellow-700 space-y-1">
-                                ${data.areas_for_improvement.map(area => `<li>${area}</li>`).join('')}
-                            </ul>
-                        </div>
-                    ` : ''}
-                    
-                    ${data.recommendations && data.recommendations.length > 0 ? `
-                        <div class="bg-purple-50 p-4 rounded-lg">
-                            <h4 class="font-semibold text-purple-800 mb-2">Recommendations</h4>
-                            <ul class="list-disc list-inside text-purple-700 space-y-1">
-                                ${data.recommendations.map(rec => `<li>${rec}</li>`).join('')}
-                            </ul>
+                    ${data.detailed_evaluations && data.detailed_evaluations.length > 0 ? `
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-800 mb-3">Detailed Question Analysis</h4>
+                            <div class="space-y-4">
+                                ${data.detailed_evaluations.map((qa, index) => `
+                                    <div class="border-l-4 border-blue-200 pl-4">
+                                        <div class="font-medium text-gray-800 mb-2">Question ${index + 1}: ${qa.question.substring(0, 100)}${qa.question.length > 100 ? '...' : ''}</div>
+                                        ${qa.evaluation && qa.evaluation.scores ? `
+                                            <div class="space-y-2">
+                                                ${Object.entries(qa.evaluation.scores).map(([skill, scoreData]) => `
+                                                    <div class="flex justify-between items-center text-sm">
+                                                        <span class="font-medium text-gray-700">${skill}</span>
+                                                        <div class="flex items-center gap-2">
+                                                            <span class="text-lg font-bold text-blue-600">${scoreData.score}/5</span>
+                                                            <span class="text-xs text-gray-500">${scoreData.feedback.substring(0, 80)}${scoreData.feedback.length > 80 ? '...' : ''}</span>
+                                                        </div>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        ` : '<div class="text-gray-500 text-sm">Evaluation data not available</div>'}
+                                    </div>
+                                `).join('')}
+                            </div>
                         </div>
                     ` : ''}
                     
@@ -849,17 +848,33 @@ async function endInterview() {
                 </div>
             `;
         } else {
-            // Fallback to raw JSON if structure is unexpected
+            console.warn('⚠️ No data in result:', result);
             feedbackOutput.innerHTML = `
-                <h3 class="text-xl font-semibold">Analysis Complete!</h3>
-                <pre class="mt-4 p-4 bg-gray-100 rounded text-sm whitespace-pre-wrap">${JSON.stringify(result, null, 2)}</pre>
+                <div class="text-center">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Interview Completed</h3>
+                    <p class="text-gray-600 mb-6">Your interview has been completed successfully.</p>
+                    <button onclick="location.reload()" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300">
+                        Start a New Interview
+                    </button>
+                </div>
             `;
         }
-
+        
     } catch (error) {
-        console.error('❌ Analysis error:', error);
-        alert('Could not get analysis. Please try again.');
-        showScreen('interview');
+        console.error('❌ Error in endInterview:', error);
+        
+        // Show error message to user
+        feedbackOutput.innerHTML = `
+            <div class="text-center">
+                <h3 class="text-2xl font-bold text-red-600 mb-4">Error Completing Interview</h3>
+                <p class="text-gray-600 mb-6">There was an error completing your interview: ${error.message}</p>
+                <button onclick="location.reload()" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300">
+                    Start a New Interview
+                </button>
+            </div>
+        `;
+        
+        showScreen('feedback');
     }
 }
 
@@ -875,7 +890,20 @@ userInput.addEventListener('keypress', (e) => {
         handleSubmitAnswer();
     }
 });
-document.getElementById('end-interview-btn').addEventListener('click', endInterview);
+
+// Add debugging for exit button setup
+const exitButton = document.getElementById('end-interview-btn');
+if (exitButton) {
+    console.log('✅ Exit button found, adding event listener...');
+    exitButton.addEventListener('click', endInterview);
+    console.log('✅ Exit button event listener added successfully');
+} else {
+    console.error('❌ Exit button not found! Element ID: end-interview-btn');
+    console.error('❌ Available elements with similar IDs:');
+    document.querySelectorAll('[id*="end"], [id*="exit"], [id*="interview"]').forEach(el => {
+        console.error('  -', el.id, el.tagName, el.className);
+    });
+}
 
 // Clean, focused answer submission handler (best of both worlds)
 async function handleSubmitAnswer() {

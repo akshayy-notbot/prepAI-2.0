@@ -121,9 +121,7 @@ You are conducting a real interview. Your job is to:
 - If the candidate asks a clarifying question (e.g., "What do you mean by X?", "Can you give an example?"), 
   answer it helpfully and then guide them back to answering the original question
 - Be encouraging and patient when they need clarification
-- Provide clear explanations or examples to help them understand
-- After clarifying, ask them to proceed with their answer to the original question
-- This maintains the interview flow while being helpful
+- Provide clear explanations or examples to help them understand, if required.
 
 **INTERVIEW STAGES (Guide your progression):**
 - **Problem Understanding**: Assess their ability to grasp the core problem
@@ -194,14 +192,19 @@ Your response MUST be a single, valid JSON object with this exact structure:
 - Session Context: {json.dumps(session_context, indent=2)}
 
 **YOUR TASK:**
-Generate an engaging opening question that will start the interview and assess the candidate's {skill}.
+Generate an engaging opening that will start the interview and assess the candidate's {skill}.
 
-**REQUIREMENTS:**
+**CRITICAL REQUIREMENTS:**
 - Start with a warm, professional greeting
-- Present a clear, engaging problem or scenario related to {skill}
+- IMMEDIATELY present a specific, concrete problem or scenario related to {skill}
+- Do NOT end with "Let me present you with a scenario..." - actually present the scenario
 - Make it appropriate for {seniority} level
-- Set clear expectations for the interview
 - Be encouraging and put the candidate at ease
+- Give them something concrete to respond to
+
+**EXAMPLES OF GOOD OPENINGS:**
+- For A/B Testing: "Hello! I'm excited to interview you for the {seniority} {role} position. Today we'll focus on A/B Testing. Imagine you're working for an e-commerce company and want to test whether changing the checkout button color from blue to green increases conversion rates. How would you design this experiment?"
+- For System Design: "Hello! I'm excited to interview you for the {seniority} {role} position. Today we'll focus on System Design. Design a URL shortening service like bit.ly that can handle 100 million URLs. How would you approach this?"
 
 **OUTPUT FORMAT:**
 {{
@@ -222,8 +225,10 @@ Generate an engaging opening question that will start the interview and assess t
         
         try:
             model = self._get_model()
+            print(f"🤖 Calling Gemini API for initial question...")
             response = model.generate_content(prompt)
             response_text = response.text.strip()
+            print(f"✅ Gemini API response received: {len(response_text)} characters")
             
             # Parse the JSON response
             if response_text.startswith('```json'):
@@ -231,19 +236,30 @@ Generate an engaging opening question that will start the interview and assess t
             if response_text.endswith('```'):
                 response_text = response_text[:-3]
             
+            print(f"🔍 Attempting to parse JSON response...")
             result = json.loads(response_text.strip())
+            print(f"✅ JSON parsed successfully")
             result["timestamp"] = time.time()
             
             return result
             
         except Exception as e:
-            # Fallback opening
+            print(f"❌ Error in get_initial_question: {e}")
+            print(f"❌ Error type: {type(e).__name__}")
+            # Fallback opening with specific scenario
+            if skill.lower() == "a/b testing":
+                fallback_scenario = f"Hello! I'm excited to interview you for the {seniority} {role} position. Today we'll focus on A/B Testing. Imagine you're working for an e-commerce company and want to test whether changing the checkout button color from blue to green increases conversion rates. How would you design this experiment?"
+            elif skill.lower() == "system design":
+                fallback_scenario = f"Hello! I'm excited to interview you for the {seniority} {role} position. Today we'll focus on System Design. Design a URL shortening service like bit.ly that can handle 100 million URLs. How would you approach this?"
+            else:
+                fallback_scenario = f"Hello! I'm excited to interview you for the {seniority} {role} position. Today we'll focus on {skill}. Please describe a challenging project you've worked on related to {skill} and walk me through your approach."
+            
             return {
                 "chain_of_thought": [
                     "Using fallback opening due to API error",
-                    "Focusing on standard problem presentation"
+                    "Providing specific scenario to get interview started"
                 ],
-                "response_text": f"Hello! I'm excited to interview you for the {seniority} {role} position. Today we'll be focusing on {skill}. Let me present you with a scenario to get started...",
+                "response_text": fallback_scenario,
                 "interview_state": {
                     "current_stage": "problem_understanding",
                     "skill_progress": "not_started",

@@ -106,8 +106,12 @@ function showScreen(screenKey) {
         return;
     }
     
+    // Clean up back buttons from all screens before switching
     Object.values(screens).forEach(screen => {
-        if (screen) screen.classList.add('hidden');
+        if (screen) {
+            cleanupBackButton(screen);
+            screen.classList.add('hidden');
+        }
     });
     
     if (screens[screenKey]) {
@@ -612,7 +616,7 @@ function populateSkillsOptions() {
                     class="skill-brick px-4 py-3 rounded-lg border-2 transition-all duration-200 font-medium ${selectedClass} text-left" 
                     data-skill="${skill}">
                 <div class="font-semibold">${skillName}</div>
-                ${skillDescription ? `<div class="text-sm mt-1 opacity-80">${skillDescription}</div>` : ''}
+                ${skillDescription ? `<div class="text-xs mt-1 opacity-60 text-gray-500">${skillDescription}</div>` : ''}
             </button>
         `;
     }).join('');
@@ -1287,9 +1291,9 @@ function addBackButton(screenElement, targetScreen) {
         existingBackBtn.remove();
     }
     
-    // Create back button
+    // Create back button with CSS-based positioning
     const backBtn = document.createElement('button');
-    backBtn.className = 'back-btn flex items-center gap-2 transition-all duration-300';
+    backBtn.className = 'back-btn flex items-center gap-2';
     backBtn.innerHTML = `
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -1298,66 +1302,28 @@ function addBackButton(screenElement, targetScreen) {
     `;
     
     backBtn.addEventListener('click', () => {
+        console.log('🔙 Back button clicked, navigating to:', targetScreen);
         showScreen(targetScreen);
     });
     
-    // Function to update button position
-    const updateButtonPosition = () => {
-        const card = screenElement.querySelector('.card');
-        if (card) {
-            const cardRect = card.getBoundingClientRect();
-            const screenRect = screenElement.getBoundingClientRect();
-            
-            // Calculate position relative to the card
-            let relativeTop = cardRect.top - screenRect.top + 20;
-            let relativeLeft = cardRect.left - screenRect.left + 20;
-            
-            // Ensure the button doesn't go outside the screen bounds
-            const buttonWidth = backBtn.offsetWidth;
-            const buttonHeight = backBtn.offsetHeight;
-            const screenWidth = screenElement.offsetWidth;
-            const screenHeight = screenElement.offsetHeight;
-            
-            // Adjust horizontal position if button would go off-screen
-            if (relativeLeft + buttonWidth > screenWidth - 20) {
-                relativeLeft = screenWidth - buttonWidth - 20;
-            }
-            if (relativeLeft < 20) {
-                relativeLeft = 20;
-            }
-            
-            // Adjust vertical position if button would go off-screen
-            if (relativeTop + buttonHeight > screenHeight - 20) {
-                relativeTop = screenHeight - buttonHeight - 20;
-            }
-            if (relativeTop < 20) {
-                relativeTop = 20;
-            }
-            
-            backBtn.style.top = `${relativeTop}px`;
-            backBtn.style.left = `${relativeLeft}px`;
-        }
-    };
-    
     // Add to screen
-    screenElement.style.position = 'relative';
     screenElement.appendChild(backBtn);
     
-    // Initial positioning with a small delay to ensure DOM is rendered
-    setTimeout(updateButtonPosition, 50);
-    
-    // Update position on window resize
-    window.addEventListener('resize', updateButtonPosition);
-    
-    // Store the update function for cleanup
-    backBtn._updatePosition = updateButtonPosition;
+    // Debug logging
+    console.log('✅ Back button added to screen:', screenElement.id);
+    console.log('✅ Back button classes:', backBtn.className);
+    console.log('✅ Back button target screen:', targetScreen);
 }
 
 // Function to clean up back button event listeners
 function cleanupBackButton(screenElement) {
     const backBtn = screenElement.querySelector('.back-btn');
-    if (backBtn && backBtn._updatePosition) {
-        window.removeEventListener('resize', backBtn._updatePosition);
+    if (backBtn) {
+        console.log('🧹 Cleaning up back button from screen:', screenElement.id);
+        // Remove the button completely
+        backBtn.remove();
+    } else {
+        console.log('ℹ️ No back button found to clean up on screen:', screenElement.id);
     }
 }
 

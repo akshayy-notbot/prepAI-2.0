@@ -28,27 +28,29 @@ def get_session_local():
 class SessionState(Base):
     """
     Main table for storing complete interview data.
-    Stores everything as JSON for easy analysis and minimal schema complexity.
+    Updated to match the actual deployed database schema.
     """
     __tablename__ = "session_states"
 
     id = Column(Integer, primary_key=True, index=True)
     session_id = Column(String, unique=True, index=True)
     
-    # Final State Summary
-    final_stage = Column(String, nullable=False)
-    final_skill_progress = Column(String, nullable=False)
+    # Current deployed schema columns
+    final_current_topic_id = Column(String, nullable=True)
+    final_covered_topic_ids = Column(Text, nullable=True)  # JSON string of covered topics
+    final_conversation_history = Column(Text, nullable=True)  # Complete conversation history as JSON string
+    final_topic_progress = Column(Text, nullable=True)  # Topic progress as JSON string
     
-    # Complete Conversation Data (JSON)
-    final_conversation_history = Column(Text)  # Complete conversation history as JSON string
-    
-    # Enhanced: Complete Interview Data as JSON
-    complete_interview_data = Column(JSON)  # All turns, evaluations, AI reasoning, metadata
-    
-    # Performance Tracking
-    total_turns = Column(Integer, default=0)
+    # Performance Tracking (existing)
+    total_router_agent_calls = Column(Integer, default=0)
+    total_generator_agent_calls = Column(Integer, default=0)
     total_response_time_ms = Column(Integer, default=0)
-    average_score = Column(Integer)  # Average evaluation score
+    
+    # Enhanced: Complete Interview Data as JSON (to be added by migration)
+    complete_interview_data = Column(JSON, nullable=True)  # All turns, evaluations, AI reasoning, metadata
+    
+    # Enhanced: Average Score (to be added by migration)
+    average_score = Column(Integer, nullable=True)  # Average evaluation score
     
     # Timestamps
     interview_completed_at = Column(DateTime, default=datetime.utcnow)

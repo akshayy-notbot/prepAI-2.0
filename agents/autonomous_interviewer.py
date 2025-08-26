@@ -2,11 +2,7 @@ import os
 import json
 import time
 from typing import List, Dict, Any, Optional
-# Import get_gemini_client from main module
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from main import get_gemini_client
+from utils import get_gemini_client
 
 class AutonomousInterviewer:
     """

@@ -243,13 +243,23 @@ async def submit_answer(request: SubmitAnswerRequest):
             if not session_data:
                 raise Exception("Session not found or expired")
             
-            # Get conversation history in the format expected by autonomous interviewer
+            # Create the conversation history for the AI with the user's answer included
             ai_conversation_history = []
             for turn in conversation_history:
-                ai_conversation_history.append({
-                    "role": "interviewer" if turn.get("question") else "user",
-                    "content": turn.get("question", "") or turn.get("answer", "")
-                })
+                if turn.get("question"):
+                    ai_conversation_history.append({
+                        "role": "interviewer",
+                        "content": turn["question"]
+                    })
+                if turn.get("answer"):  # Make sure we include user answers
+                    ai_conversation_history.append({
+                        "role": "user", 
+                        "content": turn["answer"]
+                    })
+            
+            print(f"🔍 AI Conversation History prepared: {len(ai_conversation_history)} turns")
+            for i, turn in enumerate(ai_conversation_history):
+                print(f"  Turn {i+1}: {turn['role']} - {turn['content'][:50]}...")
             
             # Process the user response using autonomous interviewer
             interviewer_result = autonomous_interviewer.conduct_interview_turn(

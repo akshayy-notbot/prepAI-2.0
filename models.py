@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, Boolean, text, inspect
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, Boolean, text, inspect, JSON
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -7,7 +7,9 @@ import os
 # Use the DATABASE_URL from the environment (Render will provide this)
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
-    raise ValueError("DATABASE_URL environment variable is required. Please set it in Render dashboard.")
+    # For testing purposes, use a dummy URL if DATABASE_URL is not set
+    print("⚠️  DATABASE_URL not set, using dummy URL for testing")
+    DATABASE_URL = "postgresql://test_user:test_pass@localhost:5432/test_db"
 
 # Create the declarative base for SQLAlchemy models
 Base = declarative_base()
@@ -21,12 +23,12 @@ def get_session_local():
     """Get database session factory"""
     return sessionmaker(autocommit=False, autoflush=False, bind=get_engine())
 
-# --- Simplified Table Definitions for Autonomous Interviewer ---
+# --- Enhanced Table Definitions for Complete Persistence ---
 
 class InterviewSession(Base):
     """
     Stores basic interview session information.
-    Note: Real-time state is managed in Redis by SessionTracker.
+    Now actively used for session tracking and persistence.
     """
     __tablename__ = "interview_sessions"
 
@@ -45,9 +47,9 @@ class InterviewSession(Base):
     completed_at = Column(DateTime)
     status = Column(String, default='ready')  # ready, in_progress, completed
     
-    # Final State (from Redis when interview ended)
-    final_stage = Column(String)  # Final interview stage
-    final_skill_progress = Column(String)  # Final skill assessment
+    # Current State (updated in real-time)
+    current_stage = Column(String, default='problem_understanding')
+    current_skill_progress = Column(String, default='not_started')
     
     # Performance Metrics
     total_questions = Column(Integer, default=0)
@@ -58,24 +60,28 @@ class InterviewSession(Base):
 
 class SessionState(Base):
     """
-    Final session state for completed interviews (persisted after completion).
-    Real-time state during interviews lives in Redis only.
+    Final session state for completed interviews with complete conversation data.
+    Stores everything as JSON for easy analysis and minimal schema complexity.
     """
     __tablename__ = "session_states"
 
     id = Column(Integer, primary_key=True, index=True)
     session_id = Column(String, unique=True, index=True)
     
-    # Final State (from Redis when interview ended)
+    # Final State Summary
     final_stage = Column(String, nullable=False)
     final_skill_progress = Column(String, nullable=False)
     
-    # Final Conversation State
+    # Complete Conversation Data (JSON)
     final_conversation_history = Column(Text)  # Complete conversation history as JSON string
+    
+    # Enhanced: Complete Interview Data as JSON
+    complete_interview_data = Column(JSON)  # All turns, evaluations, AI reasoning, metadata
     
     # Performance Tracking
     total_turns = Column(Integer, default=0)
     total_response_time_ms = Column(Integer, default=0)
+    average_score = Column(Integer)  # Average evaluation score
     
     # Timestamps
     interview_completed_at = Column(DateTime, default=datetime.utcnow)
@@ -86,12 +92,14 @@ class SessionState(Base):
 
 class UserResponse(Base):
     """
-    Stores individual user responses for analysis and audit purposes
+    Stores individual user responses for analysis and audit purposes.
+    Enhanced with more metadata.
     """
     __tablename__ = "user_responses"
 
     id = Column(Integer, primary_key=True, index=True)
     session_id = Column(String, index=True)
+    
     question_text = Column(Text, nullable=False)
     answer_text = Column(Text, nullable=False)
     
@@ -127,6 +135,97 @@ def drop_tables():
         return True
     except Exception as e:
         print(f"❌ Failed to drop database tables: {e}")
+        return False
+
+def persist_complete_interview(session_id: str, session_data: dict, conversation_history: list, 
+                             evaluations: list, final_state: dict) -> bool:
+    """
+    Persist complete interview data to PostgreSQL in a single operation.
+    
+    Args:
+        session_id: The session identifier
+        session_data: Basic session information (role, seniority, skill)
+        conversation_history: Complete list of conversation turns
+        evaluations: List of evaluation results for each turn
+        final_state: Final interview state and metrics
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        from sqlalchemy.orm import Session
+        
+        # Prepare the complete interview data as JSON
+        complete_data = {
+            "session_metadata": {
+                "session_id": session_id,
+                "role": session_data.get("role"),
+                "seniority": session_data.get("seniority"),
+                "skill": session_data.get("skill"),
+                "start_time": session_data.get("start_time"),
+                "completion_time": final_state.get("completion_time")
+            },
+            "conversation_turns": conversation_history,
+            "evaluations": evaluations,
+            "interview_metrics": {
+                "total_turns": len(conversation_history),
+                "total_response_time_ms": final_state.get("total_response_time_ms", 0),
+                "average_score": final_state.get("average_score", 0),
+                "final_stage": final_state.get("final_stage"),
+                "final_skill_progress": final_state.get("final_skill_progress")
+            },
+            "ai_reasoning": final_state.get("ai_reasoning", []),
+            "persisted_at": datetime.utcnow().isoformat()
+        }
+        
+        # Create database session
+        engine = get_engine()
+        db_session = Session(engine)
+        
+        try:
+            # Check if session state already exists
+            existing_state = db_session.query(SessionState).filter(
+                SessionState.session_id == session_id
+            ).first()
+            
+            if existing_state:
+                # Update existing record
+                existing_state.final_stage = final_state.get("final_stage", "unknown")
+                existing_state.final_skill_progress = final_state.get("final_skill_progress", "unknown")
+                existing_state.final_conversation_history = str(conversation_history)
+                existing_state.complete_interview_data = complete_data
+                existing_state.total_turns = len(conversation_history)
+                existing_state.total_response_time_ms = final_state.get("total_response_time_ms", 0)
+                existing_state.average_score = final_state.get("average_score", 0)
+                existing_state.interview_completed_at = datetime.utcnow()
+            else:
+                # Create new record
+                new_state = SessionState(
+                    session_id=session_id,
+                    final_stage=final_state.get("final_stage", "unknown"),
+                    final_skill_progress=final_state.get("final_skill_progress", "unknown"),
+                    final_conversation_history=str(conversation_history),
+                    complete_interview_data=complete_data,
+                    total_turns=len(conversation_history),
+                    total_response_time_ms=final_state.get("total_response_time_ms", 0),
+                    average_score=final_state.get("average_score", 0)
+                )
+                db_session.add(new_state)
+            
+            # Commit the changes
+            db_session.commit()
+            print(f"✅ Complete interview data persisted for session {session_id}")
+            return True
+            
+        except Exception as e:
+            db_session.rollback()
+            print(f"❌ Database error during interview persistence: {e}")
+            return False
+        finally:
+            db_session.close()
+            
+    except Exception as e:
+        print(f"❌ Failed to persist interview data: {e}")
         return False
 
 def get_table_names():

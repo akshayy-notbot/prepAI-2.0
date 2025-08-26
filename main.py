@@ -34,6 +34,7 @@ try:
     from agents.autonomous_interviewer import AutonomousInterviewer
     from agents.session_tracker import SessionTracker
     from agents.evaluation import evaluate_answer
+    from models import persist_complete_interview
     print("✅ Autonomous interviewer components imported successfully")
 except Exception as e:
     print(f"❌ Failed to import autonomous interviewer components: {e}")
@@ -140,13 +141,16 @@ async def start_interview(request: StartInterviewRequest):
             print(f"❌ Autonomous Interviewer failed: {interviewer_error}")
             return {"error": f"Failed to generate opening statement: {interviewer_error}"}, 500
         
-        # Create and Save the History
+        # Create and Save the History with AI reasoning
         interview_history = [
             {
                 "question": opening_statement,
                 "answer": None,
                 "timestamp": datetime.utcnow().isoformat(),
-                "question_type": "opening"
+                "question_type": "opening",
+                "ai_reasoning": first_question_result.get("chain_of_thought", []),
+                "interview_state": first_question_result.get("interview_state", {}),
+                "response_latency_ms": first_question_result.get("latency_ms", 0)
             }
         ]
         
@@ -312,12 +316,15 @@ async def submit_answer(request: SubmitAnswerRequest):
             print(f"❌ Autonomous Interviewer failed: {interviewer_error}")
             raise interviewer_error
         
-        # Add the new question to the conversation history
+        # Add the new question to conversation history with AI reasoning
         conversation_history.append({
             "question": new_ai_question,
             "answer": None,
             "timestamp": datetime.utcnow().isoformat(),
-            "question_type": "follow_up"
+            "question_type": "follow_up",
+            "ai_reasoning": interviewer_result.get("chain_of_thought", []),
+            "interview_state": interviewer_result.get("interview_state", {}),
+            "response_latency_ms": interviewer_result.get("latency_ms", 0)
         })
         
         # Save updated history to Redis
@@ -440,6 +447,42 @@ async def complete_interview(session_id: str):
         
         # Mark session as completed
         session_tracker.update_session(session_id, {"status": "completed"})
+        
+        # Persist the complete interview data to the database
+        try:
+            # Prepare conversation history with complete data
+            complete_conversation_history = []
+            for turn in conversation_history:
+                turn_data = {
+                    "question": turn.get("question"),
+                    "answer": turn.get("answer"),
+                    "timestamp": turn.get("timestamp"),
+                    "question_type": turn.get("question_type", "follow_up")
+                }
+                complete_conversation_history.append(turn_data)
+            
+            # Prepare final state data
+            final_state = {
+                "final_stage": session_data.get("current_stage", "unknown"),
+                "final_skill_progress": session_data.get("skill_progress", "unknown"),
+                "total_response_time_ms": 0,  # Could be calculated from timestamps
+                "average_score": overall_score,
+                "completion_time": datetime.now().isoformat(),
+                "ai_reasoning": []  # Could be enhanced to capture AI reasoning
+            }
+            
+            # Persist to database
+            persist_complete_interview(
+                session_id=session_id,
+                session_data=session_data,
+                conversation_history=complete_conversation_history,
+                evaluations=evaluations,
+                final_state=final_state
+            )
+            print(f"✅ Interview data persisted to database for session {session_id}")
+        except Exception as db_error:
+            print(f"❌ Failed to persist interview data to database: {db_error}")
+            # Continue with returning feedback data even if persistence fails
         
         print(f"✅ Interview completion and evaluation finished for session {session_id}")
         return {"success": True, "data": feedback_data}

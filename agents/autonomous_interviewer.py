@@ -96,26 +96,8 @@ class AutonomousInterviewer:
             print(f"❌ Error type: {type(e).__name__}")
             print(f"❌ Full error details: {str(e)}")
             
-            # Fallback response in case of API failure
-            fallback_response = {
-                "chain_of_thought": [
-                    "Error occurred during interview turn",
-                    f"Error details: {str(e)}",
-                    "Using fallback response"
-                ],
-                "response_text": "I see. Can you tell me more about your approach to this problem?",
-                "interview_state": {
-                    "current_stage": interview_stage,
-                    "skill_progress": "unknown",
-                    "next_focus": "continue_current_topic"
-                },
-                "latency_ms": 0,
-                "error": str(e),
-                "timestamp": time.time()
-            }
-            
-            print(f"🔄 Returning fallback response: {fallback_response}")
-            return fallback_response
+            # Re-raise the error instead of using fallback
+            raise e
     
     def _build_prompt(self, role: str, seniority: str, skill: str, 
                       interview_stage: str, conversation_history: List[Dict], 
@@ -288,25 +270,5 @@ Generate an engaging opening that will start the interview and assess the candid
         except Exception as e:
             print(f"❌ Error in get_initial_question: {e}")
             print(f"❌ Error type: {type(e).__name__}")
-            # Fallback opening with specific scenario
-            if skill.lower() == "a/b testing":
-                fallback_scenario = f"Hello! I'm excited to interview you for the {seniority} {role} position. Today we'll focus on A/B Testing. Imagine you're working for an e-commerce company and want to test whether changing the checkout button color from blue to green increases conversion rates. How would you design this experiment?"
-            elif skill.lower() == "system design":
-                fallback_scenario = f"Hello! I'm excited to interview you for the {seniority} {role} position. Today we'll focus on System Design. Design a URL shortening service like bit.ly that can handle 100 million URLs. How would you approach this?"
-            else:
-                fallback_scenario = f"Hello! I'm excited to interview you for the {seniority} {role} position. Today we'll focus on {skill}. Please describe a challenging project you've worked on related to {skill} and walk me through your approach."
-            
-            return {
-                "chain_of_thought": [
-                    "Using fallback opening due to API error",
-                    "Providing specific scenario to get interview started"
-                ],
-                "response_text": fallback_scenario,
-                "interview_state": {
-                    "current_stage": "problem_understanding",
-                    "skill_progress": "not_started",
-                    "next_focus": "initial_problem_presentation"
-                },
-                "error": str(e),
-                "timestamp": time.time()
-            }
+            # Re-raise the error instead of using fallback
+            raise e

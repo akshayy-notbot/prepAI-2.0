@@ -309,8 +309,8 @@ async def submit_answer(request: SubmitAnswerRequest):
                 session_tracker.update_session(request.session_id, {"status": "completed"})
             
         except Exception as interviewer_error:
-            print(f"❌ Autonomous Interviewer failed, falling back to simple response: {interviewer_error}")
-            new_ai_question = "Thank you for your response. Can you tell me more about your approach?"
+            print(f"❌ Autonomous Interviewer failed: {interviewer_error}")
+            raise interviewer_error
         
         # Add the new question to the conversation history
         conversation_history.append({

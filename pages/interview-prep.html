@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Preparation - PrepAI Interview Coach</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .screen-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .card {
+            background-color: white;
+            padding: 3rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.08), 0 10px 10px -5px rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        /* Enhanced Interview Prep Styling */
+        .prep-section {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .tip-section {
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .reminder-section {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .start-button {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            padding: 1.25rem 3rem;
+            border-radius: 1rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .start-button:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            box-shadow: 0 20px 35px -10px rgba(16, 185, 129, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        /* Back Button Styles */
+        .back-btn {
+            position: fixed !important;
+            top: 1.5rem;
+            left: 2rem;
+            z-index: 1000;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(209, 213, 219, 0.6);
+            color: #6b7280;
+            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            font-weight: 500;
+            cursor: pointer;
+            opacity: 1;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: rgba(156, 163, 175, 0.8);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            color: #374151;
+        }
+        
+        .back-btn:active {
+            transition: all 0.1s ease;
+        }
+        
+        /* Responsive back button positioning */
+        @media (max-width: 768px) {
+            .back-btn {
+                top: 1rem;
+                left: 1.5rem;
+                font-size: 0.75rem;
+                padding: 0.375rem 0.625rem;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .back-btn {
+                top: 2rem;
+                left: 3rem;
+                padding: 0.625rem 1rem;
+                font-size: 0.875rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .back-btn {
+                top: 0.75rem;
+                left: 1rem;
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+            
+            .back-btn span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Interview Preparation Screen -->
+    <div class="screen-container">
+        <div class="card text-center max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8">Ready to Begin Your Interview?</h2>
+            <p class="text-lg text-gray-600 mb-8">You'll be having a text-based conversation with our AI interviewer.</p>
+            
+            <!-- Interview Format Section -->
+            <div class="prep-section text-left">
+                <h3 class="text-xl font-bold text-blue-800 mb-4">Interview Format</h3>
+                <ul class="text-blue-700 space-y-3">
+                    <li class="flex items-start space-x-3">
+                        <span class="text-blue-600 font-bold">•</span>
+                        <span>Text-based questions and answers</span>
+                    </li>
+                    <li class="flex items-start space-x-3">
+                        <span class="text-blue-600 font-bold">•</span>
+                        <span>Take your time to think and respond</span>
+                    </li>
+                    <li class="flex items-start space-x-3">
+                        <span class="text-blue-600 font-bold">•</span>
+                        <span>Use the notepad to jot down thoughts</span>
+                    </li>
+                    <li class="flex items-start space-x-3">
+                        <span class="text-blue-600 font-bold">•</span>
+                        <span>Focus on demonstrating your skills</span>
+                    </li>
+                    <li class="flex items-start space-x-3">
+                        <span class="text-blue-600 font-bold">•</span>
+                        <span>Press Enter to send, Shift+Enter for new lines</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Pro Tip Section -->
+            <div class="tip-section text-left">
+                <p class="text-yellow-800">
+                    <span class="font-bold">Pro Tip:</span> Think of this as a written conversation. You can edit your responses before sending, take time to structure your thoughts, and reference the notepad for key points.
+                </p>
+            </div>
+            
+            <!-- Reminder Section -->
+            <div class="reminder-section text-left">
+                <p class="text-green-800">
+                    <span class="font-bold">Remember:</span> This is a practice field. The goal is progress, not perfection. Take a deep breath. You're ready.
+                </p>
+            </div>
+            
+            <!-- Start Interview Button -->
+            <button id="start-interview-btn" class="start-button text-white mt-8 w-full">
+                Begin Interview
+            </button>
+        </div>
+    </div>
+
+    <!-- Load shared utilities first (Production Minified) -->
+    <script src="../js/shared/state.min.js"></script>
+    <script src="../js/shared/utils.min.js"></script>
+    <script src="../production_config.js"></script>
+    
+    <!-- Load page-specific JavaScript -->
+    <script src="../js/pages/interview-prep.js"></script>
+</body>
+</html>

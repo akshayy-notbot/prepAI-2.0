@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - PrepAI Interview Coach</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .screen-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .card {
+            background-color: white;
+            padding: 3rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.08), 0 10px 10px -5px rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .choice-button { transition: all 0.2s ease-in-out; }
+        .choice-button:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        
+        /* Enhanced Dashboard Styling */
+        .config-summary {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 1rem;
+            padding: 2rem;
+        }
+        
+        .info-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .info-card:hover {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+        }
+        
+        .action-button {
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .action-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        /* Back Button Styles */
+        .back-btn {
+            position: fixed !important;
+            top: 1.5rem;
+            left: 2rem;
+            z-index: 1000;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(209, 213, 219, 0.6);
+            color: #6b7280;
+            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            font-weight: 500;
+            cursor: pointer;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: rgba(156, 163, 175, 0.8);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            color: #374151;
+        }
+        
+        .back-btn:active {
+            transition: all 0.1s ease;
+        }
+        
+        /* Responsive back button positioning */
+        @media (max-width: 768px) {
+            .back-btn {
+                top: 1rem;
+                left: 1.5rem;
+                font-size: 0.75rem;
+                padding: 0.375rem 0.625rem;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .back-btn {
+                top: 2rem;
+                left: 3rem;
+                padding: 0.625rem 1rem;
+                font-size: 0.875rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .back-btn {
+                top: 0.75rem;
+                left: 1rem;
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+            
+            .back-btn span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div id="app-container" class="container mx-auto max-w-3xl">
+
+        <!-- Dashboard Screen -->
+        <div class="screen-container">
+            <div class="card w-full">
+                <h2 class="text-3xl font-bold text-gray-900">Your Preparation Hub</h2>
+                
+                <!-- Interview Configuration Summary -->
+                <div class="mt-8 config-summary">
+                    <h3 class="text-2xl font-bold text-blue-800 mb-3">Your Personalized Mock Interview is Ready</h3>
+                    <p id="dashboard-role-company" class="text-blue-700 text-lg mb-2"></p>
+                    <p class="text-blue-600 mb-4">Practice with our AI interviewer through text-based conversation</p>
+                    <button id="go-to-interview-prep-btn" class="action-button bg-blue-600 text-white hover:bg-blue-700">Start Interview</button>
+                </div>
+                
+                <!-- Key Information Grid -->
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="info-card">
+                        <h4 class="text-lg font-bold text-gray-800 mb-4">Key Skills to Practice</h4>
+                        <ul id="key-skills-list" class="text-gray-600 list-disc list-inside space-y-2">
+                            <li class="animate-pulse">Loading skills...</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <h4 class="text-lg font-bold text-gray-800 mb-4">Quick Drills</h4>
+                        <p class="text-gray-600 leading-relaxed">Practice your "Tell Me About Yourself" pitch. (Coming Soon)</p>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="mt-10 flex flex-col sm:flex-row gap-6">
+                    <button id="edit-config-btn" class="flex-1 action-button bg-gray-600 text-white hover:bg-gray-700">
+                        Edit Configuration
+                    </button>
+                    <button id="start-interview-btn" class="flex-1 action-button bg-green-600 text-white hover:bg-green-700">
+                        Begin Interview
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Load shared utilities first (Production Minified) -->
+    <script src="../js/shared/state.min.js"></script>
+    <script src="../js/shared/utils.min.js"></script>
+    <script src="../production_config.js"></script>
+    
+    <!-- Load page-specific JavaScript -->
+    <script src="../js/pages/dashboard.js"></script>
+</body>
+</html>

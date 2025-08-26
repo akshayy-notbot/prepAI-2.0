@@ -9,26 +9,106 @@ let interviewConfig = {}; // To store user selections
 let isWaitingForAI = false; // Track if we're waiting for AI response
 
 // --- Screen & Element References ---
-const screens = {
-    homepage: document.getElementById('homepage-screen'),
-    onboarding: document.getElementById('onboarding-screen'), // New: Single onboarding screen
-    dashboard: document.getElementById('dashboard-screen'),
-    interviewPrep: document.getElementById('interview-prep-screen'),
-    interview: document.getElementById('interview-screen'),
-    analysis: document.getElementById('analysis-screen'),
-    feedback: document.getElementById('feedback-screen'),
-};
+let screens = {}; // Will be initialized after DOM loads
+let chatInput, chatWindow, feedbackOutput, sendBtn; // Will be initialized after DOM loads
 
-const chatInput = document.getElementById('chat-input');
-const chatWindow = document.getElementById('chat-window');
-const feedbackOutput = document.getElementById('feedback-output');
-const sendBtn = document.getElementById('send-btn');
+// Initialize screens and other DOM elements after DOM loads
+function initializeScreens() {
+    screens = {
+        homepage: document.getElementById('homepage-screen'),
+        onboarding: document.getElementById('onboarding-screen'),
+        dashboard: document.getElementById('dashboard-screen'),
+        interviewPrep: document.getElementById('interview-prep-screen'),
+        interview: document.getElementById('interview-screen'),
+        analysis: document.getElementById('analysis-screen'),
+        feedback: document.getElementById('feedback-screen'),
+    };
+    
+    // Initialize other DOM elements
+    chatInput = document.getElementById('chat-input');
+    chatWindow = document.getElementById('chat-window');
+    feedbackOutput = document.getElementById('feedback-output');
+    sendBtn = document.getElementById('send-btn');
+    
+    console.log('✅ Screens initialized:', Object.keys(screens));
+    console.log('✅ DOM elements initialized:', {
+        chatInput: !!chatInput,
+        chatWindow: !!chatWindow,
+        feedbackOutput: !!feedbackOutput,
+        sendBtn: !!sendBtn
+    });
+    
+    // Setup event listeners after DOM elements are available
+    setupEventListeners();
+}
+
+// Setup all event listeners
+function setupEventListeners() {
+    // Start onboarding button
+    const startOnboardingBtn = document.getElementById('start-onboarding-btn');
+    if (startOnboardingBtn) {
+        startOnboardingBtn.addEventListener('click', () => {
+            console.log('🚀 Start onboarding button clicked!');
+            console.log('🔍 Current screens state:', screens);
+            console.log('🔍 Attempting to show onboarding screen...');
+            
+            showScreen('onboarding');
+            initializeOnboarding(); // Initialize the onboarding state
+            
+            console.log('✅ Onboarding screen should now be visible');
+        });
+        console.log('✅ Start onboarding button event listener added');
+    } else {
+        console.error('❌ Start onboarding button not found!');
+    }
+    
+    // Other event listeners can be added here
+    console.log('✅ Event listeners setup complete');
+}
 
 // --- Helper Functions ---
 function showScreen(screenKey) {
-    Object.values(screens).forEach(screen => screen.classList.add('hidden'));
+    if (Object.keys(screens).length === 0) {
+        console.error('❌ Screens not yet initialized. Please wait for DOM to load.');
+        return;
+    }
+    
+    if (!screens[screenKey]) {
+        console.error('❌ Screen not found:', screenKey);
+        return;
+    }
+    
+    Object.values(screens).forEach(screen => {
+        if (screen) screen.classList.add('hidden');
+    });
+    
     if (screens[screenKey]) {
         screens[screenKey].classList.remove('hidden');
+        
+        // Add back buttons based on current screen
+        switch (screenKey) {
+            case 'onboarding':
+                // Back to homepage
+                addBackButton(screens[screenKey], 'homepage');
+                break;
+            case 'dashboard':
+                // Back to onboarding
+                addBackButton(screens[screenKey], 'onboarding');
+                break;
+            case 'interviewPrep':
+                // Back to dashboard
+                addBackButton(screens[screenKey], 'dashboard');
+                break;
+            case 'interview':
+                // No back button during interview - prevent going back
+                break;
+            case 'analysis':
+                // No back button during analysis
+                break;
+            case 'feedback':
+                // No back button on feedback - can restart
+                break;
+        }
     }
 }
 
@@ -71,9 +151,15 @@ function validateConfiguration() {
 
 // Run configuration validation when page loads
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', validateConfiguration);
+    document.addEventListener('DOMContentLoaded', () => {
+        validateConfiguration();
+        initializeScreens();
+        showScreen('homepage'); // Show homepage after screens are initialized
+    });
 } else {
     validateConfiguration();
+    initializeScreens();
+    showScreen('homepage'); // Show homepage after screens are initialized
 }
 
 
@@ -170,12 +256,12 @@ function displayAIMessage(message) {
     }
 }
 
-// Enhanced addMessageToChat function (like your LLM code but with better styling)
+// Enhanced addMessageToChat function with WhatsApp-style layout
 function addMessageToChat(message, sender) {
     const messageDiv = document.createElement('div');
-    messageDiv.className = 'chat-message flex gap-4 mb-6';
+    messageDiv.className = 'chat-message flex gap-3 mb-4';
     
-    // Avatar and message alignment (like your LLM code)
+    // Avatar and message alignment
     if (sender === 'user') {
         messageDiv.classList.add('justify-end'); // Align user messages to the right
     } else {
@@ -198,7 +284,7 @@ function addMessageToChat(message, sender) {
         avatarDiv.innerHTML = `
             <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
                 <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.6 73M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                 </svg>
             </div>
         `;
@@ -208,14 +294,20 @@ function addMessageToChat(message, sender) {
     const messageBubble = document.createElement('div');
     messageBubble.className = 'flex-grow';
     messageBubble.innerHTML = `
-        <div class="message-bubble p-4 rounded-xl ${sender === 'user' ? 'user' : 'ai'}">
+        <div class="message-bubble ${sender === 'user' ? 'user' : 'ai'}">
             <div class="message-content leading-relaxed">${message}</div>
-            <div class="message-meta text-xs text-gray-500 mt-3 font-mono">${new Date().toLocaleTimeString()}</div>
+            <div class="message-meta text-xs text-gray-500 mt-2 font-mono">${new Date().toLocaleTimeString()}</div>
         </div>
     `;
     
-    messageDiv.appendChild(avatarDiv);
-    messageDiv.appendChild(messageBubble);
+    // For user messages, put avatar after the message bubble
+    if (sender === 'user') {
+        messageDiv.appendChild(messageBubble);
+        messageDiv.appendChild(avatarDiv);
+    } else {
+        messageDiv.appendChild(avatarDiv);
+        messageDiv.appendChild(messageBubble);
+    }
     
     chatWindow.appendChild(messageDiv);
     chatWindow.scrollTop = chatWindow.scrollHeight;
@@ -317,10 +409,7 @@ function showInputLoadingState(type) {
 }
 
 // --- Enhanced Onboarding Flow ---
-document.getElementById('start-onboarding-btn').addEventListener('click', () => {
-    showScreen('onboarding');
-    initializeOnboarding(); // Initialize the onboarding state
-});
+// Event listeners are now set up in setupEventListeners() after DOM loads
 
 // Handle role selection
 function handleRoleSelect(role) {
@@ -1191,36 +1280,5 @@ function addBackButton(screenElement, targetScreen) {
     screenElement.appendChild(backBtn);
 }
 
-// Override the existing showScreen function to add back buttons
-const originalShowScreen = showScreen;
-function showScreen(screenKey) {
-    originalShowScreen(screenKey);
-    
-    // Add back buttons based on current screen
-    switch (screenKey) {
-        case 'onboarding':
-            // Back to homepage
-            addBackButton(screens[screenKey], 'homepage');
-            break;
-        case 'dashboard':
-            // Back to onboarding
-            addBackButton(screens[screenKey], 'onboarding');
-            break;
-        case 'interviewPrep':
-            // Back to dashboard
-            addBackButton(screens[screenKey], 'dashboard');
-            break;
-        case 'interview':
-            // No back button during interview - prevent going back
-            break;
-        case 'analysis':
-            // No back button during analysis
-            break;
-        case 'feedback':
-            // No back button on feedback - can restart
-            break;
-    }
-}
-
 // --- Initial Load ---
-showScreen('homepage');
+// showScreen('homepage'); // This line is now moved to the DOMContentLoaded listener

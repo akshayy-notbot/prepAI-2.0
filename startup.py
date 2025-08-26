@@ -98,6 +98,45 @@ def run_startup_checks():
         print(f"❌ Failed to create database schema: {e}")
         return False
     
+    # Run specific migrations
+    print("\n🔄 Running database migrations...")
+    try:
+        from sqlalchemy import inspect
+        inspector = inspect(get_engine())
+        columns = [col['name'] for col in inspector.get_columns('session_states')]
+        
+        # Migration 1: Add complete_interview_data column
+        if 'complete_interview_data' not in columns:
+            print("🔄 Adding complete_interview_data column to session_states table...")
+            with get_engine().connect() as connection:
+                connection.execute(text("""
+                    ALTER TABLE session_states 
+                    ADD COLUMN complete_interview_data JSON
+                """))
+                connection.commit()
+                print("✅ complete_interview_data column added successfully")
+        else:
+            print("✅ complete_interview_data column already exists")
+        
+        # Migration 2: Add average_score column
+        if 'average_score' not in columns:
+            print("🔄 Adding average_score column to session_states table...")
+            with get_engine().connect() as connection:
+                connection.execute(text("""
+                    ALTER TABLE session_states 
+                    ADD COLUMN average_score INTEGER
+                """))
+                connection.commit()
+                print("✅ average_score column added successfully")
+        else:
+            print("✅ average_score column already exists")
+        
+        print("🎉 Database migrations completed successfully!")
+        
+    except Exception as e:
+        print(f"❌ Database migrations failed: {e}")
+        return False
+    
     # Test Redis connection
     print("\n🔍 Testing Redis connection...")
     try:
@@ -139,24 +178,16 @@ def run_startup_checks():
     # Verify tables exist
     print("\n🔍 Verifying database tables...")
     try:
-        from models import get_session_local, InterviewSession, AnalysisResult, UserResponse, SkillPerformance
+        from models import get_session_local, SessionState
         
         db = get_session_local()()
         
-        # Check if tables exist by trying to query them
-        tables_to_check = [
-            ('interview_sessions', InterviewSession),
-            ('analysis_results', AnalysisResult),
-            ('user_responses', UserResponse),
-            ('skill_performance', SkillPerformance)
-        ]
-        
-        for table_name, model in tables_to_check:
-            try:
-                count = db.query(model).count()
-                print(f"✅ {table_name}: {count} records")
-            except Exception as e:
-                print(f"❌ {table_name}: {e}")
+        # Check if session_states table exists and has data
+        try:
+            count = db.query(SessionState).count()
+            print(f"✅ session_states table: {count} records")
+        except Exception as e:
+            print(f"❌ session_states table: {e}")
         
         db.close()
         

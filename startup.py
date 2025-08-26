@@ -10,6 +10,7 @@ NOTE: In production, environment variables are managed through Render's dashboar
 import os
 import sys
 import time
+import json
 from pathlib import Path
 from sqlalchemy import text
 
@@ -100,10 +101,14 @@ def run_startup_checks():
     
     # Run specific migrations
     print("\n🔄 Running database migrations...")
+    migration_status = {}
+    
     try:
         from sqlalchemy import inspect
         inspector = inspect(get_engine())
         columns = [col['name'] for col in inspector.get_columns('session_states')]
+        
+        print(f"📋 Current table columns: {columns}")
         
         # Migration 1: Add complete_interview_data column
         if 'complete_interview_data' not in columns:
@@ -115,8 +120,10 @@ def run_startup_checks():
                 """))
                 connection.commit()
                 print("✅ complete_interview_data column added successfully")
+                migration_status['complete_interview_data'] = 'ADDED'
         else:
             print("✅ complete_interview_data column already exists")
+            migration_status['complete_interview_data'] = 'EXISTS'
         
         # Migration 2: Add average_score column
         if 'average_score' not in columns:
@@ -128,10 +135,73 @@ def run_startup_checks():
                 """))
                 connection.commit()
                 print("✅ average_score column added successfully")
+                migration_status['average_score'] = 'ADDED'
         else:
             print("✅ average_score column already exists")
+            migration_status['average_score'] = 'EXISTS'
         
-        print("🎉 Database migrations completed successfully!")
+        # Verify final schema
+        print("\n🔍 Verifying final database schema...")
+        final_columns = [col['name'] for col in inspector.get_columns('session_states')]
+        print(f"📋 Final table columns: {final_columns}")
+        
+        # Check migration success
+        required_columns = ['complete_interview_data', 'average_score']
+        all_migrations_successful = all(col in final_columns for col in required_columns)
+        
+        if all_migrations_successful:
+            print("🎉 All database migrations completed successfully!")
+            print("📊 Migration Summary:")
+            for col, status in migration_status.items():
+                print(f"   • {col}: {status}")
+            
+            # Additional migration verification
+            print("\n🔍 Running comprehensive migration verification...")
+            try:
+                # Test JSON column functionality
+                print("🧪 Testing JSON column functionality...")
+                with get_engine().connect() as connection:
+                    # Test if we can insert and retrieve JSON data
+                    test_data = {"test": "migration_verification", "timestamp": time.time()}
+                    test_json = json.dumps(test_data)
+                    
+                    # Create a temporary test table to verify JSON support
+                    connection.execute(text("""
+                        CREATE TABLE IF NOT EXISTS migration_test (
+                            id SERIAL PRIMARY KEY,
+                            test_data JSON
+                        )
+                    """))
+                    
+                    # Insert test JSON data
+                    connection.execute(text("""
+                        INSERT INTO migration_test (test_data) VALUES (%s)
+                    """), (test_json,))
+                    
+                    # Retrieve and verify
+                    result = connection.execute(text("SELECT test_data FROM migration_test"))
+                    retrieved_data = result.fetchone()[0]
+                    
+                    if retrieved_data == test_data:
+                        print("✅ JSON column functionality verified successfully")
+                    else:
+                        print("❌ JSON column functionality test failed")
+                        return False
+                    
+                    # Cleanup test table
+                    connection.execute(text("DROP TABLE migration_test"))
+                    connection.commit()
+                    print("✅ Migration verification cleanup successful")
+                    
+            except Exception as e:
+                print(f"❌ Migration verification failed: {e}")
+                return False
+                
+        else:
+            print("❌ Some required columns are missing after migration")
+            missing = [col for col in required_columns if col not in final_columns]
+            print(f"   Missing columns: {missing}")
+            return False
         
     except Exception as e:
         print(f"❌ Database migrations failed: {e}")
@@ -244,6 +314,7 @@ def run_startup_checks():
         ("Environment Variables", all(env_status.values())),
         ("Database Connection", True),  # Already verified above
         ("Database Schema", True),      # Already verified above
+        ("Database Migrations", True),  # Already verified above
         ("Redis Connection", env_status.get('REDIS_URL', False)),
         ("Architecture Components", True)  # Already verified above
     ]
@@ -262,6 +333,10 @@ def run_startup_checks():
         print("   2. Test the interview flow with a sample session")
         print("   3. Verify Redis session management is working")
         print("   4. Check database performance under load")
+        print("\n🗄️  Database Migration Status:")
+        print("   ✅ complete_interview_data column: JSON support for enhanced data storage")
+        print("   ✅ average_score column: INTEGER support for performance tracking")
+        print("   ✅ All migrations verified and functional")
         print("\n🔐 Environment Variables:")
         print("   • DATABASE_URL: Set by Render PostgreSQL service")
         print("   • REDIS_URL: Set by Render Redis service")

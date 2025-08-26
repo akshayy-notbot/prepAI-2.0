@@ -72,6 +72,18 @@ class SubmitAnswerRequest(BaseModel):
     session_id: str
     answer: str
 
+# --- Root Endpoint ---
+@app.get("/")
+@app.head("/")
+async def root():
+    """Root endpoint for health checks and service discovery"""
+    return {
+        "message": "PrepAI Autonomous Interviewer API",
+        "status": "running",
+        "health_check": "/health",
+        "docs": "/docs"
+    }
+
 # --- Health Check Endpoint ---
 @app.get("/health")
 async def health_check():
@@ -559,7 +571,21 @@ async def get_interview_status(session_id: str):
 async def startup_event():
     """Run startup checks when the FastAPI app starts"""
     print("🚀 PrepAI Autonomous Interviewer Backend Starting Up...")
+    
+    # Run comprehensive startup checks including database migration verification
+    try:
+        from startup import run_startup_checks
+        success = run_startup_checks()
+        if success:
+            print("✅ All startup checks passed! Service is ready to serve requests!")
+        else:
+            print("⚠️  Some startup checks failed, but service will continue...")
+    except Exception as e:
+        print(f"⚠️  Startup checks failed with error: {e}")
+        print("Service will continue, but some features may not work properly...")
+    
     print("✅ Service is ready to serve requests!")
+
 
 if __name__ == "__main__":
     import uvicorn

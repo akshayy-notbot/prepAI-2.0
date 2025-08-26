@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PrepAI - AI Interview Coach</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -262,14 +263,47 @@
         /* Back Button Styles */
         .back-btn {
             position: absolute;
-            top: 1rem;
-            left: 1rem;
+            top: 1.5rem;
+            left: 1.5rem;
             z-index: 10;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(209, 213, 219, 0.5);
+            color: #6b7280;
+            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            font-weight: 500;
+            cursor: pointer;
+            animation: fadeInSlide 0.4s ease-out forwards;
+        }
+        
+        @keyframes fadeInSlide {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 0.7;
+                transform: translateX(0);
+            }
         }
         
         .back-btn:hover {
             transform: translateX(-2px);
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(156, 163, 175, 0.7);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            color: #374151;
+        }
+        
+        .back-btn:active {
+            transform: translateX(-1px);
+            transition: all 0.1s ease;
         }
         
         /* Ensure screens with back buttons have proper positioning */
@@ -281,6 +315,41 @@
         .card {
             position: relative;
             z-index: 1;
+        }
+        
+        /* Responsive back button positioning */
+        @media (max-width: 768px) {
+            .back-btn {
+                top: 1rem;
+                left: 1rem;
+                font-size: 0.75rem;
+                padding: 0.375rem 0.625rem;
+                opacity: 0.8;
+            }
+        }
+        
+        /* For larger screens, position relative to card content */
+        @media (min-width: 1024px) {
+            .back-btn {
+                top: 2rem;
+                left: 2rem;
+                padding: 0.625rem 1rem;
+                font-size: 0.875rem;
+            }
+        }
+        
+        /* For very small screens, make back button more compact */
+        @media (max-width: 480px) {
+            .back-btn {
+                top: 0.75rem;
+                left: 0.75rem;
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+            
+            .back-btn span {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -446,7 +515,7 @@
                 <div id="skills-section" class="mb-8 p-6 border-2 border-gray-200 rounded-lg transition-all duration-300 hidden">
                     <h3 class="text-xl font-semibold text-gray-800 mb-4">3. What skill would you like to practice?</h3>
                     <p class="text-gray-600 mb-4">Select <strong>one primary skill</strong> to focus on during your interview practice.</p>
-                    <div id="skills-options" class="grid grid-cols-1 gap-3">
+                    <div id="skills-options" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Skills will be populated dynamically based on role and experience -->
                     </div>
                 </div>

@@ -62,7 +62,35 @@ function setupEventListeners() {
         console.error('❌ Start onboarding button not found!');
     }
     
-    // Other event listeners can be added here
+    // Setup chat-related event listeners only if elements exist
+    if (sendBtn && chatInput) {
+        console.log('✅ Setting up chat event listeners...');
+        sendBtn.addEventListener('click', handleSubmitAnswer);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmitAnswer();
+            }
+        });
+        console.log('✅ Chat event listeners setup complete');
+    } else {
+        console.warn('⚠️ Chat elements not found, skipping chat event listeners');
+    }
+    
+    // Add debugging for exit button setup
+    const exitButton = document.getElementById('end-interview-btn');
+    if (exitButton) {
+        console.log('✅ Exit button found, adding event listener...');
+        exitButton.addEventListener('click', endInterview);
+        console.log('✅ Exit button event listener added successfully');
+    } else {
+        console.error('❌ Exit button not found! Element ID: end-interview-btn');
+        console.error('❌ Available elements with similar IDs:');
+        document.querySelectorAll('[id*="end"], [id*="exit"], [id*="interview"]').forEach(el => {
+            console.error('  -', el.id, el.tagName, el.className);
+        });
+    }
+    
     console.log('✅ Event listeners setup complete');
 }
 
@@ -329,8 +357,17 @@ function displayErrorMessage(message) {
         const retryBtn = messageElement.querySelector('.retry-btn');
         if (retryBtn) {
             retryBtn.addEventListener('click', () => {
-                // Remove the error message
-                messageElement.remove();
+                // Remove the error message - use proper DOM removal for cloned nodes
+                const messageContainer = retryBtn.closest('.message-container');
+                if (messageContainer) {
+                    messageContainer.remove();
+                } else {
+                    // Fallback: find the parent message element
+                    const parentMessage = retryBtn.closest('.chat-message');
+                    if (parentMessage) {
+                        parentMessage.remove();
+                    }
+                }
                 // Retry the last action
                 retryLastAction();
             });
@@ -354,19 +391,27 @@ function retryLastAction() {
 }
 
 function enableChatInput() {
-    userInput.disabled = false;
-    submitButton.disabled = false;
-    userInput.focus();
-    isWaitingForAI = false;
-    
-    // Update status
-    updateQuestionStatus('Ready for your answer');
+    if (chatInput && sendBtn) {
+        chatInput.disabled = false;
+        sendBtn.disabled = false;
+        chatInput.focus();
+        isWaitingForAI = false;
+        
+        // Update status
+        updateQuestionStatus('Ready for your answer');
+    } else {
+        console.warn('⚠️ Chat elements not available for enableChatInput');
+    }
 }
 
 function disableChatInput() {
-    userInput.disabled = true;
-    submitButton.disabled = true;
-    isWaitingForAI = true;
+    if (chatInput && sendBtn) {
+        chatInput.disabled = true;
+        sendBtn.disabled = true;
+        isWaitingForAI = true;
+    } else {
+        console.warn('⚠️ Chat elements not available for disableChatInput');
+    }
 }
 
 function updateQuestionStatus(status) {
@@ -1006,42 +1051,23 @@ async function endInterview() {
 }
 
 // --- Event Listeners ---
-// Clean event listener setup (like LLM code)
-const submitButton = sendBtn; // Use existing reference
-const userInput = chatInput; // Use existing reference
-
-submitButton.addEventListener('click', handleSubmitAnswer);
-userInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        handleSubmitAnswer();
-    }
-});
-
-// Add debugging for exit button setup
-const exitButton = document.getElementById('end-interview-btn');
-if (exitButton) {
-    console.log('✅ Exit button found, adding event listener...');
-    exitButton.addEventListener('click', endInterview);
-    console.log('✅ Exit button event listener added successfully');
-} else {
-    console.error('❌ Exit button not found! Element ID: end-interview-btn');
-    console.error('❌ Available elements with similar IDs:');
-    document.querySelectorAll('[id*="end"], [id*="exit"], [id*="interview"]').forEach(el => {
-        console.error('  -', el.id, el.tagName, el.className);
-    });
-}
+// Event listeners are now set up in setupEventListeners() after DOM loads
 
 // Clean, focused answer submission handler (best of both worlds)
 async function handleSubmitAnswer() {
-    const answerText = userInput.value.trim();
+    if (!chatInput) {
+        console.error('❌ Chat input not available');
+        return;
+    }
+    
+    const answerText = chatInput.value.trim();
     if (!answerText) return; // Don't send empty answers
 
     console.log('🚀 Submitting answer via orchestrator');
 
     // 1. Immediately display the user's answer in the chat (like LLM code)
     addMessageToChat(answerText, 'user');
-    userInput.value = ''; // Clear the input field
+    chatInput.value = ''; // Clear the input field
     
     // 2. Update transcript
     transcript.push({
@@ -1053,8 +1079,8 @@ async function handleSubmitAnswer() {
     // 3. Show loading indicator and disable input (like LLM code + visual feedback)
     showInputLoadingState('processing');
     updateQuestionStatus('Processing your answer...');
-    userInput.disabled = true;
-    submitButton.disabled = true;
+    if (chatInput) chatInput.disabled = true;
+    if (sendBtn) sendBtn.disabled = true;
 
     // 4. Send the answer to the backend via HTTP POST (clean approach)
     try {
@@ -1101,8 +1127,8 @@ async function handleSubmitAnswer() {
             console.error("Failed to submit answer. Status:", response.status, "Response:", errorText);
             addMessageToChat("Error: Could not submit answer.", 'system');
             // Re-enable input on error
-            userInput.disabled = false;
-            submitButton.disabled = false;
+            if (chatInput) chatInput.disabled = false;
+            if (sendBtn) sendBtn.disabled = false;
             hideInputLoadingStates();
         }
 
@@ -1110,8 +1136,8 @@ async function handleSubmitAnswer() {
         console.error("Error submitting answer:", error);
         addMessageToChat("Error: Network issue. Please try again.", 'system');
         // Re-enable input on error
-        userInput.disabled = false;
-        submitButton.disabled = false;
+        if (chatInput) chatInput.disabled = false;
+        if (sendBtn) sendBtn.disabled = false;
         hideInputLoadingStates();
         updateQuestionStatus('Ready for your answer');
     }
@@ -1263,21 +1289,76 @@ function addBackButton(screenElement, targetScreen) {
     
     // Create back button
     const backBtn = document.createElement('button');
-    backBtn.className = 'back-btn absolute top-4 left-4 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition duration-300 flex items-center gap-2';
+    backBtn.className = 'back-btn flex items-center gap-2 transition-all duration-300';
     backBtn.innerHTML = `
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
         </svg>
-        Back
+        <span class="hidden sm:inline">Back</span>
     `;
     
     backBtn.addEventListener('click', () => {
         showScreen(targetScreen);
     });
     
+    // Function to update button position
+    const updateButtonPosition = () => {
+        const card = screenElement.querySelector('.card');
+        if (card) {
+            const cardRect = card.getBoundingClientRect();
+            const screenRect = screenElement.getBoundingClientRect();
+            
+            // Calculate position relative to the card
+            let relativeTop = cardRect.top - screenRect.top + 20;
+            let relativeLeft = cardRect.left - screenRect.left + 20;
+            
+            // Ensure the button doesn't go outside the screen bounds
+            const buttonWidth = backBtn.offsetWidth;
+            const buttonHeight = backBtn.offsetHeight;
+            const screenWidth = screenElement.offsetWidth;
+            const screenHeight = screenElement.offsetHeight;
+            
+            // Adjust horizontal position if button would go off-screen
+            if (relativeLeft + buttonWidth > screenWidth - 20) {
+                relativeLeft = screenWidth - buttonWidth - 20;
+            }
+            if (relativeLeft < 20) {
+                relativeLeft = 20;
+            }
+            
+            // Adjust vertical position if button would go off-screen
+            if (relativeTop + buttonHeight > screenHeight - 20) {
+                relativeTop = screenHeight - buttonHeight - 20;
+            }
+            if (relativeTop < 20) {
+                relativeTop = 20;
+            }
+            
+            backBtn.style.top = `${relativeTop}px`;
+            backBtn.style.left = `${relativeLeft}px`;
+        }
+    };
+    
     // Add to screen
     screenElement.style.position = 'relative';
     screenElement.appendChild(backBtn);
+    
+    // Initial positioning with a small delay to ensure DOM is rendered
+    setTimeout(updateButtonPosition, 50);
+    
+    // Update position on window resize
+    window.addEventListener('resize', updateButtonPosition);
+    
+    // Store the update function for cleanup
+    backBtn._updatePosition = updateButtonPosition;
+}
+
+// Function to clean up back button event listeners
+function cleanupBackButton(screenElement) {
+    const backBtn = screenElement.querySelector('.back-btn');
+    if (backBtn && backBtn._updatePosition) {
+        window.removeEventListener('resize', backBtn._updatePosition);
+    }
 }
 
 // --- Initial Load ---

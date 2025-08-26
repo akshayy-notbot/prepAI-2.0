@@ -51,8 +51,13 @@ class AutonomousInterviewer:
                 conversation_history, session_context
             )
             
+            print(f"🔍 Conducting interview turn with {len(conversation_history)} conversation turns")
+            for i, turn in enumerate(conversation_history):
+                print(f"  Turn {i+1}: {turn['role']} - {turn['content'][:100]}...")
+            
             # Get LLM response
             model = self._get_model()
+            print(f"🤖 Calling Gemini API for interview turn...")
             response = model.generate_content(prompt)
             response_text = response.text.strip()
             
@@ -62,7 +67,9 @@ class AutonomousInterviewer:
             if response_text.endswith('```'):
                 response_text = response_text[:-3]
             
+            print(f"🔍 Parsing interview response...")
             result = json.loads(response_text.strip())
+            print(f"✅ Interview response parsed: {result.get('response_text', 'No response text')[:100]}...")
             
             # Add performance metrics
             result["latency_ms"] = round((time.time() - start_time) * 1000, 2)
@@ -118,10 +125,17 @@ You are conducting a real interview. Your job is to:
 4. Track your interview strategy and adapt based on their performance
 
 **IMPORTANT: Handle Clarifying Questions Naturally**
-- If the candidate asks a clarifying question (e.g., "What do you mean by X?", "Can you give an example?"), 
+- If the candidate asks a clarifying question (e.g., "What do you mean by X?", "Can you give an example?", "Can you give me background about..."), 
   answer it helpfully and then guide them back to answering the original question
 - Be encouraging and patient when they need clarification
-- Provide clear explanations or examples to help them understand, if required.
+- Provide clear explanations or examples to help them understand
+
+
+**EXAMPLES OF CLARIFYING QUESTIONS TO HANDLE:**
+- "Can you give me background about the company and the product?"
+- "What do you mean by 'conversion rates'?"
+- "Can you give me an example?"
+- "I don't understand the scenario, can you explain more?"
 
 **INTERVIEW STAGES (Guide your progression):**
 - **Problem Understanding**: Assess their ability to grasp the core problem
@@ -139,6 +153,12 @@ You are conducting a real interview. Your job is to:
 - If they're struggling, provide gentle guidance and simpler questions
 - If they're excelling, challenge them with more complex scenarios
 - Keep the interview flowing naturally and engaging
+
+**CRITICAL: When the candidate asks for clarification about the scenario, company, or product:**
+- Provide the requested background information or clarification
+- Be specific and helpful with details
+- Then guide them back to answering the original question
+- Do NOT ignore their clarification request or give generic responses
 
 **OUTPUT FORMAT:**
 Your response MUST be a single, valid JSON object with this exact structure:

@@ -59,26 +59,27 @@
         .unselected { border-color: #d1d5db; background-color: white; }
         .disabled { opacity: 0.5; pointer-events: none; }
         
-        /* Role and experience button states */
-        .role-btn.selected, .experience-btn.selected {
+        /* Role, experience, and skills button states */
+        .role-btn.selected, .experience-btn.selected, .skill-brick.selected {
             background-color: #3b82f6;
             color: white;
             transform: scale(1.02);
         }
         
-        .role-btn.selected h4, .experience-btn.selected h4,
-        .role-btn.selected p, .experience-btn.selected p {
+        .role-btn.selected h4, .experience-btn.selected h4, .skill-brick.selected h4,
+        .role-btn.selected p, .experience-btn.selected p, .skill-brick.selected p,
+        .role-btn.selected div, .experience-btn.selected div, .skill-brick.selected div {
             color: white;
         }
         
         /* Better hover states for selected buttons */
-        .role-btn.selected:hover, .experience-btn.selected:hover {
+        .role-btn.selected:hover, .experience-btn.selected:hover, .skill-brick.selected:hover {
             background-color: #2563eb !important; /* Darker blue on hover for selected */
             transform: scale(1.03);
         }
         
         /* Hover states for unselected buttons */
-        .role-btn:not(.selected):hover, .experience-btn:not(.selected):hover {
+        .role-btn:not(.selected):hover, .experience-btn:not(.selected):hover, .skill-brick:not(.selected):hover {
             background-color: #f0f9ff;
             border-color: #93c5fd;
         }

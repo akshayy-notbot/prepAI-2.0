@@ -604,7 +604,7 @@ function populateSkillsOptions() {
     
     skillsContainer.innerHTML = skills.map(skill => {
         const isSelected = interviewConfig.skills && interviewConfig.skills.includes(skill);
-        const selectedClass = isSelected ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50';
+        const selectedClass = isSelected ? 'selected' : '';
         
         // Extract skill name and description for display
         const skillName = skill.split(' (')[0];
@@ -613,10 +613,10 @@ function populateSkillsOptions() {
         
         return `
             <button type="button" 
-                    class="skill-brick px-4 py-3 rounded-lg border-2 transition-all duration-200 font-medium ${selectedClass} text-left" 
+                    class="skill-brick choice-button p-4 bg-gray-100 rounded-lg text-left transition-all duration-200 ${selectedClass}" 
                     data-skill="${skill}">
-                <div class="font-semibold">${skillName}</div>
-                ${skillDescription ? `<div class="text-xs mt-1 opacity-60 text-gray-500">${skillDescription}</div>` : ''}
+                <h4 class="font-semibold text-gray-800">${skillName}</h4>
+                ${skillDescription ? `<p class="text-sm text-gray-600 mt-1">${skillDescription}</p>` : ''}
             </button>
         `;
     }).join('');
@@ -634,15 +634,13 @@ function populateSkillsOptions() {
 function handleSkillSelection(selectedSkill) {
     // Clear previous selection
     document.querySelectorAll('.skill-brick').forEach(brick => {
-        brick.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
-        brick.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
+        brick.classList.remove('selected');
     });
     
     // Select new skill
     const selectedBrick = document.querySelector(`[data-skill="${selectedSkill}"]`);
     if (selectedBrick) {
-        selectedBrick.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
-        selectedBrick.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+        selectedBrick.classList.add('selected');
     }
     
     // Extract skill name and description

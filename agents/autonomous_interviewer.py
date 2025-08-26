@@ -2,12 +2,7 @@ import os
 import json
 import time
 from typing import List, Dict, Any, Optional
-# Import get_gemini_client from main module
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from main import get_gemini_client
-from utils import get_gemini_client_with_temperature
+from utils import get_gemini_client, get_gemini_client_with_temperature
 
 class AutonomousInterviewer:
     """
@@ -123,7 +118,7 @@ class AutonomousInterviewer:
 {formatted_history}
 
 **YOUR MISSION:**
-You are a senior expert Interview Designer from a top-tier tech company (like Google or Meta) with an experience of more than 15 years in taking interviews.
+You are a senior expert Interview Designer and conductor from a top-tier tech company (like Google or Meta) with an experience of more than 15 years in taking interviews.
 You are conducting a real interview. Your job is to:
 1. Analyze the candidate's latest response and overall performance
 2. Decide what to explore next based on their strengths and areas for improvement

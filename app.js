@@ -394,10 +394,9 @@ function updateOnboardingUI() {
         }
         populateSkillsOptions();
         
-        // Sync checkbox states after populating
-        setTimeout(() => syncSkillCheckboxStates(), 0);
+        // No need to sync checkbox states - using brick selection now
         
-        if (interviewConfig.skills && interviewConfig.skills.length > 0) {
+        if (interviewConfig.skills && interviewConfig.skills.length === 1) {
             skillsSection.classList.add('selected');
             skillsSection.classList.remove('unselected');
         } else {
@@ -408,8 +407,8 @@ function updateOnboardingUI() {
         skillsSection.classList.add('hidden');
     }
     
-    // Enable/disable continue button
-    if (interviewConfig.role && interviewConfig.seniority && interviewConfig.skills && interviewConfig.skills.length > 0) {
+    // Enable/disable continue button - require exactly one skill
+    if (interviewConfig.role && interviewConfig.seniority && interviewConfig.skills && interviewConfig.skills.length === 1) {
         continueBtn.disabled = false;
         continueBtn.classList.remove('opacity-50', 'cursor-not-allowed');
     } else {
@@ -459,42 +458,44 @@ function populateSkillsOptions() {
     const skills = roleSkills[role] || [];
     
     skillsContainer.innerHTML = skills.map(skill => {
-        const isChecked = interviewConfig.skills && interviewConfig.skills.includes(skill);
-        const checkedAttr = isChecked ? 'checked' : '';
-        const labelClass = isChecked ? 'bg-blue-50 border border-blue-200' : '';
+        const isSelected = interviewConfig.skills && interviewConfig.skills.includes(skill);
+        const selectedClass = isSelected ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50';
         
         return `
-            <label class="flex items-center space-x-3 cursor-pointer p-3 rounded-lg hover:bg-blue-50 transition-colors ${labelClass}">
-                <input type="checkbox" value="${skill}" class="skill-checkbox form-checkbox h-5 w-5 text-blue-600 rounded" ${checkedAttr}>
-                <span class="text-gray-700">${skill}</span>
-            </label>
+            <button type="button" 
+                    class="skill-brick px-4 py-3 rounded-lg border-2 transition-all duration-200 font-medium ${selectedClass}" 
+                    data-skill="${skill}">
+                ${skill}
+            </button>
         `;
     }).join('');
     
-    // Add event listeners to all skill checkboxes
-    const skillCheckboxes = skillsContainer.querySelectorAll('.skill-checkbox');
-    skillCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            handleSkillToggle();
+    // Add event listeners to all skill bricks
+    const skillBricks = skillsContainer.querySelectorAll('.skill-brick');
+    skillBricks.forEach(brick => {
+        brick.addEventListener('click', function() {
+            handleSkillSelection(this.dataset.skill);
         });
     });
 }
 
-// Handle skill selection/deselection
-function handleSkillToggle() {
-    const selectedSkills = Array.from(document.querySelectorAll('#skills-options input:checked'))
-        .map(input => input.value);
-    interviewConfig.skills = selectedSkills;
-    
-    // Add visual feedback for selected skills
-    document.querySelectorAll('.skill-checkbox').forEach(checkbox => {
-        const label = checkbox.closest('label');
-        if (checkbox.checked) {
-            label.classList.add('bg-blue-50', 'border', 'border-blue-200');
-        } else {
-            label.classList.remove('bg-blue-50', 'border', 'border-blue-200');
-        }
+// Handle single skill selection
+function handleSkillSelection(selectedSkill) {
+    // Clear previous selection
+    document.querySelectorAll('.skill-brick').forEach(brick => {
+        brick.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+        brick.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
     });
+    
+    // Select new skill
+    const selectedBrick = document.querySelector(`[data-skill="${selectedSkill}"]`);
+    if (selectedBrick) {
+        selectedBrick.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
+        selectedBrick.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+    }
+    
+    // Update config to single skill array
+    interviewConfig.skills = [selectedSkill];
     
     updateOnboardingUI();
 }
@@ -521,7 +522,7 @@ function syncSkillCheckboxStates() {
 
 // Continue to dashboard
 document.getElementById('onboarding-continue-btn').addEventListener('click', () => {
-    if (interviewConfig.role && interviewConfig.seniority && interviewConfig.skills && interviewConfig.skills.length > 0) {
+    if (interviewConfig.role && interviewConfig.seniority && interviewConfig.skills && interviewConfig.skills.length === 1) {
         showScreen('dashboard');
         
         // Update dashboard display

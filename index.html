@@ -32,6 +32,23 @@
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
         
+        /* Skill brick selection styles */
+        .skill-brick {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .skill-brick:hover:not(.selected) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+        
+        .skill-brick.selected {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
         /* Onboarding section states */
         .selected { border-color: #3b82f6; background-color: #eff6ff; }
         .unselected { border-color: #d1d5db; background-color: white; }
@@ -367,8 +384,8 @@
 
                 <!-- Skills Selection Section -->
                 <div id="skills-section" class="mb-8 p-6 border-2 border-gray-200 rounded-lg transition-all duration-300 hidden">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-4">3. What skills would you like to practice?</h3>
-                    <p class="text-gray-600 mb-4">Select the skills you want to focus on during your interview practice.</p>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">3. What skill would you like to practice?</h3>
+                    <p class="text-gray-600 mb-4">Select <strong>one primary skill</strong> to focus on during your interview practice.</p>
                     <div id="skills-options" class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <!-- Skills will be populated dynamically based on role and experience -->
                     </div>

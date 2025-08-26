@@ -2,7 +2,12 @@ import os
 import json
 import time
 from typing import List, Dict, Any, Optional
-from utils import get_gemini_client
+# Import get_gemini_client from main module
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from main import get_gemini_client
+from utils import get_gemini_client_with_temperature
 
 class AutonomousInterviewer:
     """
@@ -13,12 +18,19 @@ class AutonomousInterviewer:
     def __init__(self):
         self.llm = None  # Lazy initialization
         self._model = None
+        self._model_with_temp = None  # For temperature-controlled calls
     
     def _get_model(self):
         """Lazy initialization of Gemini model"""
         if self._model is None:
             self._model = get_gemini_client()
         return self._model
+    
+    def _get_model_with_temperature(self, temperature: float = 0.7):
+        """Lazy initialization of Gemini model with temperature control"""
+        if self._model_with_temp is None:
+            self._model_with_temp, _ = get_gemini_client_with_temperature(temperature)
+        return self._model_with_temp
     
     def conduct_interview_turn(self, 
                               role: str,
@@ -51,18 +63,8 @@ class AutonomousInterviewer:
                 conversation_history, session_context
             )
             
-            print(f"🔍 Conducting interview turn with {len(conversation_history)} conversation turns")
-            for i, turn in enumerate(conversation_history):
-                print(f"  Turn {i+1}: {turn['role']} - {turn['content'][:100]}...")
-            
-            print(f"📝 FULL PROMPT SENT TO AUTONOMOUS INTERVIEWER:")
-            print(f"================================================")
-            print(prompt)
-            print(f"================================================")
-            
-            # Get LLM response
-            model = self._get_model()
-            print(f"🤖 Calling Gemini API for interview turn...")
+            # Get LLM response with temperature control for better variety
+            model = self._get_model_with_temperature(temperature=0.6)  # Balanced temperature for follow-up questions
             response = model.generate_content(prompt)
             response_text = response.text.strip()
             
@@ -72,18 +74,7 @@ class AutonomousInterviewer:
             if response_text.endswith('```'):
                 response_text = response_text[:-3]
             
-            print(f"🔍 Parsing interview response...")
-            print(f"📨 RAW RESPONSE FROM GEMINI:")
-            print(f"================================================")
-            print(response_text)
-            print(f"================================================")
-            
             result = json.loads(response_text.strip())
-            print(f"✅ Interview response parsed successfully")
-            print(f"🔍 FULL PARSED RESPONSE:")
-            print(f"  - Chain of Thought: {result.get('chain_of_thought', [])}")
-            print(f"  - Response Text: {result.get('response_text', 'No response text')}")
-            print(f"  - Interview State: {result.get('interview_state', {})}")
             
             # Add performance metrics
             result["latency_ms"] = round((time.time() - start_time) * 1000, 2)
@@ -92,12 +83,22 @@ class AutonomousInterviewer:
             return result
             
         except Exception as e:
-            print(f"❌ ERROR in conduct_interview_turn: {e}")
-            print(f"❌ Error type: {type(e).__name__}")
-            print(f"❌ Full error details: {str(e)}")
-            
-            # Re-raise the error instead of using fallback
-            raise e
+            # Fallback response in case of API failure
+            return {
+                "chain_of_thought": [
+                    "Error occurred during interview turn",
+                    "Falling back to default follow-up question"
+                ],
+                "response_text": "I see. Can you tell me more about your approach to this problem?",
+                "interview_state": {
+                    "current_stage": interview_stage,
+                    "skill_progress": "unknown",
+                    "next_focus": "continue_current_topic"
+                },
+                "latency_ms": 0,
+                "error": str(e),
+                "timestamp": time.time()
+            }
     
     def _build_prompt(self, role: str, seniority: str, skill: str, 
                       interview_stage: str, conversation_history: List[Dict], 
@@ -122,24 +123,12 @@ class AutonomousInterviewer:
 {formatted_history}
 
 **YOUR MISSION:**
+You are a senior expert Interview Designer from a top-tier tech company (like Google or Meta) with an experience of more than 15 years in taking interviews.
 You are conducting a real interview. Your job is to:
 1. Analyze the candidate's latest response and overall performance
 2. Decide what to explore next based on their strengths and areas for improvement
 3. Generate the next question or statement that will best assess their {skill}
 4. Track your interview strategy and adapt based on their performance
-
-**IMPORTANT: Handle Clarifying Questions Naturally**
-- If the candidate asks a clarifying question (e.g., "What do you mean by X?", "Can you give an example?", "Can you give me background about..."), 
-  answer it helpfully
-- Be encouraging and patient when they need clarification
-- Provide clear explanations or examples to help them understand
-
-
-**EXAMPLES OF CLARIFYING QUESTIONS TO HANDLE:**
-- "Can you give me background about the company and the product?"
-- "What do you mean by 'conversion rates'?"
-- "Can you give me an example?"
-- "I don't understand the scenario, can you explain more?"
 
 **INTERVIEW STAGES (Guide your progression):**
 - **Problem Understanding**: Assess their ability to grasp the core problem
@@ -157,12 +146,8 @@ You are conducting a real interview. Your job is to:
 - If they're struggling, provide gentle guidance and simpler questions
 - If they're excelling, challenge them with more complex scenarios
 - Keep the interview flowing naturally and engaging
-
-**CRITICAL: When the candidate asks for clarification about the scenario, company, or product:**
-- Provide the requested background information or clarification
-- Be specific and helpful with details
-- Then guide them back to answering the original question
-- Do NOT ignore their clarification request or give generic responses
+- **MAINTAIN FAANG-LEVEL RIGOR**: Ensure all follow-up questions maintain the same strategic depth and first-principles thinking
+- **SENIORITY CONSISTENCY**: Keep questions aligned with the {seniority} level scope established in the initial case study
 
 **OUTPUT FORMAT:**
 Your response MUST be a single, valid JSON object with this exact structure:
@@ -216,19 +201,32 @@ Your response MUST be a single, valid JSON object with this exact structure:
 - Session Context: {json.dumps(session_context, indent=2)}
 
 **YOUR TASK:**
-Generate an engaging opening that will start the interview and assess the candidate's {skill}.
+You are a senior expert Interview designer and conductor from a top-tier tech company (like Google or Meta) with an experience of more than 15 years in taking interviews.
+Generate an engaging opening question that will start the interview and assess the candidate's {skill}.
 
 **CRITICAL REQUIREMENTS:**
-- Start with a warm, professional greeting
-- IMMEDIATELY present a specific, concrete problem or scenario related to {skill}
-- Do NOT end with "Let me present you with a scenario..." - actually present the scenario
-- Make it appropriate for {seniority} level
-- Be encouraging and put the candidate at ease
-- Give them something concrete to respond to
 
-**EXAMPLES OF GOOD OPENINGS:**
-- For A/B Testing: "Hello! I'm excited to interview you for the {seniority} {role} position. Today we'll focus on A/B Testing. Imagine you're working for an e-commerce company and want to test whether changing the checkout button color from blue to green increases conversion rates. How would you design this experiment?"
-- For System Design: "Hello! I'm excited to interview you for the {seniority} {role} position. Today we'll focus on System Design. Design a URL shortening service like bit.ly that can handle 100 million URLs. How would you approach this?"
+**1. SENIORITY CALIBRATION - The case study scope MUST reflect the specified {seniority}:**
+- **Junior**: A well-defined feature-level problem with clear boundaries and specific requirements
+- **Senior**: A more ambiguous product-level or multi-feature problem requiring strategic thinking
+- **Staff+**: A broad, strategic business-unit or ecosystem-level problem with multiple stakeholders
+
+**2. SKILL FOCUS:**
+- The central theme of the case study should assess the {skill} selected by the user
+- Focus deeply on this specific skill area, not general knowledge
+
+**3. FAANG-LEVEL RIGOR:**
+- The interview and case study must reflect the rigorous, first-principles thinking required in FAANG-level interviews
+- Emulate the strategic depth of case studies from platforms like tryexponent and LeetCode
+- Present complex, real-world scenarios that test analytical and strategic thinking
+
+**ADDITIONAL REQUIREMENTS:**
+- Start with a warm, professional greeting
+- Present a clear, engaging problem or scenario related to {skill}
+- **CRITICAL**: Generate a unique, creative case study - avoid generic or repetitive scenarios
+- Make it appropriate for {seniority} level
+- Set clear expectations for the interview
+- Be encouraging and put the candidate at ease
 
 **OUTPUT FORMAT:**
 {{
@@ -248,11 +246,9 @@ Generate an engaging opening that will start the interview and assess the candid
 **GENERATE YOUR OPENING NOW:**"""
         
         try:
-            model = self._get_model()
-            print(f"🤖 Calling Gemini API for initial question...")
+            model = self._get_model_with_temperature(temperature=0.7) # Use higher temperature for more creative case study generation
             response = model.generate_content(prompt)
             response_text = response.text.strip()
-            print(f"✅ Gemini API response received: {len(response_text)} characters")
             
             # Parse the JSON response
             if response_text.startswith('```json'):
@@ -260,15 +256,24 @@ Generate an engaging opening that will start the interview and assess the candid
             if response_text.endswith('```'):
                 response_text = response_text[:-3]
             
-            print(f"🔍 Attempting to parse JSON response...")
             result = json.loads(response_text.strip())
-            print(f"✅ JSON parsed successfully")
             result["timestamp"] = time.time()
             
             return result
             
         except Exception as e:
-            print(f"❌ Error in get_initial_question: {e}")
-            print(f"❌ Error type: {type(e).__name__}")
-            # Re-raise the error instead of using fallback
-            raise e
+            # Fallback opening
+            return {
+                "chain_of_thought": [
+                    "Using fallback opening due to API error",
+                    "Focusing on standard problem presentation"
+                ],
+                "response_text": f"Hello! I'm excited to interview you for the {seniority} {role} position. Today we'll be focusing on {skill}. Let me present you with a scenario to get started...",
+                "interview_state": {
+                    "current_stage": "problem_understanding",
+                    "skill_progress": "not_started",
+                    "next_focus": "initial_problem_presentation"
+                },
+                "error": str(e),
+                "timestamp": time.time()
+            }

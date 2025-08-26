@@ -20,9 +20,7 @@ services:
     env: python
     region: oregon
     plan: free
-    buildCommand: |
-      pip install -r requirements-render.txt
-      python migrate_database.py
+    buildCommand: python migrate_database.py
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION

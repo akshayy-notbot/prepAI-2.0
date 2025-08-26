@@ -23,44 +23,11 @@ def get_session_local():
     """Get database session factory"""
     return sessionmaker(autocommit=False, autoflush=False, bind=get_engine())
 
-# --- Enhanced Table Definitions for Complete Persistence ---
-
-class InterviewSession(Base):
-    """
-    Stores basic interview session information.
-    Now actively used for session tracking and persistence.
-    """
-    __tablename__ = "interview_sessions"
-
-    id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(String, unique=True, index=True)  # Frontend-generated session ID
-    user_id = Column(Integer, index=True, default=1)  # For now, using dummy user ID
-    
-    # Interview Configuration
-    role = Column(String, nullable=False)
-    seniority = Column(String, nullable=False)
-    skill = Column(String, nullable=False)  # Single skill focus
-    
-    # Session Metadata
-    created_at = Column(DateTime, default=datetime.utcnow)
-    started_at = Column(DateTime)
-    completed_at = Column(DateTime)
-    status = Column(String, default='ready')  # ready, in_progress, completed
-    
-    # Current State (updated in real-time)
-    current_stage = Column(String, default='problem_understanding')
-    current_skill_progress = Column(String, default='not_started')
-    
-    # Performance Metrics
-    total_questions = Column(Integer, default=0)
-    total_responses = Column(Integer, default=0)
-    
-    def __repr__(self):
-        return f"<InterviewSession(id={self.id}, role={self.role}, status={self.status})>"
+# --- Simplified Table Definitions - Only What We Actually Use ---
 
 class SessionState(Base):
     """
-    Final session state for completed interviews with complete conversation data.
+    Main table for storing complete interview data.
     Stores everything as JSON for easy analysis and minimal schema complexity.
     """
     __tablename__ = "session_states"
@@ -89,29 +56,6 @@ class SessionState(Base):
     
     def __repr__(self):
         return f"<SessionState(session_id={self.session_id}, final_stage={self.final_stage})>"
-
-class UserResponse(Base):
-    """
-    Stores individual user responses for analysis and audit purposes.
-    Enhanced with more metadata.
-    """
-    __tablename__ = "user_responses"
-
-    id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(String, index=True)
-    
-    question_text = Column(Text, nullable=False)
-    answer_text = Column(Text, nullable=False)
-    
-    # Response Metadata
-    response_length = Column(Integer)  # Character count
-    response_time_seconds = Column(Integer)  # Time taken to respond
-    
-    # Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow)
-    
-    def __repr__(self):
-        return f"<UserResponse(id={self.id}, session_id={self.session_id})>"
 
 # --- Database Utility Functions ---
 
@@ -237,16 +181,6 @@ def get_table_names():
     except Exception as e:
         print(f"❌ Failed to get table names: {e}")
         return []
-
-# --- Legacy Compatibility Functions ---
-
-def get_engine_legacy():
-    """Legacy function - use get_engine() instead"""
-    return get_engine()
-
-def get_session_local_legacy():
-    """Legacy function - use get_session_local() instead"""
-    return get_session_local()
 
 # --- Database Connection Test ---
 

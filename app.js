@@ -317,18 +317,41 @@ function showInputLoadingState(type) {
 }
 
 // --- Enhanced Onboarding Flow ---
-document.getElementById('start-onboarding-btn').addEventListener('click', () => showScreen('onboarding'));
+document.getElementById('start-onboarding-btn').addEventListener('click', () => {
+    showScreen('onboarding');
+    initializeOnboarding(); // Initialize the onboarding state
+});
 
-// Role selection handler
+// Handle role selection
 function handleRoleSelect(role) {
+    console.log('🎯 Role selected:', role);
     interviewConfig.role = role;
+    // Clear subsequent selections when role changes
+    interviewConfig.seniority = null;
+    interviewConfig.skills = [];
     updateOnboardingUI();
 }
 
-// Experience selection handler
+// Handle experience/seniority selection
 function handleExperienceSelect(level) {
+    console.log('🎯 Experience level selected:', level);
     interviewConfig.seniority = level;
+    // Clear skills when seniority changes
+    interviewConfig.skills = [];
     updateOnboardingUI();
+}
+
+// Reset onboarding state
+function resetOnboardingState() {
+    interviewConfig.role = null;
+    interviewConfig.seniority = null;
+    interviewConfig.skills = [];
+    updateOnboardingUI();
+}
+
+// Initialize onboarding state
+function initializeOnboarding() {
+    resetOnboardingState();
 }
 
 // Update the onboarding UI based on current selections
@@ -352,10 +375,16 @@ function updateOnboardingUI() {
                 btn.classList.add('selected');
             }
         });
+        
+        // Show experience section when role is selected
+        experienceSection.classList.remove('hidden');
     } else {
         roleSection.classList.remove('selected');
         roleSection.classList.add('unselected');
         document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('selected'));
+        
+        // Hide experience section when no role is selected
+        experienceSection.classList.add('hidden');
     }
     
     // Update experience section styling and enable/disable
@@ -374,20 +403,28 @@ function updateOnboardingUI() {
                     btn.classList.add('selected');
                 }
             });
+            
+            // Show skills section when seniority is selected
+            skillsSection.classList.remove('hidden');
         } else {
             experienceSection.classList.remove('selected');
             experienceSection.classList.add('unselected');
             document.querySelectorAll('.experience-btn').forEach(btn => btn.classList.remove('selected'));
+            
+            // Hide skills section when no seniority is selected
+            skillsSection.classList.add('hidden');
         }
     } else {
         experienceSection.classList.add('disabled');
         experienceSection.classList.remove('selected', 'unselected');
         document.querySelectorAll('.experience-btn').forEach(btn => btn.classList.remove('selected'));
+        
+        // Hide skills section when no role is selected
+        skillsSection.classList.add('hidden');
     }
     
     // Update skills section and show relevant skills
     if (interviewConfig.role && interviewConfig.seniority) {
-        skillsSection.classList.remove('hidden');
         // Initialize skills array if not already set
         if (!interviewConfig.skills) {
             interviewConfig.skills = [];
@@ -403,8 +440,6 @@ function updateOnboardingUI() {
             skillsSection.classList.remove('selected');
             skillsSection.classList.add('unselected');
         }
-    } else {
-        skillsSection.classList.add('hidden');
     }
     
     // Enable/disable continue button - require exactly one skill

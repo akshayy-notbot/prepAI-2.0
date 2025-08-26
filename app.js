@@ -455,52 +455,30 @@ function updateOnboardingUI() {
 function populateSkillsOptions() {
     const skillsContainer = document.getElementById('skills-options');
     const role = interviewConfig.role;
+    const seniority = interviewConfig.seniority;
     
-    // Define skills for each role
-    const roleSkills = {
-        'Product Manager': [
-            'Product Sense',
-            'User Research',
-            'Data Analysis',
-            'Strategic Thinking',
-            'Execution',
-            'Stakeholder Management',
-            'Metrics & KPIs',
-            'User Experience Design'
-        ],
-        'Software Engineer': [
-            'System Design',
-            'Algorithms & Data Structures',
-            'Code Quality',
-            'Testing & Debugging',
-            'Performance Optimization',
-            'Security',
-            'API Design',
-            'Database Design'
-        ],
-        'Data Analyst': [
-            'Data Visualization',
-            'Statistical Analysis',
-            'SQL & Data Querying',
-            'Business Intelligence',
-            'A/B Testing',
-            'Data Storytelling',
-            'Machine Learning Basics',
-            'Data Quality & Governance'
-        ]
-    };
-    
-    const skills = roleSkills[role] || [];
+    if (!role || !seniority) {
+        skillsContainer.innerHTML = '<p class="text-gray-500 text-center py-4">Please select a role and experience level first.</p>';
+        return;
+    }
+
+    const skills = getSkillsByRoleAndSeniority(role, seniority);
     
     skillsContainer.innerHTML = skills.map(skill => {
         const isSelected = interviewConfig.skills && interviewConfig.skills.includes(skill);
         const selectedClass = isSelected ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50';
         
+        // Extract skill name and description for display
+        const skillName = skill.split(' (')[0];
+        const skillDescription = skill.includes('(') ? 
+            skill.substring(skill.indexOf('(') + 1, skill.lastIndexOf(')')) : '';
+        
         return `
             <button type="button" 
-                    class="skill-brick px-4 py-3 rounded-lg border-2 transition-all duration-200 font-medium ${selectedClass}" 
+                    class="skill-brick px-4 py-3 rounded-lg border-2 transition-all duration-200 font-medium ${selectedClass} text-left" 
                     data-skill="${skill}">
-                ${skill}
+                <div class="font-semibold">${skillName}</div>
+                ${skillDescription ? `<div class="text-sm mt-1 opacity-80">${skillDescription}</div>` : ''}
             </button>
         `;
     }).join('');
@@ -529,8 +507,22 @@ function handleSkillSelection(selectedSkill) {
         selectedBrick.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
     }
     
-    // Update config to single skill array
-    interviewConfig.skills = [selectedSkill];
+    // Extract skill name and description
+    const skillName = selectedSkill.split(' (')[0]; // Get the part before the first parenthesis
+    const skillDescription = selectedSkill.includes('(') ? 
+        selectedSkill.substring(selectedSkill.indexOf('(') + 1, selectedSkill.lastIndexOf(')')) : 
+        '';
+    
+    // Update config with both skill name and description
+    interviewConfig.skills = [selectedSkill]; // Keep full text for display
+    interviewConfig.selectedSkillName = skillName; // Clean skill name for API
+    interviewConfig.selectedSkillDescription = skillDescription; // Description for context
+    
+    console.log('🎯 Skill selected:', {
+        fullText: selectedSkill,
+        skillName: skillName,
+        skillDescription: skillDescription
+    });
     
     updateOnboardingUI();
 }
@@ -562,7 +554,12 @@ document.getElementById('onboarding-continue-btn').addEventListener('click', () 
         
         // Update dashboard display
         document.getElementById('dashboard-role-company').textContent = `For a ${interviewConfig.role} role (${interviewConfig.seniority} level).`;
-        document.getElementById('key-skills-list').innerHTML = interviewConfig.skills.map(skill => `<li>${skill}</li>`).join('');
+        document.getElementById('key-skills-list').innerHTML = interviewConfig.skills.map(skill => {
+            const skillName = skill.split(' (')[0];
+            const skillDescription = skill.includes('(') ? 
+                skill.substring(skill.indexOf('(') + 1, skill.lastIndexOf(')')) : '';
+            return `<li><strong>${skillName}</strong>${skillDescription ? ` - ${skillDescription}` : ''}</li>`;
+        }).join('');
     }
 });
 
@@ -720,7 +717,12 @@ async function startOrchestratorInterview() {
             body: JSON.stringify({
                 role: interviewConfig.role,
                 seniority: interviewConfig.seniority,
-                skills: interviewConfig.skills
+                skills: interviewConfig.skills,
+                skill_context: {
+                    skill_name: interviewConfig.selectedSkillName,
+                    skill_description: interviewConfig.selectedSkillDescription,
+                    full_skill_text: interviewConfig.skills[0]
+                }
             })
         });
 
@@ -1036,6 +1038,189 @@ function restart() {
 
 // Make restart function globally accessible
 window.restart = restart;
+
+// --- Comprehensive Skills Mapping by Role and Seniority ---
+function getSkillsByRoleAndSeniority(role, seniority) {
+    const skillsMapping = {
+        'Product Manager': {
+            'Student/Intern': [
+                'Basic Product Sense (Understanding what makes a good product)',
+                'User Research Fundamentals (Surveys, basic interviews)',
+                'Data Analysis Basics (Simple metrics, Excel)',
+                'Communication Skills (Clear written and verbal communication)',
+                'Basic Project Management (Task organization, timelines)'
+            ],
+            'Junior / Mid-Level': [
+                'Product Sense (Feature prioritization, user value)',
+                'User Research (Interviews, usability testing, personas)',
+                'Data Analysis (A/B testing, key metrics, dashboards)',
+                'Strategic Thinking (Roadmap planning, OKRs)',
+                'Execution (Agile processes, stakeholder coordination)',
+                'Stakeholder Management (Cross-functional collaboration)',
+                'Metrics & KPIs (Defining success metrics)',
+                'User Experience Design (Basic UX principles)'
+            ],
+            'Senior': [
+                'Advanced Product Sense (Market positioning, competitive analysis)',
+                'Strategic User Research (Market research, user segmentation)',
+                'Advanced Data Analysis (Predictive analytics, business intelligence)',
+                'Strategic Thinking (Business strategy, market expansion)',
+                'Complex Execution (Multi-team coordination, risk management)',
+                'Advanced Stakeholder Management (C-level communication, board presentations)',
+                'Advanced Metrics & KPIs (Attribution modeling, LTV analysis)',
+                'UX Strategy (Design systems, user journey optimization)'
+            ],
+            'Manager / Lead': [
+                'Product Strategy (Portfolio management, market entry)',
+                'Research Leadership (Research methodology, team management)',
+                'Business Intelligence (Advanced analytics, predictive modeling)',
+                'Strategic Leadership (Company vision, market strategy)',
+                'Program Management (Multiple product lines, resource allocation)',
+                'Executive Stakeholder Management (Board relations, investor communication)',
+                'Business Metrics (Financial modeling, market analysis)',
+                'Design Leadership (Design strategy, brand management)'
+            ]
+        },
+        'Software Engineer': {
+            'Student/Intern': [
+                'Basic Coding (Syntax, simple algorithms)',
+                'Version Control (Git basics, commit workflow)',
+                'Simple Debugging (Error identification, basic fixes)',
+                'Basic Testing (Unit test concepts, manual testing)',
+                'Documentation (Code comments, README files)'
+            ],
+            'Junior / Mid-Level': [
+                'System Design (Basic architecture patterns)',
+                'Algorithms & Data Structures (Common algorithms, optimization)',
+                'Code Quality (Clean code, design patterns)',
+                'Testing & Debugging (Unit tests, debugging tools)',
+                'Performance Optimization (Basic profiling, bottlenecks)',
+                'Security (Input validation, authentication)',
+                'API Design (REST principles, basic design)',
+                'Database Design (Normalization, basic queries)'
+            ],
+            'Senior': [
+                'Advanced System Design (Distributed systems, scalability)',
+                'Advanced Algorithms (Complex problem solving, optimization)',
+                'Code Quality Leadership (Code reviews, standards)',
+                'Testing Strategy (Test automation, CI/CD)',
+                'Advanced Performance (Distributed performance, caching)',
+                'Security Architecture (Threat modeling, secure design)',
+                'API Architecture (Microservices, event-driven)',
+                'Database Architecture (Sharding, replication, NoSQL)'
+            ],
+            'Manager / Lead': [
+                'System Architecture (Enterprise architecture, cloud strategy)',
+                'Technical Strategy (Technology roadmap, vendor selection)',
+                'Quality Engineering (Quality processes, metrics)',
+                'DevOps Strategy (Infrastructure as code, monitoring)',
+                'Performance Engineering (Capacity planning, optimization)',
+                'Security Strategy (Compliance, risk management)',
+                'Platform Architecture (Internal platforms, developer experience)',
+                'Data Architecture (Data lakes, real-time processing)'
+            ]
+        },
+        'Data Analyst': {
+            'Student/Intern': [
+                'Basic Excel (Formulas, pivot tables, charts)',
+                'Simple Data Visualization (Charts, graphs, basic dashboards)',
+                'Basic Statistics (Mean, median, standard deviation)',
+                'SQL Fundamentals (SELECT, WHERE, JOIN basics)',
+                'Data Cleaning Basics (Handling missing values, duplicates)'
+            ],
+            'Junior / Mid-Level': [
+                'Data Visualization (Tableau, Power BI, advanced charts)',
+                'Statistical Analysis (Hypothesis testing, regression)',
+                'SQL & Data Querying (Complex queries, optimization)',
+                'Business Intelligence (Dashboards, KPI tracking)',
+                'A/B Testing (Experiment design, analysis)',
+                'Data Storytelling (Narrative building, insights)',
+                'Machine Learning Basics (Supervised learning, model evaluation)',
+                'Data Quality & Governance (Data validation, documentation)'
+            ],
+            'Senior': [
+                'Advanced Data Visualization (Interactive dashboards, custom charts)',
+                'Advanced Statistics (Multivariate analysis, time series)',
+                'Advanced SQL (Stored procedures, performance tuning)',
+                'Advanced BI (Predictive analytics, real-time dashboards)',
+                'Advanced A/B Testing (Multivariate testing, Bayesian analysis)',
+                'Advanced Data Storytelling (Executive presentations, strategic insights)',
+                'Machine Learning (Unsupervised learning, feature engineering)',
+                'Data Strategy (Data architecture, governance frameworks)'
+            ],
+            'Manager / Lead': [
+                'Data Strategy (Data roadmap, platform selection)',
+                'Advanced Analytics Leadership (Team management, methodology)',
+                'Data Engineering (ETL pipelines, data infrastructure)',
+                'Business Intelligence Strategy (Analytics roadmap, tool selection)',
+                'Experimentation Strategy (Testing frameworks, cultural change)',
+                'Data Communication (Stakeholder management, executive reporting)',
+                'AI/ML Strategy (Model deployment, ethical AI)',
+                'Data Governance (Compliance, data privacy, quality standards)'
+            ]
+        }
+    };
+    
+    return skillsMapping[role]?.[seniority] || [];
+}
+
+// --- Back Button Functionality ---
+function addBackButton(screenElement, targetScreen) {
+    // Remove existing back button if any
+    const existingBackBtn = screenElement.querySelector('.back-btn');
+    if (existingBackBtn) {
+        existingBackBtn.remove();
+    }
+    
+    // Create back button
+    const backBtn = document.createElement('button');
+    backBtn.className = 'back-btn absolute top-4 left-4 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition duration-300 flex items-center gap-2';
+    backBtn.innerHTML = `
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        Back
+    `;
+    
+    backBtn.addEventListener('click', () => {
+        showScreen(targetScreen);
+    });
+    
+    // Add to screen
+    screenElement.style.position = 'relative';
+    screenElement.appendChild(backBtn);
+}
+
+// Override the existing showScreen function to add back buttons
+const originalShowScreen = showScreen;
+function showScreen(screenKey) {
+    originalShowScreen(screenKey);
+    
+    // Add back buttons based on current screen
+    switch (screenKey) {
+        case 'onboarding':
+            // Back to homepage
+            addBackButton(screens[screenKey], 'homepage');
+            break;
+        case 'dashboard':
+            // Back to onboarding
+            addBackButton(screens[screenKey], 'onboarding');
+            break;
+        case 'interviewPrep':
+            // Back to dashboard
+            addBackButton(screens[screenKey], 'dashboard');
+            break;
+        case 'interview':
+            // No back button during interview - prevent going back
+            break;
+        case 'analysis':
+            // No back button during analysis
+            break;
+        case 'feedback':
+            // No back button on feedback - can restart
+            break;
+    }
+}
 
 // --- Initial Load ---
 showScreen('homepage');

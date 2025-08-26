@@ -37,6 +37,10 @@
             transition: all 0.2s ease-in-out;
             cursor: pointer;
             user-select: none;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         
         .skill-brick:hover:not(.selected) {
@@ -222,6 +226,30 @@
                 gap: 3;
             }
         }
+        
+        /* Back Button Styles */
+        .back-btn {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            z-index: 10;
+            transition: all 0.2s ease;
+        }
+        
+        .back-btn:hover {
+            transform: translateX(-2px);
+        }
+        
+        /* Ensure screens with back buttons have proper positioning */
+        .screen-container {
+            position: relative;
+        }
+        
+        /* Adjust card positioning when back button is present */
+        .card {
+            position: relative;
+            z-index: 1;
+        }
     </style>
 </head>
 <body class="text-gray-800">
@@ -386,7 +414,7 @@
                 <div id="skills-section" class="mb-8 p-6 border-2 border-gray-200 rounded-lg transition-all duration-300 hidden">
                     <h3 class="text-xl font-semibold text-gray-800 mb-4">3. What skill would you like to practice?</h3>
                     <p class="text-gray-600 mb-4">Select <strong>one primary skill</strong> to focus on during your interview practice.</p>
-                    <div id="skills-options" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div id="skills-options" class="grid grid-cols-1 gap-3">
                         <!-- Skills will be populated dynamically based on role and experience -->
                     </div>
                 </div>

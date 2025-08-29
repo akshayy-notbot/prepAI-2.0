@@ -213,10 +213,13 @@
 
     </div>
 
-    <!-- Load shared utilities first (Production Minified) -->
-    <script src="../js/shared/state.min.js"></script>
-    <script src="../js/shared/utils.min.js"></script>
-    <script src="../production_config.js"></script>
+    <!-- Load shared utilities first (Source files for development) -->
+    <script src="../js/shared/state.js"></script>
+    <script src="../js/shared/utils.js"></script>
+    <script src="../js/shared/security.js"></script>
+    <script src="../js/shared/error-handler.js"></script>
+    <script src="../js/shared/performance.js"></script>
+    <script src="../config.js"></script>
     
     <!-- Load page-specific JavaScript -->
     <script src="../js/pages/onboarding.js"></script>

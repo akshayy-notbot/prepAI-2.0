@@ -58,14 +58,24 @@ function addBackButton() {
 
 // Setup all event listeners for the onboarding page
 function setupEventListeners() {
+    console.log('🔧 Setting up event listeners...');
+    
     // Role selection buttons
     const roleButtons = document.querySelectorAll('.role-btn');
-    roleButtons.forEach(btn => {
-        btn.addEventListener('click', () => handleRoleSelect(btn.dataset.value));
+    console.log(`📋 Found ${roleButtons.length} role buttons:`, roleButtons);
+    
+    roleButtons.forEach((btn, index) => {
+        console.log(`🔘 Role button ${index}:`, btn.dataset.value, btn);
+        btn.addEventListener('click', () => {
+            console.log('🎯 Role button clicked:', btn.dataset.value);
+            handleRoleSelect(btn.dataset.value);
+        });
     });
     
     // Experience selection buttons
     const experienceButtons = document.querySelectorAll('.experience-btn');
+    console.log(`📋 Found ${experienceButtons.length} experience buttons:`, experienceButtons);
+    
     experienceButtons.forEach(btn => {
         btn.addEventListener('click', () => handleExperienceSelect(btn.dataset.value));
     });
@@ -74,9 +84,12 @@ function setupEventListeners() {
     const continueBtn = document.getElementById('onboarding-continue-btn');
     if (continueBtn) {
         continueBtn.addEventListener('click', handleContinueToDashboard);
+        console.log('✅ Continue button event listener added');
+    } else {
+        console.error('❌ Continue button not found!');
     }
     
-            // Onboarding event listeners setup complete
+    console.log('✅ Onboarding event listeners setup complete');
 }
 
 // Load existing configuration from state
@@ -106,7 +119,7 @@ function loadExistingConfiguration() {
 
 // Handle role selection
 function handleRoleSelect(role) {
-            // Role selected
+    console.log('🎯 Role selected:', role);
     
     if (!window.prepAIState) {
         console.error('❌ State management not available');
@@ -141,7 +154,7 @@ function updateRoleSelection(role) {
 
 // Handle experience/seniority selection
 function handleExperienceSelect(level) {
-            // Experience level selected
+    console.log('🎯 Experience level selected:', level);
     
     if (!window.prepAIState) {
         console.error('❌ State management not available');
@@ -175,7 +188,7 @@ function updateSenioritySelection(level) {
 
 // Handle skill selection
 function handleSkillSelection(selectedSkill) {
-            // Skill selected
+    console.log('🎯 Skill selected:', selectedSkill);
     
     if (!window.prepAIState) {
         console.error('❌ State management not available');
@@ -343,7 +356,7 @@ function handleContinueToDashboard() {
         return;
     }
     
-            // Configuration complete, navigating to dashboard
+    console.log('✅ Configuration complete, navigating to dashboard');
     
     // Navigate to dashboard
     if (window.PrepAIUtils && window.PrepAIUtils.Navigation) {

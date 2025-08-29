@@ -1,0 +1,609 @@
+{
+  "passed": 58,
+  "failed": 5,
+  "warnings": 22,
+  "tests": [
+    {
+      "test": "File Structure: pages/index.html",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.700Z"
+    },
+    {
+      "test": "File Structure: pages/onboarding.html",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.711Z"
+    },
+    {
+      "test": "File Structure: pages/dashboard.html",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.711Z"
+    },
+    {
+      "test": "File Structure: pages/interview-prep.html",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.712Z"
+    },
+    {
+      "test": "File Structure: pages/interview.html",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.712Z"
+    },
+    {
+      "test": "File Structure: js/shared/state.js",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.712Z"
+    },
+    {
+      "test": "File Structure: js/shared/utils.js",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.712Z"
+    },
+    {
+      "test": "File Structure: js/pages/homepage.js",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.712Z"
+    },
+    {
+      "test": "File Structure: js/pages/onboarding.js",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.712Z"
+    },
+    {
+      "test": "File Structure: js/pages/dashboard.js",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.712Z"
+    },
+    {
+      "test": "File Structure: js/pages/interview-prep.js",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.712Z"
+    },
+    {
+      "test": "File Structure: js/pages/interview.js",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.712Z"
+    },
+    {
+      "test": "File Structure: config.js",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.712Z"
+    },
+    {
+      "test": "Code Quality: js/shared/state.js",
+      "status": "WARNING",
+      "message": "Missing some code quality indicators",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.713Z"
+    },
+    {
+      "test": "Error Handling: js/shared/state.js",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.713Z"
+    },
+    {
+      "test": "Code Quality: js/shared/utils.js",
+      "status": "WARNING",
+      "message": "Missing some code quality indicators",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.713Z"
+    },
+    {
+      "test": "Error Handling: js/shared/utils.js",
+      "status": "WARNING",
+      "message": "No error handling detected",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.713Z"
+    },
+    {
+      "test": "Code Quality: js/pages/homepage.js",
+      "status": "WARNING",
+      "message": "Missing some code quality indicators",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.713Z"
+    },
+    {
+      "test": "Error Handling: js/pages/homepage.js",
+      "status": "WARNING",
+      "message": "No error handling detected",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.713Z"
+    },
+    {
+      "test": "Code Quality: js/pages/onboarding.js",
+      "status": "WARNING",
+      "message": "Missing some code quality indicators",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.713Z"
+    },
+    {
+      "test": "Error Handling: js/pages/onboarding.js",
+      "status": "WARNING",
+      "message": "No error handling detected",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.713Z"
+    },
+    {
+      "test": "Code Quality: js/pages/dashboard.js",
+      "status": "WARNING",
+      "message": "Missing some code quality indicators",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.713Z"
+    },
+    {
+      "test": "Error Handling: js/pages/dashboard.js",
+      "status": "WARNING",
+      "message": "No error handling detected",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.713Z"
+    },
+    {
+      "test": "Code Quality: js/pages/interview-prep.js",
+      "status": "WARNING",
+      "message": "Missing some code quality indicators",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.713Z"
+    },
+    {
+      "test": "Error Handling: js/pages/interview-prep.js",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.714Z"
+    },
+    {
+      "test": "Code Quality: js/pages/interview.js",
+      "status": "WARNING",
+      "message": "Missing some code quality indicators",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.714Z"
+    },
+    {
+      "test": "Error Handling: js/pages/interview.js",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.714Z"
+    },
+    {
+      "test": "HTML Structure: pages/index.html",
+      "status": "FAIL",
+      "message": "Missing essential HTML elements",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.714Z"
+    },
+    {
+      "test": "CSS Framework: pages/index.html",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.714Z"
+    },
+    {
+      "test": "Script Dependencies: pages/index.html",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.714Z"
+    },
+    {
+      "test": "HTML Structure: pages/onboarding.html",
+      "status": "FAIL",
+      "message": "Missing essential HTML elements",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.714Z"
+    },
+    {
+      "test": "CSS Framework: pages/onboarding.html",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.714Z"
+    },
+    {
+      "test": "Script Dependencies: pages/onboarding.html",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.714Z"
+    },
+    {
+      "test": "HTML Structure: pages/dashboard.html",
+      "status": "FAIL",
+      "message": "Missing essential HTML elements",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.714Z"
+    },
+    {
+      "test": "CSS Framework: pages/dashboard.html",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.714Z"
+    },
+    {
+      "test": "Script Dependencies: pages/dashboard.html",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.714Z"
+    },
+    {
+      "test": "HTML Structure: pages/interview-prep.html",
+      "status": "FAIL",
+      "message": "Missing essential HTML elements",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.714Z"
+    },
+    {
+      "test": "CSS Framework: pages/interview-prep.html",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.714Z"
+    },
+    {
+      "test": "Script Dependencies: pages/interview-prep.html",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.714Z"
+    },
+    {
+      "test": "HTML Structure: pages/interview.html",
+      "status": "FAIL",
+      "message": "Missing essential HTML elements",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.714Z"
+    },
+    {
+      "test": "CSS Framework: pages/interview.html",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.715Z"
+    },
+    {
+      "test": "Script Dependencies: pages/interview.html",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.715Z"
+    },
+    {
+      "test": "Configuration: API Base URL",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.715Z"
+    },
+    {
+      "test": "Configuration: HTTPS URLs",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.715Z"
+    },
+    {
+      "test": "Configuration: Environment Files",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.715Z"
+    },
+    {
+      "test": "Navigation Flow: index.html → onboarding.html",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.715Z"
+    },
+    {
+      "test": "Navigation Flow: onboarding.html → dashboard.html",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.715Z"
+    },
+    {
+      "test": "Navigation Flow: dashboard.html → interview-prep.html",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.715Z"
+    },
+    {
+      "test": "Navigation Flow: interview-prep.html → interview.html",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.715Z"
+    },
+    {
+      "test": "Shared Utilities: js/shared/state.js",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.715Z"
+    },
+    {
+      "test": "Shared Utilities: js/shared/utils.js",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.715Z"
+    },
+    {
+      "test": "Page Script: js/pages/homepage.js",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.715Z"
+    },
+    {
+      "test": "Page Script: js/pages/onboarding.js",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.715Z"
+    },
+    {
+      "test": "Page Script: js/pages/dashboard.js",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.715Z"
+    },
+    {
+      "test": "Page Script: js/pages/interview-prep.js",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.715Z"
+    },
+    {
+      "test": "Page Script: js/pages/interview.js",
+      "status": "PASS",
+      "message": "",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.715Z"
+    },
+    {
+      "test": "Security: Test Script test_navigation.js",
+      "status": "WARNING",
+      "message": "Should be removed in production",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.715Z"
+    },
+    {
+      "test": "Security: Test Script test_complete_journey.js",
+      "status": "WARNING",
+      "message": "Should be removed in production",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.715Z"
+    },
+    {
+      "test": "Security: Test Script production_test_suite.js",
+      "status": "WARNING",
+      "message": "Should be removed in production",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.715Z"
+    },
+    {
+      "test": "Security: Inline Events pages/index.html",
+      "status": "PASS",
+      "message": "No inline event handlers",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.716Z"
+    },
+    {
+      "test": "Security: Inline Styles pages/index.html",
+      "status": "PASS",
+      "message": "No inline styles",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.716Z"
+    },
+    {
+      "test": "Security: Inline Events pages/onboarding.html",
+      "status": "PASS",
+      "message": "No inline event handlers",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.716Z"
+    },
+    {
+      "test": "Security: Inline Styles pages/onboarding.html",
+      "status": "PASS",
+      "message": "No inline styles",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.716Z"
+    },
+    {
+      "test": "Security: Inline Events pages/dashboard.html",
+      "status": "PASS",
+      "message": "No inline event handlers",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.716Z"
+    },
+    {
+      "test": "Security: Inline Styles pages/dashboard.html",
+      "status": "PASS",
+      "message": "No inline styles",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.716Z"
+    },
+    {
+      "test": "Security: Inline Events pages/interview-prep.html",
+      "status": "PASS",
+      "message": "No inline event handlers",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.716Z"
+    },
+    {
+      "test": "Security: Inline Styles pages/interview-prep.html",
+      "status": "PASS",
+      "message": "No inline styles",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.716Z"
+    },
+    {
+      "test": "Security: Inline Events pages/interview.html",
+      "status": "PASS",
+      "message": "No inline event handlers",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.716Z"
+    },
+    {
+      "test": "Security: Inline Styles pages/interview.html",
+      "status": "WARNING",
+      "message": "Inline styles detected",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.716Z"
+    },
+    {
+      "test": "Performance: js/shared/state.js Size",
+      "status": "PASS",
+      "message": "3.9KB",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.716Z"
+    },
+    {
+      "test": "Performance: js/shared/utils.js Size",
+      "status": "PASS",
+      "message": "14.1KB",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.716Z"
+    },
+    {
+      "test": "Performance: js/pages/homepage.js Size",
+      "status": "PASS",
+      "message": "3.0KB",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.716Z"
+    },
+    {
+      "test": "Performance: js/pages/onboarding.js Size",
+      "status": "PASS",
+      "message": "11.7KB",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.716Z"
+    },
+    {
+      "test": "Performance: js/pages/dashboard.js Size",
+      "status": "PASS",
+      "message": "6.8KB",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.716Z"
+    },
+    {
+      "test": "Performance: js/pages/interview-prep.js Size",
+      "status": "PASS",
+      "message": "4.6KB",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.716Z"
+    },
+    {
+      "test": "Performance: js/pages/interview.js Size",
+      "status": "PASS",
+      "message": "16.4KB",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.716Z"
+    },
+    {
+      "test": "Performance: Total JS Size",
+      "status": "INFO",
+      "message": "60.5KB total JavaScript",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.716Z"
+    },
+    {
+      "test": "Performance: Minification",
+      "status": "WARNING",
+      "message": "No minified files detected",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.719Z"
+    },
+    {
+      "test": "Production: Dev Code js/shared/utils.js",
+      "status": "WARNING",
+      "message": "Contains console.log",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.719Z"
+    },
+    {
+      "test": "Production: Dev Code js/pages/homepage.js",
+      "status": "WARNING",
+      "message": "Contains console.log",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.719Z"
+    },
+    {
+      "test": "Production: Dev Code js/pages/onboarding.js",
+      "status": "WARNING",
+      "message": "Contains console.log",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.719Z"
+    },
+    {
+      "test": "Production: Dev Code js/pages/dashboard.js",
+      "status": "WARNING",
+      "message": "Contains console.log",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.719Z"
+    },
+    {
+      "test": "Production: Dev Code js/pages/interview-prep.js",
+      "status": "WARNING",
+      "message": "Contains console.log",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.719Z"
+    },
+    {
+      "test": "Production: Dev Code js/pages/interview.js",
+      "status": "WARNING",
+      "message": "Contains console.log",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.719Z"
+    },
+    {
+      "test": "Production: Error Handling",
+      "status": "PASS",
+      "message": "Error handling detected",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.719Z"
+    },
+    {
+      "test": "Production: Loading States",
+      "status": "PASS",
+      "message": "Loading states implemented",
+      "details": null,
+      "timestamp": "2025-08-26T22:00:10.719Z"
+    }
+  ]
+}

@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrepAI - Real AI Response Diagnostic Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .config-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .config-section h2 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .backend-config {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .backend-config h3 {
+            color: #1976d2;
+            margin-bottom: 15px;
+        }
+
+        .skills-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .skills-input input {
+            flex: 1;
+        }
+
+        .skills-input button {
+            padding: 12px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+
+        .skills-input button:hover {
+            background: #218838;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .skill-tag {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .skill-tag button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .start-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .start-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .start-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .diagnostic-section {
+            margin-top: 30px;
+        }
+
+        .step-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .step-card.active {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .step-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .step-header:hover {
+            background: #e9ecef;
+        }
+
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .step-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .step-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .step-status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .step-status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .step-status.running {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .step-content {
+            padding: 20px;
+            display: none;
+        }
+
+        .step-content.expanded {
+            display: block;
+        }
+
+        .log-section {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 5px 0;
+        }
+
+        .log-entry.info {
+            color: #4fc3f7;
+        }
+
+        .log-entry.success {
+            color: #4caf50;
+        }
+
+        .log-entry.error {
+            color: #f44336;
+        }
+
+        .log-entry.warning {
+            color: #ff9800;
+        }
+
+        .response-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .response-section h4 {
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .json-display {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-details {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #721c24;
+        }
+
+        .success-details {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #155724;
+        }
+
+        .raw-response {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .field-analysis {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .field-analysis h5 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .field-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #ffeaa7;
+        }
+
+        .field-item:last-child {
+            border-bottom: none;
+        }
+
+        .field-name {
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .field-status {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .field-status.present {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .field-status.missing {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .field-status.invalid {
+            background: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 PrepAI Real AI Response Diagnostic Tool</h1>
+            <p>Connect to your backend and analyze real AI responses to find the exact failure point</p>
+        </div>
+
+        <div class="content">
+            <div class="config-section">
+                <h2>🔧 Backend Configuration</h2>
+                <div class="backend-config">
+                    <h3>Backend URL</h3>
+                    <div class="form-group">
+                        <label for="backendUrl">Backend URL:</label>
+                        <input type="text" id="backendUrl" placeholder="https://your-app.onrender.com" value="https://prepai-prototype.onrender.com">
+                    </div>
+                    <button onclick="testBackendConnection()" style="background: #2196f3; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">
+                        🔌 Test Connection
+                    </button>
+                    <span id="connectionStatus" style="margin-left: 15px; font-weight: 600;"></span>
+                </div>
+
+                <h2>📋 Interview Configuration</h2>
+                <div class="form-group">
+                    <label for="role">Role:</label>
+                    <select id="role">
+                        <option value="Software Engineer">Software Engineer</option>
+                        <option value="Product Manager">Product Manager</option>
+                        <option value="Data Scientist">Data Scientist</option>
+                        <option value="Designer">Designer</option>
+                        <option value="Engineering Manager">Engineering Manager</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="seniority">Seniority:</label>
+                    <select id="seniority">
+                        <option value="Junior">Junior</option>
+                        <option value="Mid-Level">Mid-Level</option>
+                        <option value="Senior">Senior</option>
+                        <option value="Staff">Staff</option>
+                        <option value="Principal">Principal</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="skills">Skills to Practice:</label>
+                    <div class="skills-input">
+                        <input type="text" id="skillInput" placeholder="Enter a skill (e.g., Algorithms)">
+                        <button onclick="addSkill()">Add Skill</button>
+                    </div>
+                    <div class="skills-list" id="skillsList"></div>
+                </div>
+
+                <button class="start-button" onclick="startRealDiagnostic()" id="startBtn">
+                    🚀 Start Real AI Diagnostic
+                </button>
+            </div>
+
+            <div class="diagnostic-section" id="diagnosticSection" style="display: none;">
+                <h2>🔍 Real Diagnostic Results</h2>
+                
+                <!-- Step 1: Backend Connection Test -->
+                <div class="step-card" id="step1">
+                    <div class="step-header" onclick="toggleStep(1)">
+                        <span class="step-title">🔌 Step 1: Backend Connection Test</span>
+                        <span class="step-status pending" id="status1">Pending</span>
+                    </div>
+                    <div class="step-content" id="content1">
+                        <div class="log-section" id="logs1">
+                            <div class="log-entry info">Waiting for backend connection test...</div>
+                        </div>
+                        <div class="response-section" id="response1" style="display: none;">
+                            <h4>Connection Test Results:</h4>
+                            <div class="json-display" id="json1"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Start Interview API Call -->
+                <div class="step-card" id="step2">
+                    <div class="step-header" onclick="toggleStep(2)">
+                        <span class="step-title">🚀 Step 2: Start Interview API Call</span>
+                        <span class="step-status pending" id="status2">Pending</span>
+                    </div>
+                    <div class="step-content" id="content2">
+                        <div class="log-section" id="logs2">
+                            <div class="log-entry info">Waiting for start interview API call...</div>
+                        </div>
+                        <div class="response-section" id="response2" style="display: none;">
+                            <h4>API Response:</h4>
+                            <div class="json-display" id="json2"></div>
+                        </div>
+                        <div class="raw-response" id="rawResponse2" style="display: none;">
+                            <h5>Raw Response Headers:</h5>
+                            <div id="headers2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Response Analysis -->
+                <div class="step-card" id="step3">
+                    <div class="step-header" onclick="toggleStep(3)">
+                        <span class="step-title">🔍 Step 3: Response Analysis</span>
+                        <span class="step-status pending" id="status3">Pending</span>
+                    </div>
+                    <div class="step-content" id="content3">
+                        <div class="log-section" id="logs3">
+                            <div class="log-entry info">Waiting for response analysis...</div>
+                        </div>
+                        <div class="field-analysis" id="fieldAnalysis" style="display: none;">
+                            <h5>Field Analysis:</h5>
+                            <div id="fieldAnalysisContent"></div>
+                        </div>
+                        <div class="response-section" id="response3" style="display: none;">
+                            <h4>Analysis Results:</h4>
+                            <div class="json-display" id="json3"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Error Diagnosis -->
+                <div class="step-card" id="step4">
+                    <div class="step-header" onclick="toggleStep(4)">
+                        <span class="step-title">💡 Step 4: Error Diagnosis</span>
+                        <span class="step-status pending" id="status4">Pending</span>
+                    </div>
+                    <div class="step-content" id="content4">
+                        <div class="log-section" id="logs4">
+                            <div class="log-entry info">Waiting for error diagnosis...</div>
+                        </div>
+                        <div class="error-details" id="errorDetails" style="display: none;">
+                            <h4>🚨 Error Analysis:</h4>
+                            <div id="errorAnalysisContent"></div>
+                        </div>
+                        <div class="success-details" id="successDetails" style="display: none;">
+                            <h4>✅ Success Analysis:</h4>
+                            <div id="successAnalysisContent"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let skills = [];
+        let currentStep = 0;
+        let diagnosticData = {};
+        let backendUrl = '';
+
+        function addSkill() {
+            const skillInput = document.getElementById('skillInput');
+            const skill = skillInput.value.trim();
+            
+            if (skill && !skills.includes(skill)) {
+                skills.push(skill);
+                updateSkillsList();
+                skillInput.value = '';
+            }
+        }
+
+        function removeSkill(skill) {
+            skills = skills.filter(s => s !== skill);
+            updateSkillsList();
+        }
+
+        function updateSkillsList() {
+            const skillsList = document.getElementById('skillsList');
+            skillsList.innerHTML = skills.map(skill => `
+                <div class="skill-tag">
+                    ${skill}
+                    <button onclick="removeSkill('${skill}')">&times;</button>
+                </div>
+            `).join('');
+        }
+
+        function toggleStep(stepNumber) {
+            const content = document.getElementById(`content${stepNumber}`);
+            content.classList.toggle('expanded');
+        }
+
+        function updateStepStatus(step, status, message = '') {
+            const statusElement = document.getElementById(`status${step}`);
+            const logsElement = document.getElementById(`logs${step}`);
+            
+            statusElement.className = `step-status ${status}`;
+            statusElement.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+            
+            if (message) {
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry ${status}`;
+                logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+                logsElement.appendChild(logEntry);
+                logsElement.scrollTop = logsElement.scrollHeight;
+            }
+        }
+
+        function showResponse(step, title, data) {
+            const responseElement = document.getElementById(`response${step}`);
+            const jsonElement = document.getElementById(`json${step}`);
+            
+            responseElement.style.display = 'block';
+            jsonElement.textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function testBackendConnection() {
+            const backendUrlInput = document.getElementById('backendUrl');
+            const connectionStatus = document.getElementById('connectionStatus');
+            
+            backendUrl = backendUrlInput.value.trim();
+            if (!backendUrl) {
+                connectionStatus.textContent = '❌ Please enter a backend URL';
+                connectionStatus.style.color = '#dc3545';
+                return;
+            }
+
+            connectionStatus.textContent = '🔄 Testing...';
+            connectionStatus.style.color = '#ffc107';
+
+            try {
+                const response = await fetch(`${backendUrl}/health`, {
+                    method: 'GET',
+                    timeout: 10000
+                });
+
+                if (response.ok) {
+                    connectionStatus.textContent = '✅ Connected';
+                    connectionStatus.style.color = '#28a745';
+                } else {
+                    connectionStatus.textContent = `❌ HTTP ${response.status}`;
+                    connectionStatus.style.color = '#dc3545';
+                }
+            } catch (error) {
+                connectionStatus.textContent = `❌ Connection failed: ${error.message}`;
+                connectionStatus.style.color = '#dc3545';
+            }
+        }
+
+        async function startRealDiagnostic() {
+            if (skills.length === 0) {
+                alert('Please add at least one skill to practice.');
+                return;
+            }
+
+            if (!backendUrl) {
+                alert('Please enter and test a backend URL first.');
+                return;
+            }
+
+            const startBtn = document.getElementById('startBtn');
+            const diagnosticSection = document.getElementById('diagnosticSection');
+            
+            startBtn.disabled = true;
+            startBtn.innerHTML = '<span class="loading"></span> Running Real Diagnostic...';
+            diagnosticSection.style.display = 'block';
+
+            // Reset all steps
+            for (let i = 1; i <= 4; i++) {
+                updateStepStatus(i, 'pending');
+                document.getElementById(`content${i}`).classList.add('expanded');
+            }
+
+            try {
+                await runRealDiagnostic();
+            } catch (error) {
+                console.error('Real diagnostic failed:', error);
+                updateStepStatus(currentStep, 'error', `Real diagnostic failed: ${error.message}`);
+            } finally {
+                startBtn.disabled = false;
+                startBtn.innerHTML = '🚀 Start Real AI Diagnostic';
+            }
+        }
+
+        async function runRealDiagnostic() {
+            const role = document.getElementById('role').value;
+            const seniority = document.getElementById('seniority').value;
+
+            // Step 1: Backend Connection Test
+            currentStep = 1;
+            updateStepStatus(1, 'running', 'Testing backend connection...');
+            
+            try {
+                const healthResponse = await fetch(`${backendUrl}/health`);
+                if (healthResponse.ok) {
+                    updateStepStatus(1, 'success', 'Backend connection successful');
+                    showResponse(1, 'Health Check Response', { status: 'connected', url: backendUrl });
+                } else {
+                    throw new Error(`Backend health check failed: HTTP ${healthResponse.status}`);
+                }
+            } catch (error) {
+                updateStepStatus(1, 'error', `Backend connection failed: ${error.message}`);
+                throw error;
+            }
+
+            // Step 2: Start Interview API Call
+            currentStep = 2;
+            updateStepStatus(2, 'running', 'Calling start-interview API...');
+            
+            try {
+                const startResponse = await fetch(`${backendUrl}/api/start-interview`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        role: role,
+                        seniority: seniority,
+                        skills: skills
+                    })
+                });
+
+                const responseText = await startResponse.text();
+                let responseData;
+                
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch (parseError) {
+                    responseData = { raw_response: responseText, parse_error: parseError.message };
+                }
+
+                // Show response headers
+                const headers = {};
+                startResponse.headers.forEach((value, key) => {
+                    headers[key] = value;
+                });
+
+                document.getElementById('headers2').textContent = JSON.stringify(headers, null, 2);
+                document.getElementById('rawResponse2').style.display = 'block';
+
+                if (startResponse.ok) {
+                    updateStepStatus(2, 'success', 'Start interview API call successful');
+                    showResponse(2, 'API Response', responseData);
+                    diagnosticData.apiResponse = responseData;
+                } else {
+                    updateStepStatus(2, 'error', `Start interview API failed: HTTP ${startResponse.status}`);
+                    showResponse(2, 'API Error Response', responseData);
+                    diagnosticData.apiError = responseData;
+                }
+
+            } catch (error) {
+                updateStepStatus(2, 'error', `API call failed: ${error.message}`);
+                throw error;
+            }
+
+            // Step 3: Response Analysis
+            currentStep = 3;
+            updateStepStatus(3, 'running', 'Analyzing API response...');
+            
+            try {
+                const analysis = analyzeResponse(diagnosticData.apiResponse || diagnosticData.apiError);
+                updateStepStatus(3, 'success', 'Response analysis completed');
+                showResponse(3, 'Analysis Results', analysis);
+                diagnosticData.analysis = analysis;
+
+                // Show field analysis
+                showFieldAnalysis(analysis);
+            } catch (error) {
+                updateStepStatus(3, 'error', `Response analysis failed: ${error.message}`);
+                throw error;
+            }
+
+            // Step 4: Error Diagnosis
+            currentStep = 4;
+            updateStepStatus(4, 'running', 'Diagnosing issues...');
+            
+            try {
+                const diagnosis = diagnoseIssues(diagnosticData);
+                updateStepStatus(4, 'success', 'Issue diagnosis completed');
+                diagnosticData.diagnosis = diagnosis;
+
+                if (diagnosis.hasErrors) {
+                    showErrorDiagnosis(diagnosis);
+                } else {
+                    showSuccessDiagnosis(diagnosis);
+                }
+            } catch (error) {
+                updateStepStatus(4, 'error', `Issue diagnosis failed: ${error.message}`);
+                throw error;
+            }
+
+            // All steps completed
+            updateStepStatus(4, 'success', '🎉 Real diagnostic completed! Check the analysis above.');
+        }
+
+        function analyzeResponse(response) {
+            const analysis = {
+                responseType: typeof response,
+                isObject: typeof response === 'object' && response !== null,
+                hasSessionId: false,
+                hasError: false,
+                hasTopicGraph: false,
+                fields: {},
+                issues: [],
+                recommendations: []
+            };
+
+            if (!analysis.isObject) {
+                analysis.issues.push('Response is not an object');
+                analysis.recommendations.push('Check if API is returning valid JSON');
+                return analysis;
+            }
+
+            // Check for session_id
+            analysis.hasSessionId = 'session_id' in response;
+            analysis.fields.session_id = {
+                present: analysis.hasSessionId,
+                value: response.session_id,
+                type: typeof response.session_id
+            };
+
+            // Check for errors
+            analysis.hasError = 'error' in response;
+            analysis.fields.error = {
+                present: analysis.hasError,
+                value: response.error,
+                type: typeof response.error
+            };
+
+            // Check for topic_graph
+            analysis.hasTopicGraph = 'topic_graph' in response;
+            analysis.fields.topic_graph = {
+                present: analysis.hasTopicGraph,
+                value: response.topic_graph,
+                type: typeof response.topic_graph,
+                isArray: Array.isArray(response.topic_graph),
+                length: Array.isArray(response.topic_graph) ? response.topic_graph.length : 'N/A'
+            };
+
+            // Check other important fields
+            const importantFields = ['opening_statement', 'interviewer_persona', 'total_goals', 'status'];
+            importantFields.forEach(field => {
+                analysis.fields[field] = {
+                    present: field in response,
+                    value: response[field],
+                    type: typeof response[field]
+                };
+            });
+
+            // Identify issues
+            if (!analysis.hasSessionId) {
+                analysis.issues.push('Missing session_id field');
+                analysis.recommendations.push('Check if interview plan creation is failing');
+            }
+
+            if (analysis.hasError) {
+                analysis.issues.push(`API returned error: ${response.error}`);
+                analysis.recommendations.push('Check backend logs for the specific error');
+            }
+
+            if (!analysis.hasTopicGraph) {
+                analysis.issues.push('Missing topic_graph field');
+                analysis.recommendations.push('Check if AI response generation is failing');
+            } else if (!analysis.fields.topic_graph.isArray) {
+                analysis.issues.push('topic_graph is not an array');
+                analysis.recommendations.push('Check AI response format');
+            } else if (analysis.fields.topic_graph.length === 0) {
+                analysis.issues.push('topic_graph array is empty');
+                analysis.recommendations.push('Check AI prompt template');
+            }
+
+            return analysis;
+        }
+
+        function showFieldAnalysis(analysis) {
+            const fieldAnalysis = document.getElementById('fieldAnalysis');
+            const fieldAnalysisContent = document.getElementById('fieldAnalysisContent');
+            
+            let html = '';
+            
+            Object.entries(analysis.fields).forEach(([fieldName, fieldInfo]) => {
+                let statusClass = 'missing';
+                let statusText = 'Missing';
+                
+                if (fieldInfo.present) {
+                    if (fieldInfo.type === 'string') {
+                        statusClass = 'present';
+                        statusText = 'Present';
+                    } else if (fieldInfo.type === 'number') {
+                        statusClass = 'present';
+                        statusText = 'Present';
+                    } else if (Array.isArray(fieldInfo.value)) {
+                        statusClass = 'present';
+                        statusText = 'Present';
+                    } else if (fieldInfo.type === 'boolean') {
+                        statusClass = 'present';
+                        statusText = 'Present';
+                    } else if (fieldInfo.type === 'object' && fieldInfo.value !== null) {
+                        statusClass = 'present';
+                        statusText = 'Present';
+                    } else {
+                        statusClass = 'invalid';
+                        statusText = 'Invalid';
+                    }
+                }
+                
+                html += `
+                    <div class="field-item">
+                        <span class="field-name">${fieldName}</span>
+                        <span class="field-status ${statusClass}">${statusText}</span>
+                    </div>
+                `;
+            });
+            
+            fieldAnalysisContent.innerHTML = html;
+            fieldAnalysis.style.display = 'block';
+        }
+
+        function diagnoseIssues(diagnosticData) {
+            const diagnosis = {
+                hasErrors: false,
+                rootCause: null,
+                errorChain: [],
+                suggestions: []
+            };
+
+            if (diagnosticData.apiError) {
+                diagnosis.hasErrors = true;
+                diagnosis.rootCause = 'API returned error response';
+                diagnosis.errorChain.push('API call failed');
+                diagnosis.errorChain.push(diagnosticData.apiError.error || 'Unknown API error');
+                
+                if (diagnosticData.apiError.error && diagnosticData.apiError.error.includes('topic_graph')) {
+                    diagnosis.suggestions.push('AI response is missing required topic_graph field');
+                    diagnosis.suggestions.push('Check prompt template format');
+                    diagnosis.suggestions.push('Verify AI is following expected output schema');
+                }
+            } else if (diagnosticData.analysis && diagnosticData.analysis.issues.length > 0) {
+                diagnosis.hasErrors = true;
+                diagnosis.rootCause = 'Response structure issues';
+                diagnosis.errorChain.push(...diagnosticData.analysis.issues);
+                diagnosis.suggestions.push(...diagnosticData.analysis.recommendations);
+            } else {
+                diagnosis.suggestions.push('No obvious issues detected');
+                diagnosis.suggestions.push('Check backend logs for more details');
+            }
+
+            return diagnosis;
+        }
+
+        function showErrorDiagnosis(diagnosis) {
+            const errorDetails = document.getElementById('errorDetails');
+            const errorAnalysisContent = document.getElementById('errorAnalysisContent');
+            
+            let html = `
+                <p><strong>Root Cause:</strong> ${diagnosis.rootCause}</p>
+                <p><strong>Error Chain:</strong></p>
+                <ul>
+                    ${diagnosis.errorChain.map(error => `<li>${error}</li>`).join('')}
+                </ul>
+                <p><strong>Suggestions:</strong></p>
+                <ul>
+                    ${diagnosis.suggestions.map(suggestion => `<li>${suggestion}</li>`).join('')}
+                </ul>
+            `;
+            
+            errorAnalysisContent.innerHTML = html;
+            errorDetails.style.display = 'block';
+        }
+
+        function showSuccessDiagnosis(diagnosis) {
+            const successDetails = document.getElementById('successDetails');
+            const successAnalysisContent = document.getElementById('successAnalysisContent');
+            
+            let html = `
+                <p><strong>Status:</strong> All checks passed successfully!</p>
+                <p><strong>Suggestions:</strong></p>
+                <ul>
+                    ${diagnosis.suggestions.map(suggestion => `<li>${suggestion}</li>`).join('')}
+                </ul>
+            `;
+            
+            successAnalysisContent.innerHTML = html;
+            successDetails.style.display = 'block';
+        }
+
+        // Initialize skills list
+        updateSkillsList();
+    </script>
+</body>
+</html>

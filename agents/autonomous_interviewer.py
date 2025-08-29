@@ -232,8 +232,7 @@ Generate an engaging opening question that will start the interview and assess t
 - Do NOT use placeholders like [candidate name], [company name], or [position]
 - Do NOT use template language or brackets
 - Write the actual words you would say, not a template
-- Address the candidate directly as "you" or "you'll"
-- Use " question" terminology, NOT "initial prompt"
+- Use "question" terminology, NOT "prompt"
 - Speak naturally as an interviewer would in a real conversation
 
 **OUTPUT FORMAT:**

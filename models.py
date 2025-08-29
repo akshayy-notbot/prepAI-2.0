@@ -1,8 +1,16 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, Boolean, text, inspect, JSON
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, Boolean, text, inspect, JSON, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 import os
+from typing import Optional
+
+# Load environment variables from .env file
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # dotenv not available
 
 # Use the DATABASE_URL from the environment (Render will provide this)
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -58,6 +66,58 @@ class SessionState(Base):
     
     def __repr__(self):
         return f"<SessionState(session_id={self.session_id}, final_stage={self.final_stage})>"
+
+class InterviewPlaybook(Base):
+    """
+    Stores interview playbooks for different Role × Skill × Seniority combinations.
+    Contains evaluation dimensions, signals, and archetype information.
+    """
+    __tablename__ = "interview_playbooks"
+    
+    id = Column(Integer, primary_key=True)
+    role = Column(String, index=True)
+    skill = Column(String, index=True)
+    seniority = Column(String, index=True)
+    archetype = Column(String)  # "broad_design", "improvement", "strategic"
+    interview_objective = Column(Text)
+    evaluation_dimensions = Column(JSON)  # Each dimension with signals and probes
+    seniority_criteria = Column(JSON)  # How evaluation differs by level
+    good_vs_great_examples = Column(JSON)  # Examples of different performance levels
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f"<InterviewPlaybook(role={self.role}, skill={self.skill}, seniority={self.seniority})>"
+
+class InterviewSession(Base):
+    """
+    Tracks individual interview sessions with their plans, execution, and evaluation.
+    """
+    __tablename__ = "interview_sessions"
+    
+    id = Column(Integer, primary_key=True)
+    session_id = Column(String, unique=True, index=True)
+    
+    # Pre-interview planning data
+    playbook_id = Column(Integer, ForeignKey("interview_playbooks.id"), nullable=True)
+    selected_archetype = Column(String)
+    generated_prompt = Column(Text)
+    signal_map = Column(JSON)
+    evaluation_criteria = Column(JSON)
+    
+    # Interview execution data
+    conversation_history = Column(JSON, default=list)
+    collected_signals = Column(JSON, default=dict)
+    
+    # Post-interview data
+    final_evaluation = Column(JSON, nullable=True)
+    
+    # Metadata
+    created_at = Column(DateTime, default=datetime.utcnow)
+    interview_started_at = Column(DateTime, nullable=True)
+    interview_completed_at = Column(DateTime, nullable=True)
+    
+    def __repr__(self):
+        return f"<InterviewSession(session_id={self.session_id}, archetype={self.selected_archetype})>"
 
 # --- Database Utility Functions ---
 
@@ -173,6 +233,109 @@ def persist_complete_interview(session_id: str, session_data: dict, conversation
     except Exception as e:
         print(f"❌ Failed to persist interview data: {e}")
         return False
+
+def persist_interview_session(session_data: dict) -> bool:
+    """
+    Persist interview session data to PostgreSQL.
+    
+    Args:
+        session_data: Dictionary containing session information
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        session_local = get_session_local()
+        db = session_local()
+        
+        # Create new interview session
+        interview_session = InterviewSession(**session_data)
+        db.add(interview_session)
+        db.commit()
+        db.refresh(interview_session)
+        
+        print(f"✅ Interview session {session_data['session_id']} persisted successfully")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Failed to persist interview session: {e}")
+        if db:
+            db.rollback()
+        return False
+        
+    finally:
+        if db:
+            db.close()
+
+def get_interview_session(session_id: str) -> Optional[InterviewSession]:
+    """
+    Retrieve interview session by session ID.
+    
+    Args:
+        session_id: The session identifier
+        
+    Returns:
+        InterviewSession object or None if not found
+    """
+    try:
+        session_local = get_session_local()
+        db = session_local()
+        
+        session = db.query(InterviewSession).filter(
+            InterviewSession.session_id == session_id
+        ).first()
+        
+        return session
+        
+    except Exception as e:
+        print(f"❌ Failed to retrieve interview session: {e}")
+        return None
+        
+    finally:
+        if db:
+            db.close()
+
+def update_interview_session(session_id: str, updates: dict) -> bool:
+    """
+    Update interview session with new data.
+    
+    Args:
+        session_id: The session identifier
+        updates: Dictionary of fields to update
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        session_local = get_session_local()
+        db = session_local()
+        
+        session = db.query(InterviewSession).filter(
+            InterviewSession.session_id == session_id
+        ).first()
+        
+        if not session:
+            print(f"❌ Interview session {session_id} not found")
+            return False
+        
+        # Update fields
+        for field, value in updates.items():
+            if hasattr(session, field):
+                setattr(session, field, value)
+        
+        db.commit()
+        print(f"✅ Interview session {session_id} updated successfully")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Failed to update interview session: {e}")
+        if db:
+            db.rollback()
+        return False
+        
+    finally:
+        if db:
+            db.close()
 
 def get_table_names():
     """Get list of all table names"""

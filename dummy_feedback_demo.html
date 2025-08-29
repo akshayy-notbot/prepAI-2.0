@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dummy Feedback Demo - PrepAI Interview Coach</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+        
+        .card {
+            background: #ffffff;
+            padding: 3rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            margin: 2rem auto;
+            max-width: 80rem;
+            position: relative;
+        }
+        
+        .header-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            position: relative;
+        }
+        
+        .header-section::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 2px;
+            background: #2563eb;
+            border-radius: 1px;
+        }
+        
+        .header-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.75rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+        
+        .header-subtitle {
+            font-size: 1.25rem;
+            color: #64748b;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+        
+        .personal-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+
+        
+        .personal-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+        }
+        
+        .personal-header p {
+            color: #64748b;
+            font-size: 1.125rem;
+            margin: 0;
+            font-weight: 500;
+        }
+        
+
+        
+        .top-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .overall-score-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+
+        
+        .score-gauge {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 2rem;
+            position: relative;
+        }
+        
+        .score-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(#2563eb 0deg 280deg, #e2e8f0 280deg 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            bottom: 12px;
+            background: #ffffff;
+            border-radius: 50%;
+        }
+        
+        .score-value {
+            position: relative;
+            z-index: 1;
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        
+
+        
+        .score-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+        }
+        
+        .score-description {
+            color: #64748b;
+            font-size: 1.125rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .executive-summary {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 1.75rem;
+            margin-top: 1.5rem;
+            text-align: left;
+            position: relative;
+        }
+        
+
+        
+        .executive-summary h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+        
+        .executive-summary p {
+            color: #475569;
+            font-size: 1rem;
+            line-height: 1.7;
+            margin: 0;
+        }
+        
+        .skills-assessment-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+
+        
+        .skills-assessment-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .radar-chart-container {
+            width: 100%;
+            height: 400px;
+            position: relative;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .radar-chart-container canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+        .feedback-sections-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .feedback-section {
+            margin-bottom: 0;
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feedback-section::before {
+            display: none;
+        }
+        
+        .feedback-section.strength::before {
+            display: none;
+        }
+        
+        .feedback-section.improvement::before {
+            display: none;
+        }
+        
+        .feedback-section.overall {
+            grid-column: 1 / -1;
+            margin-bottom: 0;
+        }
+        
+        .feedback-section.overall::before {
+            display: none;
+        }
+        
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #1e293b;
+        }
+        
+        .section-title.strength { color: #059669; }
+        .section-title.improvement { color: #dc2626; }
+        .section-title.overall { color: #7c3aed; }
+        
+        .section-title .icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: currentColor;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .feedback-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .feedback-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.3s ease;
+        }
+        
+        .feedback-item:last-child {
+            border-bottom: none;
+        }
+        
+        .feedback-item:hover {
+            background: #f8fafc;
+            margin: 0 -0.5rem;
+            padding: 0.75rem 0.5rem;
+            border-radius: 0.5rem;
+        }
+        
+        .feedback-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #2563eb;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            flex-shrink: 0;
+            margin-top: 0.25rem;
+        }
+        
+        .feedback-text {
+            color: #374151;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            flex: 1;
+        }
+        
+        .learning-resource {
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            position: relative;
+            overflow: hidden;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .learning-resource::before {
+            display: none;
+        }
+        
+        .learning-resource h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .learning-resource h4 .icon {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #2563eb;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .learning-resource p {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1.25rem;
+            color: #475569;
+        }
+        
+        .resource-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            padding: 0.75rem;
+            background: #ffffff;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .resource-item:hover {
+            background: #f1f5f9;
+            transform: translateX(2px);
+        }
+        
+        .resource-icon {
+            width: 14px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #2563eb;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            flex-shrink: 0;
+            margin-top: 0.125rem;
+        }
+        
+        .resource-text {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .general-next-steps {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+            position: relative;
+        }
+        
+        .general-next-steps::before {
+            display: none;
+        }
+        
+        .general-next-steps h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .general-next-steps h4 .icon {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #7c3aed;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .general-next-steps ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .general-next-steps li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            color: #475569;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        
+        .general-next-steps li:last-child {
+            border-bottom: none;
+        }
+        
+        .general-next-steps li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            background: #7c3aed;
+            border-radius: 50%;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 3rem;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            padding: 1.25rem 2.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 1.125rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary .icon {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #2563eb;
+            padding: 1.25rem 2.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 1.125rem;
+            border: 2px solid #2563eb;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+        
+        .btn-secondary:hover {
+            background: #2563eb;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary .icon {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: currentColor;
+            color: #2563eb;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover .icon {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .demo-notice {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 1px solid #f59e0b;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .demo-notice::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+        
+        .demo-notice h3 {
+            color: #92400e;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            font-size: 1.125rem;
+        }
+        
+        .demo-notice p {
+            color: #92400e;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .card {
+                padding: 2rem;
+                margin: 1rem;
+            }
+            
+            .header-title {
+                font-size: 2rem;
+            }
+            
+            .top-section {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .score-gauge {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .score-value {
+                font-size: 2rem;
+            }
+            
+            .radar-chart-container {
+                height: 280px;
+            }
+            
+            .radar-grid {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .radar-label {
+                font-size: 0.7rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .feedback-section {
+                padding: 1.5rem;
+            }
+            
+            .skill-score {
+                flex-direction: column;
+                gap: 0.75rem;
+                text-align: center;
+            }
+            
+            .skill-bar-container {
+                margin: 0;
+                flex: none;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto max-w-6xl">
+        <div class="card">
+            <!-- Demo Notice -->
+            <div class="demo-notice">
+                <h3>🎯 Demo Mode - Sample Feedback Data</h3>
+                <p>This is a demonstration of the new comprehensive feedback system. The data below is sample data to show the UI capabilities.</p>
+            </div>
+            
+            <!-- Professional Header -->
+            <div class="header-section">
+                <h1 class="header-title">Your Actionable Feedback Report</h1>
+                <p class="header-subtitle">Comprehensive analysis to accelerate your interview success</p>
+            </div>
+            
+            <!-- Personal Header -->
+            <div class="personal-header">
+                <h2>Interview Feedback Report</h2>
+                <p>Senior Software Engineer Assessment for System Design | 30 August 2025</p>
+            </div>
+            
+            <!-- Overall Score -->
+            <div class="top-section">
+                <div class="overall-score-card">
+                    <div class="score-gauge">
+                        <div class="score-circle">
+                            <span class="score-value">3.9</span>
+                        </div>
+                    </div>
+                    <h3 class="score-label">Strong Performance</h3>
+                    <p class="score-description">Exceeds expectations (3.9/5) with room for targeted improvement in specific areas.</p>
+                    <div class="executive-summary">
+                        <h4>Executive Summary</h4>
+                        <p>The candidate demonstrated exceptional problem-solving abilities and strong leadership potential. Their communication skills are outstanding, and they show solid technical foundations. The primary growth opportunity lies in developing strategic thinking and deepening technical expertise in emerging technologies.</p>
+                    </div>
+                </div>
+                <div class="skills-assessment-card">
+                    <h3>Skills Assessment</h3>
+                    <div class="radar-chart-container">
+                        <canvas id="radarChart" width="400" height="400"></canvas>
+                        
+
+                    </div>
+                    
+                    <!-- Skill Scores Summary -->
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
+                        <h4 style="font-size: 1rem; font-weight: 600; color: #64748b; margin-bottom: 1rem;">Key Insights:</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem;">
+                            <div style="color: #059669; font-weight: 600;">• Problem Framing: 4.0/5 (Strength)</div>
+                            <div style="color: #059669; font-weight: 600;">• Communication: 4.2/5 (Strength)</div>
+                            <div style="color: #dc2626; font-weight: 600;">• Strategic Thinking: 2.8/5 (Growth Area)</div>
+                            <div style="color: #dc2626; font-weight: 600;">• Technical Knowledge: 3.0/5 (Growth Area)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Sections Grid -->
+            <div class="feedback-sections-grid">
+                <!-- Strengths Section -->
+                <div class="feedback-section strength">
+                    <h3 class="section-title strength">
+                        <span class="icon">S</span>
+                        Key Strengths
+                    </h3>
+                    <ul class="feedback-list">
+                        <li class="feedback-item">
+                            <span class="feedback-icon">✓</span>
+                            <span class="feedback-text">Problem Framing: Excellent ability to break down complex problems into manageable components with clear context and scope definition.</span>
+                        </li>
+                        <li class="feedback-item">
+                            <span class="feedback-icon">✓</span>
+                            <span class="feedback-text">Communication: Strong verbal communication skills with clear articulation of thoughts and ideas.</span>
+                        </li>
+                        <li class="feedback-item">
+                            <span class="feedback-icon">✓</span>
+                            <span class="feedback-text">Leadership: Demonstrated ability to lead teams and manage project delivery effectively.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Areas for Improvement -->
+                <div class="feedback-section improvement">
+                    <h3 class="section-title improvement">
+                        <span class="icon">I</span>
+                        Areas for Improvement
+                    </h3>
+                    <ul class="feedback-list">
+                        <li class="feedback-item">
+                            <span class="feedback-icon">!</span>
+                            <span class="feedback-text">Strategic Thinking: Could benefit from more high-level strategic planning and long-term vision development.</span>
+                        </li>
+                        <li class="feedback-item">
+                            <span class="feedback-icon">!</span>
+                            <span class="feedback-text">Technical Knowledge: Consider deepening understanding of current industry technologies and best practices.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Your Personalized Growth Plan -->
+            <div class="feedback-section overall">
+                <h3 class="section-title overall">
+                    <span class="icon">G</span>
+                    Your Personalized Growth Plan
+                </h3>
+                
+                <!-- Strategic Thinking Improvement -->
+                <div class="learning-resource">
+                    <h4>
+                        <span class="icon">S</span>
+                        Strategic Thinking
+                    </h4>
+                    <p>Focus on developing high-level strategic planning and long-term vision.</p>
+                    <div class="resource-item">
+                        <span class="resource-icon">B</span>
+                        <span class="resource-text">Practice case studies from McKinsey, BCG, and Bain</span>
+                    </div>
+                    <div class="resource-item">
+                        <span class="resource-icon">V</span>
+                        <span class="resource-text">Watch "Strategy Simplified" series on YouTube</span>
+                    </div>
+                    <div class="resource-item">
+                        <span class="resource-icon">P</span>
+                        <span class="resource-text">Practice framing business problems from multiple angles</span>
+                    </div>
+                </div>
+                
+                <!-- Technical Knowledge Improvement -->
+                <div class="learning-resource">
+                    <h4>
+                        <span class="icon">T</span>
+                        Technical Knowledge
+                    </h4>
+                    <p>Deepen understanding of current industry technologies and best practices.</p>
+                    <div class="resource-item">
+                        <span class="resource-icon">B</span>
+                        <span class="resource-text">Read "The Pragmatic Programmer" and "Clean Code"</span>
+                    </div>
+                    <div class="resource-item">
+                        <span class="resource-icon">W</span>
+                        <span class="resource-text">Follow tech blogs: TechCrunch, Wired, Ars Technica</span>
+                    </div>
+                    <div class="resource-item">
+                        <span class="resource-icon">C</span>
+                        <span class="resource-text">Practice system design questions on LeetCode</span>
+                    </div>
+                </div>
+                
+                <!-- General Next Steps -->
+                <div class="general-next-steps">
+                    <h4>
+                        <span class="icon">N</span>
+                        General Next Steps
+                    </h4>
+                    <ul>
+                        <li>Practice similar strategic thinking questions to build confidence</li>
+                        <li>Review your answers and identify specific areas for improvement</li>
+                        <li>Consider mock interviews with different scenarios</li>
+                        <li>Set up weekly practice sessions focusing on weak areas</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn-primary" onclick="showDetailedReview()">
+                    <span class="icon">R</span>
+                    Review My Answers
+                </button>
+                <button class="btn-secondary">
+                    <span class="icon">S</span>
+                    Start New Interview
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for demonstration
+        const feedbackData = {
+            overallScore: 78,
+            skillScores: {
+                "Problem Framing": 4.0,
+                "Leadership": 3.8,
+                "Technical Knowledge": 3.0,
+                "Communication": 4.2,
+                "Strategic Thinking": 2.8,
+                "Adaptability": 3.5,
+                "Innovation": 3.2,
+                "Team Collaboration": 3.9
+            }
+        };
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeRadarChart();
+            animateElements();
+            setupEventListeners();
+        });
+        
+        function initializeRadarChart() {
+            const ctx = document.getElementById('radarChart');
+            if (!ctx) return;
+            
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: Object.keys(feedbackData.skillScores),
+                    datasets: [{
+                        label: 'Your Skills Profile',
+                        data: Object.values(feedbackData.skillScores),
+                        backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                        borderColor: '#2563eb',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#2563eb',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 5,
+                            ticks: {
+                                stepSize: 1,
+                                font: {
+                                    size: 12,
+                                    family: 'Inter, sans-serif'
+                                },
+                                color: '#64748b'
+                            },
+                            grid: {
+                                color: '#e2e8f0',
+                                lineWidth: 1
+                            },
+                            angleLines: {
+                                color: '#e2e8f0',
+                                lineWidth: 1
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 11,
+                                    family: 'Inter, sans-serif',
+                                    weight: '600'
+                                },
+                                color: '#374151',
+                                padding: 15
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    elements: {
+                        point: {
+                            hoverBorderWidth: 3
+                        }
+                    }
+                }
+            });
+        }
+        
+        function animateElements() {
+            // Animate score circle
+            const scoreCircle = document.querySelector('.score-circle');
+            if (scoreCircle) {
+                scoreCircle.style.opacity = '0';
+                scoreCircle.style.transform = 'scale(0.8)';
+                
+                setTimeout(() => {
+                    scoreCircle.style.transition = 'all 0.8s ease';
+                    scoreCircle.style.opacity = '1';
+                    scoreCircle.style.transform = 'scale(1)';
+                }, 300);
+            }
+            
+            // Animate feedback sections
+            const feedbackSections = document.querySelectorAll('.feedback-section');
+            feedbackSections.forEach((section, index) => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    section.style.transition = 'all 0.6s ease';
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }, 500 + (index * 200));
+            });
+        }
+        
+        function setupEventListeners() {
+            // Add hover effects to feedback sections
+            const feedbackSections = document.querySelectorAll('.feedback-section');
+            feedbackSections.forEach(section => {
+                section.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                
+                section.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // Add click handlers for demo buttons
+            const btnPrimary = document.querySelector('.btn-primary');
+            const btnSecondary = document.querySelector('.btn-secondary');
+            
+            if (btnPrimary) {
+                btnPrimary.addEventListener('click', function() {
+                    alert('🎉 Demo: This would open the detailed answer review in the real application!');
+                });
+            }
+            
+            if (btnSecondary) {
+                btnSecondary.addEventListener('click', function() {
+                    alert('🚀 Demo: This would start a new interview in the real application!');
+                });
+            }
+        }
+        
+        // Detailed Review Modal
+        function showDetailedReview() {
+            // Create modal HTML
+            const modalHTML = `
+                <div id="review-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+                    <div class="bg-white rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-100">
+                        <div class="sticky top-0 bg-gray-50 border-b border-gray-200 px-8 py-6 rounded-t-3xl">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Detailed Answer Review</h2>
+                                    <p class="text-gray-600 text-lg">Review each question with AI evaluation and improvement suggestions</p>
+                                </div>
+                                <button onclick="closeDetailedReview()" class="text-gray-400 hover:text-gray-600 text-3xl font-bold w-12 h-12 rounded-full hover:bg-gray-100 flex items-center justify-center transition-all">&times;</button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-8 space-y-8">
+                            <!-- Question 1 -->
+                            <div class="border border-gray-200 rounded-2xl p-8 bg-gray-50 shadow-lg">
+                                <div class="flex items-start justify-between mb-6">
+                                    <h3 class="text-xl font-bold text-gray-900">Q1: Tell me about a challenging project you worked on.</h3>
+                                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">Score: 4.2/5</div>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <h4 class="font-bold text-gray-800 mb-3 text-lg">Your Answer:</h4>
+                                    <div class="bg-gray-100 p-6 rounded-xl border border-gray-200 shadow-sm">
+                                        <p class="text-gray-800 text-lg leading-relaxed">I led a team of 5 developers to build a real-time analytics dashboard for a Fortune 500 company. We had to integrate data from multiple sources and ensure real-time updates. I used agile methodology and broke down the project into sprints. We delivered on time and the client was very satisfied with the results.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <h4 class="font-bold text-gray-800 mb-3 text-lg">AI Evaluation:</h4>
+                                    <div class="bg-gray-100 p-6 rounded-xl border border-gray-200">
+                                        <p class="text-gray-800 text-lg"><strong>Strengths:</strong> Clear project scope, team leadership, methodology explanation, successful delivery</p>
+                                        <p class="text-gray-800 mt-3 text-lg"><strong>Areas for improvement:</strong> Could include more technical details, challenges faced, and lessons learned</p>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-bold text-gray-800 mb-3 text-lg">Sample Improved Answer:</h4>
+                                    <div class="bg-gray-100 p-6 rounded-xl border border-gray-200">
+                                        <p class="text-gray-800 text-lg leading-relaxed">I led a cross-functional team of 5 developers, 2 designers, and 1 data scientist to build a real-time analytics dashboard for a Fortune 500 retail company. The challenge was integrating data from 8 different systems (ERP, CRM, POS, etc.) with varying data formats and update frequencies.</p>
+                                        <p class="text-gray-800 mt-3 text-lg leading-relaxed">We used agile methodology with 2-week sprints and faced challenges like data synchronization issues and performance bottlenecks. I implemented a microservices architecture and used Apache Kafka for real-time data streaming. We delivered 2 weeks ahead of schedule, and the dashboard now processes 10M+ data points daily with 99.9% uptime.</p>
+                                        <p class="text-gray-800 mt-3 text-lg leading-relaxed">Key learnings: Always validate data quality early, implement monitoring from day one, and maintain clear communication with stakeholders throughout the project.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Question 2 -->
+                            <div class="border border-gray-200 rounded-2xl p-8 bg-gray-50 shadow-lg">
+                                <div class="flex items-start justify-between mb-6">
+                                    <h3 class="text-xl font-bold text-gray-900">Q2: How do you handle conflicting priorities?</h3>
+                                    <div class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">Score: 3.1/5</div>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <h4 class="font-bold text-gray-800 mb-3 text-lg">Your Answer:</h4>
+                                    <div class="bg-gray-100 p-6 rounded-xl border border-gray-200 shadow-sm">
+                                        <p class="text-gray-800 text-lg leading-relaxed">I use a prioritization matrix to evaluate impact vs effort. I also communicate with stakeholders to understand business value and urgency. When conflicts arise, I gather all parties to discuss trade-offs and find the best path forward.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <h4 class="font-bold text-gray-800 mb-3 text-lg">AI Evaluation:</h4>
+                                    <div class="bg-gray-100 p-6 rounded-xl border border-gray-200">
+                                        <p class="text-gray-800 text-lg"><strong>Strengths:</strong> Systematic approach, stakeholder communication, conflict resolution</p>
+                                        <p class="text-gray-800 mt-3 text-lg"><strong>Areas for improvement:</strong> Could provide specific examples, metrics for prioritization, and escalation procedures</p>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-bold text-gray-800 mb-3 text-lg">Sample Improved Answer:</h4>
+                                    <div class="bg-gray-100 p-6 rounded-xl border border-gray-200">
+                                        <p class="text-gray-800 text-lg leading-relaxed">I use a structured approach combining the Eisenhower Matrix and RICE scoring (Reach, Impact, Confidence, Effort). For example, when we had conflicting requests from Marketing (urgent campaign launch) and Engineering (critical security patch), I scored both using RICE.</p>
+                                        <p class="text-gray-800 mt-3 text-lg leading-relaxed">The security patch scored higher (Impact: 9/10, Confidence: 8/10) despite Marketing's urgency. I presented this analysis to stakeholders, explaining the risk assessment and proposed timeline. We agreed to implement the security patch first, then accelerated the campaign launch with additional resources.</p>
+                                        <p class="text-gray-800 mt-3 text-lg leading-relaxed">I also maintain a priority log and review it weekly with stakeholders to ensure alignment and catch conflicts early.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Question 3 -->
+                            <div class="border border-gray-200 rounded-2xl p-8 bg-gray-50 shadow-lg">
+                                <div class="flex items-start justify-between mb-6">
+                                    <h3 class="text-xl font-bold text-gray-900">Q3: Describe your problem-solving approach.</h3>
+                                    <div class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">Score: 4.5/5</div>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <h4 class="font-bold text-gray-800 mb-3 text-lg">Your Answer:</h4>
+                                    <div class="bg-gray-100 p-6 rounded-xl border border-gray-200 shadow-sm">
+                                        <p class="text-gray-800 text-lg leading-relaxed">I start by understanding the root cause, then break down the problem into smaller components. I gather relevant data and analyze it to identify patterns. I brainstorm multiple solutions and evaluate them based on feasibility and impact. Finally, I implement the best solution and monitor the results.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <h4 class="font-bold text-gray-800 mb-3 text-lg">AI Evaluation:</h4>
+                                    <div class="bg-gray-100 p-6 rounded-xl border border-gray-200">
+                                        <p class="text-gray-800 text-lg"><strong>Strengths:</strong> Systematic approach, data-driven, multiple solution consideration, monitoring</p>
+                                        <p class="text-gray-800 mt-3 text-lg"><strong>Areas for improvement:</strong> Could include stakeholder involvement and iteration process</p>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-bold text-gray-800 mb-3 text-lg">Sample Improved Answer:</h4>
+                                    <div class="bg-gray-100 p-6 rounded-xl border border-gray-200">
+                                        <p class="text-gray-800 text-lg leading-relaxed">I follow a structured 5-step approach: 1) Define the problem clearly with stakeholders, 2) Root cause analysis using techniques like 5 Whys or Fishbone diagrams, 3) Break down into manageable components and gather relevant data, 4) Generate and evaluate multiple solutions using frameworks like Decision Matrix, 5) Implement with iterative feedback loops.</p>
+                                        <p class="text-gray-800 mt-3 text-lg leading-relaxed">For example, when our app had 30% user drop-off, I involved UX, Engineering, and Product teams to define the problem scope. We used analytics to identify the drop-off point was during onboarding. We tested 3 different approaches and implemented the best one with A/B testing, resulting in 25% improvement in retention.</p>
+                                        <p class="text-gray-800 mt-3 text-lg leading-relaxed">I always document the process and learnings for future reference and team knowledge sharing.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-8 py-6 rounded-b-3xl">
+                            <div class="flex justify-between items-center">
+                                <div class="text-lg text-gray-700">
+                                    <span class="font-bold">Overall Score:</span> <span class="text-2xl font-bold text-blue-600">3.9/5</span>
+                                </div>
+                                <button onclick="closeDetailedReview()" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                                    Close Review
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add modal to page
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Prevent body scroll when modal is open
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeDetailedReview() {
+            const modal = document.getElementById('review-modal');
+            if (modal) {
+                modal.remove();
+                document.body.style.overflow = 'auto';
+            }
+        }
+    </script>
+</body>
+</html>

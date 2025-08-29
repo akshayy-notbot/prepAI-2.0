@@ -34,7 +34,9 @@ try:
     from agents.autonomous_interviewer import AutonomousInterviewer
     from agents.session_tracker import SessionTracker
     from agents.evaluation import evaluate_answer
-    from models import persist_complete_interview
+    from agents.pre_interview_planner import PreInterviewPlanner
+    from agents.interview_evaluator import InterviewEvaluator
+    from models import persist_complete_interview, persist_interview_session
     print("✅ Autonomous interviewer components imported successfully")
 except Exception as e:
     print(f"❌ Failed to import autonomous interviewer components: {e}")
@@ -187,12 +189,13 @@ async def evaluate_interview(request: EvaluateInterviewRequest):
                     "feedback": latest_feedback
                 }
         
-        overall_score = int(round(sum(all_scores) / len(all_scores) * 20, 0)) if all_scores else 0  # Convert to 0-100 scale
+        # Calculate overall score on 0-5 scale (keep original scale)
+        overall_score_5_scale = round(sum(all_scores) / len(all_scores), 1) if all_scores else 0
         
         # Generate response matching feedback page expectations
         feedback_response = {
-            "overall_score": overall_score,
-            "overall_feedback": f"Your interview performance shows {'strong' if overall_score >= 80 else 'good' if overall_score >= 60 else 'developing'} skills in {request.role} for {request.seniority} level.",
+            "overall_score": overall_score_5_scale,  # Use 0-5 scale for frontend
+            "overall_feedback": f"Your interview performance shows {'strong' if overall_score_5_scale >= 4.0 else 'good' if overall_score_5_scale >= 3.0 else 'developing'} skills in {request.role} for {request.seniority} level.",
             "scores": skill_scores,  # Individual skill scores for the UI
             "strengths": strengths[:3] if strengths else ["Good communication throughout the interview"],
             "improvements": improvements[:3] if improvements else ["Continue practicing to build confidence"],
@@ -214,13 +217,107 @@ async def evaluate_interview(request: EvaluateInterviewRequest):
             "detailed_evaluations": evaluations  # Include full evaluations with ideal responses
         }
         
-        print(f"✅ Evaluation completed successfully with overall score: {overall_score}")
+        print(f"✅ Evaluation completed successfully with overall score: {overall_score_5_scale}/5")
         print(f"📊 Skill breakdown: {skill_scores}")
         return feedback_response
         
     except Exception as e:
         print(f"❌ Error in evaluate_interview: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to evaluate interview: {str(e)}")
+
+# --- Enhanced Interview Evaluation Endpoint ---
+@app.post("/api/evaluate-interview-enhanced")
+async def evaluate_interview_enhanced(request: EvaluateInterviewRequest):
+    """
+    Enhanced interview evaluation using the new InterviewEvaluator.
+    Provides comprehensive dimension-by-dimension assessment with signal evidence.
+    """
+    try:
+        print(f"🔍 Enhanced evaluation for {request.role} role ({request.seniority} level)")
+        
+        # Get the interview plan from the session context (if available)
+        # For now, we'll create a basic plan structure
+        interview_plan = {
+            "top_evaluation_dimensions": request.skills if request.skills else ["Problem Solving", "Communication", "Technical Knowledge"],
+            "selected_archetype": "comprehensive",
+            "interview_objective": f"Assess {request.role} capabilities at {request.seniority} level",
+            "seniority_criteria": {
+                "junior": "Basic understanding and application",
+                "mid": "Structured approach with some depth",
+                "senior": "Strategic thinking and comprehensive analysis",
+                "staff+": "Innovative approaches and thought leadership"
+            },
+            "good_vs_great_examples": {
+                "good": "Competent, covers basics, logical approach",
+                "great": "Insightful, innovative, considers edge cases, shows deep understanding"
+            }
+        }
+        
+        # Convert transcript to conversation history format
+        conversation_history = []
+        for item in request.transcript:
+            if item.get("question"):
+                conversation_history.append({
+                    "role": "interviewer",
+                    "content": item["question"],
+                    "timestamp": item.get("timestamp", "")
+                })
+            if item.get("answer"):
+                conversation_history.append({
+                    "role": "candidate",
+                    "content": item["answer"],
+                    "timestamp": item.get("timestamp", "")
+                })
+        
+        # Create signal evidence from the transcript
+        signal_evidence = {}
+        for skill in interview_plan["top_evaluation_dimensions"]:
+            signal_evidence[skill] = {
+                "positive_signals": [],
+                "areas_for_improvement": [],
+                "quotes": [],
+                "confidence": "Medium"
+            }
+            
+            # Simple signal extraction (in production, this would be more sophisticated)
+            for item in request.transcript:
+                if item.get("answer"):
+                    answer = item["answer"].lower()
+                    if any(word in answer for word in ["think", "approach", "strategy"]):
+                        signal_evidence[skill]["positive_signals"].append("Shows strategic thinking")
+                    if any(word in answer for word in ["user", "customer", "need"]):
+                        signal_evidence[skill]["positive_signals"].append("Demonstrates user empathy")
+                    signal_evidence[skill]["quotes"].append(item["answer"][:100] + "...")
+        
+        # Use the InterviewEvaluator for comprehensive evaluation
+        evaluator = InterviewEvaluator()
+        evaluation_result = evaluator.evaluate_interview(
+            role=request.role,
+            seniority=request.seniority,
+            skill=request.skills[0] if request.skills else "General",
+            conversation_history=conversation_history,
+            signal_evidence=signal_evidence,
+            interview_plan=interview_plan
+        )
+        
+        if "error" in evaluation_result:
+            raise Exception(evaluation_result["error"])
+        
+        # Generate human-readable summary
+        summary = evaluator.generate_evaluation_summary(evaluation_result)
+        
+        # Return comprehensive evaluation
+        return {
+            "success": True,
+            "evaluation": evaluation_result,
+            "summary": summary,
+            "metadata": evaluation_result.get("evaluation_metadata", {}),
+            "message": "Enhanced evaluation completed successfully"
+        }
+        
+    except Exception as e:
+        print(f"❌ Error in enhanced evaluation: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to perform enhanced evaluation: {str(e)}")
 
 # --- Health Check Endpoint ---
 @app.get("/health")
@@ -247,35 +344,98 @@ async def start_interview(request: StartInterviewRequest):
         session_id = f"session_{int(time.time())}_{random.randint(1000, 9999)}"
         print(f"✅ Generated session ID: {session_id}")
         
-        # Initialize Session Tracker and Autonomous Interviewer
+        # Step 1: Create interview plan using PreInterviewPlanner
+        print("📋 Creating interview plan...")
         try:
-            session_tracker = SessionTracker()
-            autonomous_interviewer = AutonomousInterviewer()
-            
-            # Create new session with simplified structure
-            session_data = session_tracker.create_session(
-                session_id=session_id,
+            planner = PreInterviewPlanner()
+            interview_plan = planner.create_interview_plan(
                 role=request.role,
-                seniority=request.seniority,
-                skill=request.skills[0] if request.skills else "General"  # Focus on first skill
+                skill=request.skills[0] if request.skills else "General",
+                seniority=request.seniority
             )
+            print(f"✅ Interview plan created with archetype: {interview_plan['selected_archetype']}")
             
-            print(f"✅ Session created successfully with autonomous interviewer")
+        except Exception as planning_error:
+            error_msg = str(planning_error)
+            print(f"❌ Failed to create interview plan: {error_msg}")
+            
+            # Provide helpful error messages based on the error
+            if "No interview playbook found" in error_msg:
+                return {
+                    "error": "Interview playbook not found",
+                    "message": f"No interview playbook exists for {request.role} - {request.skills[0] if request.skills else 'General'} - {request.seniority}. Please ensure the playbook exists in the database.",
+                    "status_code": 404
+                }, 404
+            elif "No evaluation dimensions found" in error_msg:
+                return {
+                    "error": "Incomplete playbook data",
+                    "message": f"The interview playbook for {request.role} - {request.skills[0] if request.skills else 'General'} - {request.seniority} is missing evaluation dimensions. Please update the playbook.",
+                    "status_code": 400
+                }, 400
+            elif "No interview objective found" in error_msg:
+                return {
+                    "error": "Incomplete playbook data",
+                    "message": f"The interview playbook for {request.role} - {request.skills[0] if request.skills else 'General'} - {request.seniority} is missing interview objective. Please update the playbook.",
+                    "status_code": 400
+                }, 400
+            else:
+                return {
+                    "error": "Interview planning failed",
+                    "message": f"Failed to create interview plan: {error_msg}",
+                    "status_code": 500
+                }, 500
+        
+        # Step 2: Create interview session in database
+        print("💾 Creating interview session...")
+        try:
+            session_data = {
+                "session_id": session_id,
+                "selected_archetype": interview_plan["selected_archetype"],
+                "generated_prompt": interview_plan["interview_prompt"],
+                "conversation_history": [],
+                "collected_signals": {},
+                "final_evaluation": None
+            }
+            
+            if not persist_interview_session(session_data):
+                raise Exception("Failed to persist interview session to database")
+            
+            print(f"✅ Interview session created and persisted")
             
         except Exception as session_error:
             print(f"❌ Failed to create session: {session_error}")
             return {"error": f"Failed to create interview session: {session_error}"}, 500
         
-        # Generate the First Question
-        print("🎭 Generating first interview question using Autonomous Interviewer...")
+        # Step 3: Initialize Session Tracker and Autonomous Interviewer
+        try:
+            session_tracker = SessionTracker()
+            autonomous_interviewer = AutonomousInterviewer()
+            
+            # Create new session with simplified structure
+            session_tracker.create_session(
+                session_id=session_id,
+                role=request.role,
+                seniority=request.seniority,
+                skill=request.skills[0] if request.skills else "General"
+            )
+            
+            print(f"✅ Session tracker initialized successfully")
+            
+        except Exception as tracker_error:
+            print(f"❌ Failed to initialize session tracker: {tracker_error}")
+            # Continue anyway since we have the main session in database
+        
+        # Step 4: Generate the First Question using the interview plan
+        print("🎭 Generating first interview question using interview plan...")
         
         try:
-            # Get initial question from autonomous interviewer
+            # Get initial question from autonomous interviewer using the plan
             first_question_result = autonomous_interviewer.get_initial_question(
                 role=request.role,
                 seniority=request.seniority,
                 skill=request.skills[0] if request.skills else "General",
-                session_context=session_tracker.get_session_context(session_id)
+                session_context={"interview_plan": interview_plan},
+                interview_plan=interview_plan
             )
             
             if not first_question_result.get("response_text"):
@@ -285,7 +445,8 @@ async def start_interview(request: StartInterviewRequest):
             print(f"✅ Opening statement generated: {opening_statement[:100]}...")
             
             # Update session with initial state
-            session_tracker.update_interview_state(session_id, first_question_result["interview_state"])
+            if 'session_tracker' in locals():
+                session_tracker.update_interview_state(session_id, first_question_result["interview_state"])
             
         except Exception as interviewer_error:
             print(f"❌ Autonomous Interviewer failed: {interviewer_error}")
@@ -319,7 +480,7 @@ async def start_interview(request: StartInterviewRequest):
             print(f"❌ Failed to save history to Redis: {redis_error}")
             return {"error": f"Failed to save interview history: {str(redis_error)}"}, 500
         
-        # Return the Response
+        # Return the Response with interview plan
         response_data = {
             "session_id": session_id,
             "opening_statement": opening_statement,
@@ -328,7 +489,12 @@ async def start_interview(request: StartInterviewRequest):
             "seniority": request.seniority,
             "skill": request.skills[0] if request.skills else "General",
             "estimated_duration_minutes": 45,  # Default duration
-            "message": "Interview started successfully with autonomous interviewer"
+            "message": "Interview started successfully with pre-interview planning",
+            "interview_plan": {
+                "archetype": interview_plan["selected_archetype"],
+                "objective": interview_plan.get("evaluation_criteria", {}).get("seniority_adjustments", {}).get(request.seniority.lower(), "Standard evaluation"),
+                "evaluation_dimensions": list(interview_plan["signal_map"].keys())
+            }
         }
         
         print(f"🎯 Interview session {session_id} started successfully!")
@@ -423,14 +589,18 @@ async def submit_answer(request: SubmitAnswerRequest):
             print(f"  - conversation_history: {len(ai_conversation_history)} turns")
             print(f"  - session_context: {session_tracker.get_session_context(request.session_id)}")
             
-            # Process the user response using autonomous interviewer
+            # Get the interview plan from the session context
+            interview_plan = session_tracker.get_session_context(request.session_id).get("interview_plan", {})
+            
+            # Process the user response using enhanced autonomous interviewer with signal tracking
             interviewer_result = autonomous_interviewer.conduct_interview_turn(
                 role=session_data["role"],
                 seniority=session_data["seniority"],
                 skill=session_data["skill"],
                 interview_stage=session_data["current_stage"],
                 conversation_history=ai_conversation_history,
-                session_context=session_tracker.get_session_context(request.session_id)
+                session_context=session_tracker.get_session_context(request.session_id),
+                interview_plan=interview_plan
             )
             
             if not interviewer_result.get("response_text"):
@@ -703,6 +873,194 @@ async def get_interview_status(session_id: str):
     except Exception as e:
         print(f"❌ Unexpected error in get_interview_status: {e}")
         return {"error": f"Failed to get interview status: {str(e)}"}, 500
+
+# --- Prompt Evaluation Endpoints ---
+from agents.prompt_evaluator import prompt_evaluator
+
+@app.get("/api/prompt-evaluation/overview")
+async def get_prompt_evaluation_overview(hours: int = 24):
+    """Get overview of prompt evaluation metrics"""
+    try:
+        analysis = prompt_evaluator.get_prompt_effectiveness_analysis(hours)
+        return analysis
+    except Exception as e:
+        print(f"❌ Error in get_prompt_evaluation_overview: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get overview: {str(e)}")
+
+@app.get("/api/prompt-evaluation/components")
+async def get_prompt_evaluation_components():
+    """Get list of available components"""
+    try:
+        # Get unique components from database
+        executions = prompt_evaluator.get_executions(limit=1000)
+        components = list(set(execution.component for execution in executions))
+        return components
+    except Exception as e:
+        print(f"❌ Error in get_prompt_evaluation_components: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get components: {str(e)}")
+
+@app.get("/api/prompt-evaluation/component/{component}")
+async def get_component_analysis(component: str, hours: int = 24):
+    """Get detailed analysis for a specific component"""
+    try:
+        analysis = prompt_evaluator.analyze_component_performance(component, hours)
+        if not analysis:
+            raise HTTPException(status_code=404, detail=f"Component {component} not found")
+        return analysis
+    except Exception as e:
+        print(f"❌ Error in get_component_analysis: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to analyze component: {str(e)}")
+
+@app.get("/api/prompt-evaluation/executions")
+async def get_prompt_executions(limit: int = 100, success_only: bool = None):
+    """Get recent prompt executions"""
+    try:
+        executions = prompt_evaluator.get_executions(limit=limit, success_only=success_only)
+        # Convert to serializable format
+        serializable_executions = []
+        for execution in executions:
+            serializable_executions.append({
+                "execution_id": execution.execution_id,
+                "timestamp": execution.timestamp,
+                "component": execution.component,
+                "method": execution.method,
+                "prompt_type": execution.prompt_type,
+                "input_data": execution.input_data,
+                "prompt_text": execution.prompt_text,
+                "output_data": execution.output_data,
+                "response_text": execution.response_text,
+                "latency_ms": execution.latency_ms,
+                "token_count": execution.token_count,
+                "success": execution.success,
+                "error_message": execution.error_message,
+                "session_id": execution.session_id,
+                "user_id": execution.user_id,
+                "role": execution.role,
+                "seniority": execution.seniority,
+                "skill": execution.skill
+            })
+        return serializable_executions
+    except Exception as e:
+        print(f"❌ Error in get_prompt_executions: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get executions: {str(e)}")
+
+@app.get("/api/prompt-evaluation/session/{session_id}")
+async def get_session_analysis(session_id: str):
+    """Get analysis for a specific interview session"""
+    try:
+        analysis = prompt_evaluator.get_session_analysis(session_id)
+        return analysis
+    except Exception as e:
+        print(f"❌ Error in get_session_analysis: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to analyze session: {str(e)}")
+
+@app.get("/api/prompt-evaluation/export")
+async def export_prompt_executions(hours: int = 24):
+    """Export prompt executions to JSON"""
+    try:
+        success = prompt_evaluator.export_executions_to_json("prompt_executions_export.json", hours)
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to export executions")
+        
+        # Return the file
+        from fastapi.responses import FileResponse
+        return FileResponse("prompt_executions_export.json", media_type="application/json")
+        
+    except Exception as e:
+        print(f"❌ Error in export_prompt_executions: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to export: {str(e)}")
+
+@app.post("/api/prompt-evaluation/clear")
+async def clear_prompt_evaluation_database():
+    """Clear all prompt evaluation data (for debugging)"""
+    try:
+        import sqlite3
+        import os
+        
+        db_path = "prompt_evaluations.db"
+        if os.path.exists(db_path):
+            os.remove(db_path)
+            # Reinitialize the database
+            prompt_evaluator._init_database()
+        
+        return {"message": "Database cleared successfully"}
+        
+    except Exception as e:
+        print(f"❌ Error in clear_prompt_evaluation_database: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to clear database: {str(e)}")
+
+@app.post("/api/prompt-evaluation/test")
+async def test_prompt_capture():
+    """Test prompt capture functionality"""
+    try:
+        execution_id = prompt_evaluator.capture_execution(
+            component="test",
+            method="test_method",
+            prompt_type="test",
+            input_data={"test": "data"},
+            prompt_text="Test prompt",
+            output_data={"test": "response"},
+            response_text="Test response",
+            latency_ms=100.0,
+            success=True
+        )
+        return {"execution_id": execution_id, "message": "Test prompt captured successfully"}
+        
+    except Exception as e:
+        print(f"❌ Error in test_prompt_capture: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to test prompt capture: {str(e)}")
+
+@app.post("/api/prompt-evaluation/generate-test-data")
+async def generate_test_prompt_data():
+    """Generate sample test data for demonstration"""
+    try:
+        import random
+        import time
+        
+        # Generate some sample executions
+        components = ["autonomous_interviewer", "evaluation", "pre_interview_planner"]
+        methods = ["conduct_interview_turn", "evaluate_answer", "create_interview_plan"]
+        prompt_types = ["interview_question", "evaluation", "planning"]
+        roles = ["Software Engineer", "Product Manager", "Data Scientist"]
+        seniorities = ["Junior", "Mid", "Senior"]
+        skills = ["System Design", "Problem Solving", "Communication"]
+        
+        count = 0
+        for i in range(20):
+            try:
+                execution_id = prompt_evaluator.capture_execution(
+                    component=random.choice(components),
+                    method=random.choice(methods),
+                    prompt_type=random.choice(prompt_types),
+                    input_data={
+                        "role": random.choice(roles),
+                        "seniority": random.choice(seniorities),
+                        "skill": random.choice(skills),
+                        "test_data": True
+                    },
+                    prompt_text=f"Test prompt {i+1}",
+                    output_data={"test": "response", "iteration": i+1},
+                    response_text=f"Test response {i+1}",
+                    latency_ms=random.uniform(50, 500),
+                    success=random.random() > 0.1,  # 90% success rate
+                    error_message="Test error" if random.random() <= 0.1 else None,
+                    session_id=f"test_session_{random.randint(1, 5)}",
+                    role=random.choice(roles),
+                    seniority=random.choice(seniorities),
+                    skill=random.choice(skills)
+                )
+                count += 1
+                time.sleep(0.01)  # Small delay to ensure unique timestamps
+                
+            except Exception as e:
+                print(f"Failed to generate test execution {i+1}: {e}")
+                continue
+        
+        return {"count": count, "message": f"Generated {count} test prompt executions"}
+        
+    except Exception as e:
+        print(f"❌ Error in generate_test_prompt_data: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate test data: {str(e)}")
 
 # --- Startup Event Handler ---
 @app.on_event("startup")

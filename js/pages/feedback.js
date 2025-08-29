@@ -1,14 +1,14 @@
-// Feedback JavaScript for PrepAI Multi-Page System
+// Enhanced Performance Dashboard JavaScript for PrepAI Multi-Page System
 
-// Global variables for feedback state
+// Global variables for dashboard state
 let interviewTranscript = [];
 let interviewConfig = null;
-let feedbackData = null;
+let evaluationData = null;
 let radarChart = null;
 
-// Initialize feedback when DOM loads
+// Initialize dashboard when DOM loads
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('📋 Feedback page initialized');
+    console.log('📊 Performance Dashboard initialized');
     
     // Check if user can access this page
     if (!validatePageAccess()) {
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Setup event listeners
     setupEventListeners();
     
-    // Load interview data and generate feedback
+    // Load interview data and generate evaluation
     loadInterviewData();
 });
 
@@ -44,7 +44,7 @@ function validatePageAccess() {
 
 // Setup event listeners
 function setupEventListeners() {
-    console.log('🔧 Setting up feedback event listeners...');
+    console.log('🔧 Setting up dashboard event listeners...');
     
     // Back button
     const backBtn = document.getElementById('back-to-homepage-btn');
@@ -64,19 +64,19 @@ function setupEventListeners() {
         reviewBtn.addEventListener('click', handleReviewAnswers);
     }
     
-    // Retry feedback button
+    // Retry evaluation button
     const retryBtn = document.getElementById('retry-feedback-btn');
     if (retryBtn) {
-        retryBtn.addEventListener('click', handleRetryFeedback);
+        retryBtn.addEventListener('click', handleRetryEvaluation);
     }
     
-    // Skip feedback button
+    // Skip evaluation button
     const skipBtn = document.getElementById('skip-feedback-btn');
     if (skipBtn) {
-        skipBtn.addEventListener('click', handleSkipFeedback);
+        skipBtn.addEventListener('click', handleSkipEvaluation);
     }
     
-    console.log('✅ Feedback event listeners setup complete');
+    console.log('✅ Dashboard event listeners setup complete');
 }
 
 // Load interview data from session storage
@@ -99,8 +99,8 @@ function loadInterviewData() {
             config: interviewConfig
         });
         
-        // Generate feedback
-        generateFeedback();
+        // Generate evaluation
+        generateEvaluation();
         
     } catch (error) {
         console.error('❌ Error loading interview data:', error);
@@ -108,24 +108,38 @@ function loadInterviewData() {
     }
 }
 
-// Generate feedback by calling the evaluation API
-async function generateFeedback() {
+// Generate evaluation by calling the enhanced evaluation API
+async function generateEvaluation() {
     try {
-        console.log('🚀 Generating feedback...');
+        console.log('🚀 Generating enhanced evaluation...');
         showLoadingScreen();
         
         // Prepare the evaluation request
         const evaluationRequest = {
             role: interviewConfig.role,
             seniority: interviewConfig.seniority,
-            skills: interviewConfig.skills,
-            transcript: interviewTranscript
+            skill: interviewConfig.skill,
+            conversation_history: interviewTranscript,
+            signal_evidence: {}, // Will be populated by the system
+            interview_plan: {
+                top_dimensions: "Problem Scoping, User Empathy, Creativity & Vision, Business Acumen, Prioritization & Trade-offs",
+                selected_archetype: "Broad Design",
+                interview_objective: "Assess product design and strategic thinking capabilities",
+                seniority_criteria: {
+                    "mid": "Structured approach with some depth",
+                    "senior": "Strategic thinking and comprehensive analysis"
+                },
+                good_vs_great_examples: {
+                    "good": "Basic problem understanding and solution approach",
+                    "great": "Deep user empathy, innovative solutions, business impact consideration"
+                }
+            }
         };
         
-        // Call the evaluation API
+        // Call the enhanced evaluation API
         const API_BASE_URL = window.PREPAI_CONFIG?.API_BASE_URL || 'https://prepai-api.onrender.com';
         
-        const response = await fetch(`${API_BASE_URL}/api/evaluate-interview`, {
+        const response = await fetch(`${API_BASE_URL}/api/evaluate-interview-enhanced`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json'
@@ -138,25 +152,26 @@ async function generateFeedback() {
         }
         
         const data = await response.json();
-        console.log('✅ Feedback generated successfully:', data);
+        console.log('✅ Enhanced evaluation generated successfully:', data);
         
-        feedbackData = data;
-        displayFeedback(data);
+        evaluationData = data;
+        displayDashboard(data);
         
     } catch (error) {
-        console.error('❌ Error generating feedback:', error);
+        console.error('❌ Error generating evaluation:', error);
         showErrorScreen();
     }
 }
 
-// Display feedback data
-function displayFeedback(data) {
-    console.log('📋 Displaying feedback with new structure');
+// Display the enhanced performance dashboard
+function displayDashboard(data) {
+    console.log('📊 Displaying enhanced performance dashboard');
+    console.log('📊 Raw evaluation data:', data);
     
-    // Store feedback data globally for review modal
-    feedbackData = data;
+    // Store evaluation data globally for review modal
+    evaluationData = data;
     
-    // Hide loading, show feedback
+    // Hide loading, show dashboard
     document.getElementById('loading-screen').classList.add('hidden');
     document.getElementById('feedback-screen').classList.remove('hidden');
     
@@ -164,18 +179,35 @@ function displayFeedback(data) {
     updateRoleContext();
     
     // Update overall score and description
-    updateOverallScore(data.overall_score || 3.9);
-    
-    // Update executive summary
-    updateExecutiveSummary(data.overall_feedback);
-    
-    // Initialize radar chart with skills data
-    if (data.scores && Object.keys(data.scores).length > 0) {
-        initializeRadarChart(data.scores);
+    if (data.overall_assessment?.overall_score !== undefined && data.overall_assessment?.overall_score !== null) {
+        updateOverallScore(data.overall_assessment.overall_score);
+    } else {
+        console.error('❌ No overall score received from API');
+        showScoreError();
     }
     
-    // Generate feedback sections
-    generateFeedbackSections(data);
+    // Update executive summary
+    updateExecutiveSummary(data.overall_assessment?.executive_summary);
+    
+    // Initialize radar chart with dimension data
+    if (data.dimension_evaluations && Object.keys(data.dimension_evaluations).length > 0) {
+        initializeDimensionRadarChart(data.dimension_evaluations);
+    }
+    
+    // Generate dimension performance cards
+    if (data.dimension_evaluations) {
+        generateDimensionCards(data.dimension_evaluations);
+    }
+    
+    // Generate seniority insights
+    if (data.overall_assessment) {
+        generateSeniorityInsights(data.overall_assessment);
+    }
+    
+    // Generate interview quality analysis
+    if (data.interview_quality) {
+        generateInterviewQualityAnalysis(data.interview_quality);
+    }
 }
 
 // Update role context
@@ -209,7 +241,7 @@ function updateOverallScore(score) {
     }
     
     if (scoreCircle) {
-        // Calculate the angle for the conic gradient (280deg = 78% of 360deg)
+        // Calculate the angle for the conic gradient
         const percentage = (score / 5) * 100;
         const angle = (percentage / 100) * 360;
         scoreCircle.style.background = `conic-gradient(#2563eb 0deg ${angle}deg, #e2e8f0 ${angle}deg 360deg)`;
@@ -236,106 +268,347 @@ function updateOverallScore(score) {
     }
 }
 
+// Show score calculation error
+function showScoreError() {
+    const scoreValueElement = document.getElementById('score-value');
+    const scoreLabel = document.getElementById('score-label');
+    const scoreDescription = document.getElementById('score-description');
+    const scoreCircle = document.getElementById('score-circle');
+    
+    if (scoreValueElement) {
+        scoreValueElement.textContent = '?';
+        scoreValueElement.style.color = '#ef4444';
+    }
+    
+    if (scoreLabel) {
+        scoreLabel.textContent = 'Could not calculate score';
+        scoreLabel.style.color = '#ef4444';
+    }
+    
+    if (scoreDescription) {
+        scoreDescription.textContent = 'Score calculation failed. Please check the console for debugging information.';
+        scoreDescription.style.color = '#ef4444';
+    }
+    
+    if (scoreCircle) {
+        scoreCircle.style.background = '#f3f4f6';
+    }
+}
+
 // Update executive summary
-function updateExecutiveSummary(feedback) {
+function updateExecutiveSummary(executiveSummary) {
     const summaryElement = document.getElementById('executive-summary-text');
-    if (summaryElement && feedback) {
-        summaryElement.textContent = feedback;
+    if (summaryElement && executiveSummary) {
+        summaryElement.textContent = executiveSummary;
+    } else {
+        console.warn('⚠️ No executive summary received');
+        if (summaryElement) {
+            summaryElement.textContent = 'No executive summary available.';
+            summaryElement.style.color = '#ef4444';
+        }
     }
 }
 
-// Generate feedback sections
-function generateFeedbackSections(data) {
-    console.log('📊 Generating feedback sections with new structure');
-    
-    // Update strengths list
-    updateStrengthsList(data.strengths || []);
-    
-    // Update improvements list
-    updateImprovementsList(data.improvements || []);
-    
-    // Update growth plan
-    updateGrowthPlan(data.next_steps || []);
-}
-
-// Update strengths list
-function updateStrengthsList(strengths) {
-    const strengthsList = document.getElementById('strengths-list');
-    if (!strengthsList) return;
-    
-    strengthsList.innerHTML = '';
-    
-    if (strengths.length === 0) {
-        strengthsList.innerHTML = '<li class="feedback-item"><span class="feedback-text">No specific strengths identified in this assessment.</span></li>';
+// Initialize dimension radar chart
+function initializeDimensionRadarChart(dimensionEvaluations) {
+    const ctx = document.getElementById('radarChart');
+    if (!ctx) {
+        console.error('❌ Radar chart canvas not found');
         return;
     }
     
-    strengths.forEach(strength => {
-        const li = document.createElement('li');
-        li.className = 'feedback-item';
-        li.innerHTML = `
-            <span class="feedback-icon">✓</span>
-            <span class="feedback-text">${strength}</span>
-        `;
-        strengthsList.appendChild(li);
+    // Extract dimension names and scores
+    const dimensions = Object.keys(dimensionEvaluations);
+    const scores = dimensions.map(dim => dimensionEvaluations[dim].rating || 0);
+    
+    // Create radar chart
+    radarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: dimensions.map(dim => dim.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())),
+            datasets: [{
+                label: 'Performance Score',
+                data: scores,
+                backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                borderColor: 'rgba(37, 99, 235, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(37, 99, 235, 1)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 5,
+                    ticks: {
+                        stepSize: 1,
+                        font: {
+                            size: 12,
+                            family: 'Inter'
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    },
+                    angleLines: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    },
+                    pointLabels: {
+                        font: {
+                            size: 11,
+                            family: 'Inter',
+                            weight: '500'
+                        },
+                        color: '#374151'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: '#2563eb',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            return `Score: ${context.parsed.r}/5`;
+                        }
+                    }
+                }
+            }
+        }
     });
 }
 
-// Update improvements list
-function updateImprovementsList(improvements) {
-    const improvementsList = document.getElementById('improvements-list');
-    if (!improvementsList) return;
-    
-    improvementsList.innerHTML = '';
-    
-    if (improvements.length === 0) {
-        improvementsList.innerHTML = '<li class="feedback-item improvement"><span class="feedback-text">No specific areas for improvement identified.</span></li>';
+// Generate dimension performance cards
+function generateDimensionCards(dimensionEvaluations) {
+    const dimensionGrid = document.getElementById('dimension-grid');
+    if (!dimensionGrid) {
+        console.error('❌ Dimension grid not found');
         return;
     }
     
-    improvements.forEach(improvement => {
-        const li = document.createElement('li');
-        li.className = 'feedback-item improvement';
-        li.innerHTML = `
-            <span class="feedback-icon">!</span>
-            <span class="feedback-text">${improvement}</span>
-        `;
-        improvementsList.appendChild(li);
+    dimensionGrid.innerHTML = '';
+    
+    Object.entries(dimensionEvaluations).forEach(([dimensionName, evaluation]) => {
+        const dimensionCard = createDimensionCard(dimensionName, evaluation);
+        dimensionGrid.appendChild(dimensionCard);
     });
 }
 
-// Update growth plan
-function updateGrowthPlan(nextSteps) {
-    const growthPlanContent = document.getElementById('growth-plan-content');
-    if (!growthPlanContent) return;
+// Create individual dimension card
+function createDimensionCard(dimensionName, evaluation) {
+    const card = document.createElement('div');
+    card.className = 'dimension-card';
     
-    if (nextSteps.length === 0) {
-        growthPlanContent.innerHTML = `
-            <div class="general-next-steps">
-                <h4><span class="icon">N</span>Next Steps</h4>
-                <ul>
-                    <li>Practice similar questions to build confidence</li>
-                    <li>Review your answers and identify areas for improvement</li>
-                    <li>Consider mock interviews with different scenarios</li>
+    const displayName = dimensionName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    const rating = evaluation.rating || 0;
+    const confidence = evaluation.confidence || 'Medium';
+    const strengths = evaluation.strengths || [];
+    const improvements = evaluation.areas_for_improvement || [];
+    const evidence = evaluation.evidence || [];
+    const assessment = evaluation.assessment || 'No assessment available';
+    const seniorityAlignment = evaluation.seniority_alignment || 'No alignment data';
+    const goodVsGreat = evaluation.good_vs_great || 'Not specified';
+    const goodVsGreatAnalysis = evaluation.good_vs_great_analysis || 'No analysis available';
+    
+    card.innerHTML = `
+        <div class="dimension-header">
+            <div class="dimension-name">${displayName}</div>
+            <div class="dimension-score">
+                <div class="score-badge">${rating}/5</div>
+                <div class="confidence-indicator">${confidence}</div>
+            </div>
+        </div>
+        
+        <div class="dimension-content">
+            <div class="content-section">
+                <h4>
+                    <span class="icon">📝</span>
+                    Assessment
+                </h4>
+                <p class="content-text">${assessment}</p>
+            </div>
+            
+            <div class="content-section">
+                <h4>
+                    <span class="icon">🎯</span>
+                    Seniority Alignment
+                </h4>
+                <p class="content-text">${seniorityAlignment}</p>
+            </div>
+            
+            <div class="content-section">
+                <h4>
+                    <span class="icon">🌟</span>
+                    Performance Level
+                </h4>
+                <p class="content-text"><strong>${goodVsGreat}</strong></p>
+                <p class="content-text">${goodVsGreatAnalysis}</p>
+            </div>
+            
+            ${strengths.length > 0 ? `
+            <div class="content-section">
+                <h4>
+                    <span class="icon">✅</span>
+                    Strengths
+                </h4>
+                <ul class="content-list">
+                    ${strengths.map(strength => `
+                        <li class="content-item">
+                            <span class="content-icon">•</span>
+                            <span class="content-text">${strength}</span>
+                        </li>
+                    `).join('')}
                 </ul>
             </div>
-        `;
+            ` : ''}
+            
+            ${improvements.length > 0 ? `
+            <div class="content-section">
+                <h4>
+                    <span class="icon">⚠️</span>
+                    Areas for Improvement
+                </h4>
+                <ul class="content-list">
+                    ${improvements.map(improvement => `
+                        <li class="content-item improvement">
+                            <span class="content-icon">•</span>
+                            <span class="content-text">${improvement}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+            ` : ''}
+            
+            ${evidence.length > 0 ? `
+            <div class="content-section">
+                <h4>
+                    <span class="icon">💬</span>
+                    Key Evidence
+                </h4>
+                ${evidence.map(quote => `
+                    <div class="quote-item">"${quote}"</div>
+                `).join('')}
+            </div>
+            ` : ''}
+        </div>
+    `;
+    
+    return card;
+}
+
+// Generate seniority insights
+function generateSeniorityInsights(overallAssessment) {
+    const insightsContainer = document.getElementById('seniority-insights');
+    const insightGrid = document.getElementById('insight-grid');
+    
+    if (!insightsContainer || !insightGrid) {
+        console.error('❌ Seniority insights container not found');
         return;
     }
     
-    const nextStepsHTML = nextSteps.map(step => `<li>${step}</li>`).join('');
+    // Show the container
+    insightsContainer.classList.remove('hidden');
     
-    growthPlanContent.innerHTML = `
-        <div class="general-next-steps">
-            <h4><span class="icon">N</span>Your Personalized Growth Plan</h4>
-            <ul>
-                ${nextStepsHTML}
-            </ul>
-        </div>
-    `;
+    // Clear existing content
+    insightGrid.innerHTML = '';
+    
+    // Add growth trajectory
+    if (overallAssessment.growth_trajectory) {
+        const growthItem = document.createElement('div');
+        growthItem.className = 'insight-item';
+        growthItem.innerHTML = `
+            <h4>Career Growth Trajectory</h4>
+            <p>${overallAssessment.growth_trajectory}</p>
+        `;
+        insightGrid.appendChild(growthItem);
+    }
+    
+    // Add career development
+    if (overallAssessment.career_development) {
+        const careerItem = document.createElement('div');
+        careerItem.className = 'insight-item';
+        careerItem.innerHTML = `
+            <h4>Career Development</h4>
+            <p>${overallAssessment.career_development}</p>
+        `;
+        insightGrid.appendChild(careerItem);
+    }
+    
+    // Add next steps
+    if (overallAssessment.next_steps) {
+        const nextStepsItem = document.createElement('div');
+        nextStepsItem.className = 'insight-item';
+        nextStepsItem.innerHTML = `
+            <h4>Next Steps</h4>
+            <p>${overallAssessment.next_steps}</p>
+        `;
+        insightGrid.appendChild(nextStepsItem);
+    }
 }
 
-
+// Generate interview quality analysis
+function generateInterviewQualityAnalysis(interviewQuality) {
+    const qualityContainer = document.getElementById('interview-quality');
+    const qualityGrid = document.getElementById('quality-grid');
+    
+    if (!qualityContainer || !qualityGrid) {
+        console.error('❌ Interview quality container not found');
+        return;
+    }
+    
+    // Show the container
+    qualityContainer.classList.remove('hidden');
+    
+    // Clear existing content
+    qualityGrid.innerHTML = '';
+    
+    // Add archetype effectiveness
+    if (interviewQuality.archetype_effectiveness) {
+        const archetypeItem = document.createElement('div');
+        archetypeItem.className = 'quality-item';
+        archetypeItem.innerHTML = `
+            <h4>Archetype Effectiveness</h4>
+            <p>${interviewQuality.archetype_effectiveness}</p>
+        `;
+        qualityGrid.appendChild(archetypeItem);
+    }
+    
+    // Add evidence coverage
+    if (interviewQuality.evidence_coverage) {
+        const coverageItem = document.createElement('div');
+        coverageItem.className = 'quality-item';
+        coverageItem.innerHTML = `
+            <h4>Evidence Coverage</h4>
+            <p>${interviewQuality.evidence_coverage}</p>
+        `;
+        qualityGrid.appendChild(coverageItem);
+    }
+    
+    // Add interview flow
+    if (interviewQuality.interview_flow) {
+        const flowItem = document.createElement('div');
+        flowItem.className = 'quality-item';
+        flowItem.innerHTML = `
+            <h4>Interview Flow</h4>
+            <p>${interviewQuality.interview_flow}</p>
+        `;
+        qualityGrid.appendChild(flowItem);
+    }
+}
 
 // Show loading screen
 function showLoadingScreen() {
@@ -376,8 +649,8 @@ function handleStartNewInterview() {
 
 function handleReviewAnswers() {
     // Show detailed review modal with AI evaluations and ideal responses
-    if (feedbackData && feedbackData.detailed_evaluations) {
-        showDetailedReview(feedbackData.detailed_evaluations);
+    if (evaluationData && evaluationData.dimension_evaluations) {
+        showDetailedReview(evaluationData.dimension_evaluations);
     } else if (interviewTranscript && interviewTranscript.length > 0) {
         // Fallback to basic transcript if no detailed evaluations
         let reviewText = "Your Interview Responses:\n\n";
@@ -395,200 +668,109 @@ function handleReviewAnswers() {
     }
 }
 
-function showDetailedReview(detailedEvaluations) {
+function showDetailedReview(dimensionEvaluations) {
     // Create comprehensive modal with detailed evaluations
     const modalHTML = `
         <div id="review-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-            <div class="bg-white rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-100">
+            <div class="bg-white rounded-3xl max-w-6xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-100">
                 <div class="sticky top-0 bg-gray-50 border-b border-gray-200 px-8 py-6 rounded-t-3xl">
                     <div class="flex justify-between items-center">
                         <div>
-                            <h2 class="text-3xl font-bold text-gray-900 mb-2">Detailed Answer Review</h2>
-                            <p class="text-gray-600 text-lg">Review each question with AI evaluation and ideal response examples</p>
-                            ${feedbackData.role && feedbackData.seniority ? 
-                                `<div class="mt-2 text-sm text-gray-500">
-                                    <span class="font-semibold">Role:</span> ${feedbackData.role} | 
-                                    <span class="font-semibold">Level:</span> ${feedbackData.seniority}
-                                </div>` : ''
-                            }
+                            <h2 class="text-3xl font-bold text-gray-900 mb-2">Detailed Performance Review</h2>
+                            <p class="text-gray-600 text-lg">Review each dimension with AI evaluation and evidence</p>
                         </div>
-                        <button onclick="closeDetailedReview()" class="text-gray-400 hover:text-gray-600 text-3xl font-bold w-12 h-12 rounded-full hover:bg-gray-100 flex items-center justify-center transition-all">&times;</button>
-                    </div>
-                </div>
-                
-                <div class="p-8 space-y-8">
-                    ${detailedEvaluations.map((evalData, index) => {
-                        const evaluation = evalData.evaluation;
-                        const score = evaluation.overall_score || 0;
-                        const scoreColor = score >= 4 ? 'from-green-500 to-emerald-500' : 
-                                         score >= 3 ? 'from-blue-500 to-blue-600' : 
-                                         score >= 2 ? 'from-yellow-500 to-orange-500' : 'from-red-500 to-pink-500';
-                        
-                        return `
-                            <div class="border border-gray-200 rounded-2xl p-8 bg-gray-50 shadow-lg">
-                                <div class="flex items-start justify-between mb-6">
-                                    <h3 class="text-xl font-bold text-gray-900">Q${index + 1}: ${evalData.question}</h3>
-                                    <div class="bg-gradient-to-r ${scoreColor} text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">Score: ${score}/5</div>
-                                </div>
-                                
-                                <div class="mb-6">
-                                    <h4 class="font-bold text-gray-800 mb-3 text-lg">Your Answer:</h4>
-                                    <div class="bg-gray-100 p-6 rounded-xl border border-gray-200 shadow-sm">
-                                        <p class="text-gray-800 text-lg leading-relaxed">${evalData.answer}</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="mb-6">
-                                    <h4 class="font-bold text-gray-800 mb-3 text-lg">AI Evaluation:</h4>
-                                    <div class="bg-gray-100 p-6 rounded-xl border border-gray-200">
-                                        <p class="text-gray-800 text-lg"><strong>Overall Feedback:</strong> ${evaluation.overall_feedback || 'No feedback available'}</p>
-                                        ${evaluation.scores ? Object.entries(evaluation.scores).map(([skill, skillData]) => 
-                                            `<p class="text-gray-800 mt-2 text-lg"><strong>${skill}:</strong> ${skillData.score}/5 - ${skillData.feedback}</p>`
-                                        ).join('') : ''}
-                                    </div>
-                                </div>
-                                
-                                <div>
-                                    <h4 class="font-bold text-gray-800 mb-3 text-lg">
-                                        Ideal Response Example 
-                                        ${feedbackData.role && feedbackData.seniority ? 
-                                            `<span class="text-sm font-normal text-gray-600">(for ${feedbackData.seniority} ${feedbackData.role})</span>` : ''
-                                        }
-                                    </h4>
-                                    <div class="bg-gray-100 p-6 rounded-xl border border-gray-200">
-                                        <p class="text-gray-800 text-lg leading-relaxed">${evaluation.ideal_response || 'No ideal response available'}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-                
-                <div class="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-8 py-6 rounded-b-3xl">
-                    <div class="flex justify-between items-center">
-                        <div class="text-lg text-gray-700">
-                            <span class="font-bold">Overall Score:</span> <span class="text-2xl font-bold text-blue-600">${feedbackData.overall_score || 0}/100</span>
-                        </div>
-                        <button onclick="closeDetailedReview()" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                            Close Review
+                        <button onclick="closeReviewModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
                         </button>
                     </div>
+                </div>
+                <div class="p-8">
+                    ${Object.entries(dimensionEvaluations).map(([dimension, evaluation]) => `
+                        <div class="mb-8 p-6 bg-gray-50 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">${dimension.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="text-lg font-semibold text-gray-700 mb-2">Performance Rating</h4>
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-3xl font-bold text-blue-600">${evaluation.rating || 0}/5</span>
+                                        <span class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">${evaluation.confidence || 'Medium'} Confidence</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-semibold text-gray-700 mb-2">Performance Level</h4>
+                                    <span class="text-lg font-semibold text-green-600">${evaluation.good_vs_great || 'Not specified'}</span>
+                                </div>
+                            </div>
+                            <div class="mt-6">
+                                <h4 class="text-lg font-semibold text-gray-700 mb-2">Assessment</h4>
+                                <p class="text-gray-600">${evaluation.assessment || 'No assessment available'}</p>
+                            </div>
+                            <div class="mt-6">
+                                <h4 class="text-lg font-semibold text-gray-700 mb-2">Seniority Alignment</h4>
+                                <p class="text-gray-600">${evaluation.seniority_alignment || 'No alignment data'}</p>
+                            </div>
+                            ${evaluation.strengths && evaluation.strengths.length > 0 ? `
+                            <div class="mt-6">
+                                <h4 class="text-lg font-semibold text-gray-700 mb-2">Key Strengths</h4>
+                                <ul class="list-disc list-inside text-gray-600 space-y-1">
+                                    ${evaluation.strengths.map(strength => `<li>${strength}</li>`).join('')}
+                                </ul>
+                            </div>
+                            ` : ''}
+                            ${evaluation.areas_for_improvement && evaluation.areas_for_improvement.length > 0 ? `
+                            <div class="mt-6">
+                                <h4 class="text-lg font-semibold text-gray-700 mb-2">Areas for Improvement</h4>
+                                <ul class="list-disc list-inside text-gray-600 space-y-1">
+                                    ${evaluation.areas_for_improvement.map(area => `<li>${area}</li>`).join('')}
+                                </ul>
+                            </div>
+                            ` : ''}
+                            ${evaluation.evidence && evaluation.evidence.length > 0 ? `
+                            <div class="mt-6">
+                                <h4 class="text-lg font-semibold text-gray-700 mb-2">Evidence from Interview</h4>
+                                <div class="space-y-2">
+                                    ${evaluation.evidence.map(quote => `
+                                        <div class="p-3 bg-blue-50 border-l-4 border-blue-400 rounded">
+                                            <p class="text-gray-700 italic">"${quote}"</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            ` : ''}
+                            ${evaluation.good_vs_great_analysis ? `
+                            <div class="mt-6">
+                                <h4 class="text-lg font-semibold text-gray-700 mb-2">Good vs Great Analysis</h4>
+                                <p class="text-gray-600">${evaluation.good_vs_great_analysis}</p>
+                            </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
                 </div>
             </div>
         </div>
     `;
     
-    // Add modal to page
     document.body.insertAdjacentHTML('beforeend', modalHTML);
-    
-    // Prevent body scroll when modal is open
-    document.body.style.overflow = 'hidden';
 }
 
-function closeDetailedReview() {
+function closeReviewModal() {
     const modal = document.getElementById('review-modal');
     if (modal) {
         modal.remove();
-        document.body.style.overflow = 'auto';
     }
 }
 
-function handleRetryFeedback() {
-    // Retry generating feedback
-    generateFeedback();
+function handleRetryEvaluation() {
+    // Retry the evaluation
+    generateEvaluation();
 }
 
-function handleSkipFeedback() {
-    // Skip feedback and go to homepage
-    if (window.PrepAIUtils && window.PrepAIUtils.Navigation) {
-        window.PrepAIUtils.Navigation.goTo('index');
-    } else {
-        window.location.href = 'index.html';
-    }
+function handleSkipEvaluation() {
+    // Navigate back to homepage
+    handleBackToHomepage();
 }
 
-// Initialize radar chart
-function initializeRadarChart(skillsData) {
-    const ctx = document.getElementById('radarChart');
-    if (!ctx) return;
-    
-    // Destroy existing chart if it exists
-    if (radarChart) {
-        radarChart.destroy();
-    }
-    
-    const labels = Object.keys(skillsData);
-    const scores = Object.values(skillsData).map(skill => skill.score);
-    
-    radarChart = new Chart(ctx, {
-        type: 'radar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Your Skills',
-                data: scores,
-                backgroundColor: 'rgba(37, 99, 235, 0.2)',
-                borderColor: 'rgba(37, 99, 235, 1)',
-                borderWidth: 2,
-                pointBackgroundColor: 'rgba(37, 99, 235, 1)',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                pointRadius: 4,
-                pointHoverRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                r: {
-                    beginAtZero: true,
-                    max: 5,
-                    ticks: {
-                        stepSize: 1,
-                        color: '#64748b',
-                        font: {
-                            size: 12,
-                            weight: '600'
-                        }
-                    },
-                    pointLabels: {
-                        color: '#1e293b',
-                        font: {
-                            size: 14,
-                            weight: '600'
-                        }
-                    },
-                    grid: {
-                        color: '#e2e8f0'
-                    },
-                    angleLines: {
-                        color: '#e2e8f0'
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    enabled: false
-                }
-            }
-        }
-    });
-}
-
-// Export for testing if needed
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { 
-        loadInterviewData,
-        generateFeedback,
-        displayFeedback,
-        handleStartNewInterview,
-        handleReviewAnswers,
-        showDetailedReview,
-        closeDetailedReview,
-        initializeRadarChart
-    };
-}
+// Make closeReviewModal globally accessible
+window.closeReviewModal = closeReviewModal;

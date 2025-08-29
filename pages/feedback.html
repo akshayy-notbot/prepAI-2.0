@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interview Feedback - PrepAI Interview Coach</title>
+    <title>Interview Performance Dashboard - PrepAI Interview Coach</title>
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -24,8 +24,9 @@
             border-radius: 1.5rem;
             border: 1px solid #e2e8f0;
             margin: 2rem auto;
-            max-width: 80rem;
+            max-width: 90rem;
             position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         
         .header-section {
@@ -99,7 +100,7 @@
         }
         
         .overall-score-card {
-            background: #ffffff;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
             border: 1px solid #e2e8f0;
             border-radius: 1.5rem;
             padding: 2.5rem;
@@ -108,9 +109,19 @@
             overflow: hidden;
         }
         
+        .overall-score-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #2563eb, #3b82f6, #60a5fa);
+        }
+        
         .score-gauge {
-            width: 180px;
-            height: 180px;
+            width: 160px;
+            height: 160px;
             margin: 0 auto 2rem;
             position: relative;
         }
@@ -124,78 +135,103 @@
             align-items: center;
             justify-content: center;
             position: relative;
+            transition: all 0.5s ease;
         }
         
         .score-circle::before {
             content: '';
             position: absolute;
-            top: 12px;
-            left: 12px;
-            right: 12px;
-            bottom: 12px;
-            background: #ffffff;
+            width: 120px;
+            height: 120px;
+            background: white;
             border-radius: 50%;
+            border: 8px solid #f8fafc;
         }
         
         .score-value {
-            position: relative;
-            z-index: 1;
             font-family: 'Playfair Display', serif;
             font-size: 3rem;
             font-weight: 700;
             color: #1e293b;
+            z-index: 1;
         }
         
         .score-label {
             font-family: 'Playfair Display', serif;
-            font-size: 1.75rem;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 0.75rem;
-        }
-        
-        .score-description {
-            color: #64748b;
-            font-size: 1.125rem;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-        }
-        
-        .executive-summary {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border: 1px solid #e2e8f0;
-            border-radius: 1rem;
-            padding: 1.75rem;
-            margin-top: 1.5rem;
-            text-align: left;
-            position: relative;
-        }
-        
-        .executive-summary h4 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.25rem;
+            font-size: 1.5rem;
             font-weight: 600;
             color: #1e293b;
             margin-bottom: 1rem;
         }
         
-        .executive-summary p {
-            color: #475569;
+        .score-description {
+            color: #64748b;
             font-size: 1rem;
-            line-height: 1.7;
-            margin: 0;
+            line-height: 1.6;
+            margin-bottom: 2rem;
         }
         
-        .skills-assessment-card {
-            background: #ffffff;
+        .executive-summary {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: left;
+        }
+        
+        .executive-summary h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #0369a1;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .executive-summary h4 .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: #0369a1;
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+        
+        .executive-summary p {
+            color: #0c4a6e;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 0;
+            font-weight: 500;
+        }
+        
+        .dimension-performance-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
             border: 1px solid #e2e8f0;
             border-radius: 1.5rem;
             padding: 2.5rem;
+            text-align: center;
             position: relative;
             overflow: hidden;
         }
         
-        .skills-assessment-card h3 {
+        .dimension-performance-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #10b981, #34d399, #6ee7b7);
+        }
+        
+        .dimension-performance-card h3 {
             font-family: 'Playfair Display', serif;
             font-size: 1.5rem;
             font-weight: 600;
@@ -216,343 +252,337 @@
             height: auto;
         }
         
-        .feedback-sections-grid {
+        .dimension-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             gap: 2rem;
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
         }
         
-        .feedback-section {
+        .dimension-card {
             background: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 1rem;
+            border-radius: 1.25rem;
             padding: 2rem;
-            margin-bottom: 0;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
         }
         
-        .feedback-section.overall {
-            grid-column: 1 / -1;
+        .dimension-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         
-        .section-title {
+        .dimension-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .dimension-name {
             font-family: 'Playfair Display', serif;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 600;
             color: #1e293b;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
         }
         
-        .section-title .icon {
-            display: inline-flex;
+        .dimension-score {
+            display: flex;
             align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            background: #2563eb;
+            gap: 0.5rem;
+        }
+        
+        .score-badge {
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
             color: white;
-            border-radius: 50%;
-            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
             font-size: 0.875rem;
         }
         
-        .feedback-list {
+        .confidence-indicator {
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .dimension-content {
+            text-align: left;
+        }
+        
+        .content-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .content-section h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .content-section h4 .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            background: #64748b;
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.625rem;
+        }
+        
+        .content-list {
             list-style: none;
             padding: 0;
             margin: 0;
         }
         
-        .feedback-item {
+        .content-item {
             display: flex;
             align-items: flex-start;
             gap: 0.75rem;
-            padding: 1rem 0;
-            border-bottom: 1px solid #f1f5f9;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f8fafc;
         }
         
-        .feedback-item:last-child {
+        .content-item:last-child {
             border-bottom: none;
         }
         
-        .feedback-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 24px;
-            height: 24px;
-            background: #10b981;
-            color: white;
-            border-radius: 50%;
+        .content-icon {
+            color: #10b981;
             font-weight: 700;
-            font-size: 0.75rem;
+            font-size: 1rem;
+            margin-right: 0.5rem;
             flex-shrink: 0;
             margin-top: 0.125rem;
         }
         
-        .feedback-item.improvement .feedback-icon {
-            background: #f59e0b;
+        .content-item.improvement .content-icon {
+            color: #f59e0b;
         }
         
-        .feedback-text {
+        .content-text {
             color: #475569;
-            font-size: 1rem;
-            line-height: 1.6;
+            font-size: 0.9rem;
+            line-height: 1.5;
             margin: 0;
         }
         
-        .learning-resource {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border: 1px solid #e2e8f0;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin-top: 1rem;
+        .quote-item {
+            background: #f8fafc;
+            border-left: 3px solid #2563eb;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border-radius: 0.5rem;
+            font-style: italic;
+            color: #374151;
+            font-size: 0.875rem;
         }
         
-        .learning-resource h4 {
+        .seniority-insights {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid #bbf7d0;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .seniority-insights h3 {
             font-family: 'Playfair Display', serif;
-            font-size: 1.125rem;
+            font-size: 1.25rem;
             font-weight: 600;
-            color: #1e293b;
+            color: #166534;
             margin-bottom: 1rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
         
-        .learning-resource h4 .icon {
+        .seniority-insights h3 .icon {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             width: 24px;
             height: 24px;
-            background: #2563eb;
+            background: #166534;
             color: white;
             border-radius: 50%;
             font-weight: 700;
             font-size: 0.75rem;
         }
         
-        .learning-resource p {
-            color: #64748b;
-            font-size: 0.875rem;
-            line-height: 1.6;
-            margin-bottom: 1rem;
+        .insight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
         }
         
-        .resource-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid #f1f5f9;
+        .insight-item {
+            background: white;
+            border: 1px solid #bbf7d0;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
         }
         
-        .resource-item:last-child {
-            border-bottom: none;
+        .insight-item h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #166534;
+            margin-bottom: 0.75rem;
         }
         
-        .resource-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 20px;
-            height: 20px;
-            background: #64748b;
-            color: white;
-            border-radius: 50%;
-            font-weight: 700;
-            font-size: 0.625rem;
-            flex-shrink: 0;
-        }
-        
-        .resource-text {
-            color: #475569;
-            font-size: 0.875rem;
+        .insight-item p {
+            color: #15803d;
+            font-size: 0.9rem;
             line-height: 1.5;
             margin: 0;
         }
         
-        .general-next-steps {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border: 1px solid #e2e8f0;
+        .interview-quality {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 1px solid #fbbf24;
             border-radius: 1rem;
-            padding: 2rem;
-            margin-top: 2rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
         }
         
-        .general-next-steps h4 {
+        .interview-quality h3 {
             font-family: 'Playfair Display', serif;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        .general-next-steps h4 .icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            background: #2563eb;
-            color: white;
-            border-radius: 50%;
-            font-weight: 700;
-            font-size: 0.875rem;
-        }
-        
-        .general-next-steps ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .general-next-steps li {
-            color: #475569;
-            font-size: 1rem;
-            line-height: 1.6;
+            color: #92400e;
             margin-bottom: 1rem;
-            padding-left: 1.5rem;
-            position: relative;
-        }
-        
-        .general-next-steps li::before {
-            content: '•';
-            position: absolute;
-            left: 0;
-            color: #2563eb;
-            font-weight: 700;
-            font-size: 1.5rem;
-            line-height: 1;
-        }
-        
-        .general-next-steps li:last-child {
-            margin-bottom: 0;
-        }
-        
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-top: 3rem;
-        }
-        
-        .btn-primary {
-            background: #2563eb;
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 1rem;
-            font-weight: 600;
-            font-size: 1.125rem;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
+            gap: 0.5rem;
         }
         
-        .btn-primary:hover {
-            background: #1d4ed8;
-            transform: translateY(-2px);
-        }
-        
-        .btn-secondary {
-            background: white;
-            color: #64748b;
-            padding: 1rem 2rem;
-            border-radius: 1rem;
-            font-weight: 600;
-            font-size: 1.125rem;
-            border: 2px solid #e2e8f0;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-        }
-        
-        .btn-secondary:hover {
-            border-color: #cbd5e1;
-            background: #f8fafc;
-            transform: translateY(-1px);
-        }
-        
-        .btn-primary .icon,
-        .btn-secondary .icon {
+        .interview-quality h3 .icon {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 20px;
-            height: 20px;
-            background: currentColor;
+            width: 24px;
+            height: 24px;
+            background: #92400e;
             color: white;
             border-radius: 50%;
             font-weight: 700;
             font-size: 0.75rem;
         }
         
-        .btn-secondary .icon {
-            background: #64748b;
+        .quality-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
         }
         
-        .demo-notice {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border: 1px solid #f59e0b;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            text-align: center;
-            position: relative;
+        .quality-item {
+            background: white;
+            border: 1px solid #fbbf24;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
         }
         
-        .demo-notice h4 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.25rem;
+        .quality-item h4 {
+            font-size: 1rem;
             font-weight: 600;
             color: #92400e;
             margin-bottom: 0.75rem;
         }
         
-        .demo-notice p {
+        .quality-item p {
             color: #a16207;
-            font-size: 1rem;
-            line-height: 1.6;
+            font-size: 0.9rem;
+            line-height: 1.5;
             margin: 0;
         }
         
-        /* Back Button Styles */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.3);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #2563eb;
+            padding: 1rem 2rem;
+            border: 2px solid #2563eb;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-secondary:hover {
+            background: #2563eb;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
         .back-btn {
-            position: fixed !important;
+            position: fixed;
             top: 2rem;
             left: 2rem;
-            z-index: 1000;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(209, 213, 219, 0.6);
-            color: #6b7280;
-            font-size: 0.875rem;
-            padding: 0.75rem 1rem;
-            border-radius: 1rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            font-weight: 600;
+            background: white;
+            color: #64748b;
+            padding: 0.75rem 1.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            font-weight: 500;
             cursor: pointer;
-            opacity: 1;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
         
         .back-btn:hover {
-            background: rgba(255, 255, 255, 1);
-            border-color: rgba(156, 163, 175, 0.8);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            background: #f8fafc;
             color: #374151;
             transform: translateY(-2px);
         }
@@ -587,7 +617,7 @@
                 grid-template-columns: 1fr;
             }
             
-            .feedback-sections-grid {
+            .dimension-grid {
                 grid-template-columns: 1fr;
             }
             
@@ -608,6 +638,13 @@
             .score-value {
                 font-size: 2.5rem;
             }
+            
+            .back-btn {
+                position: relative;
+                top: auto;
+                left: auto;
+                margin-bottom: 1rem;
+            }
         }
     </style>
 </head>
@@ -621,7 +658,7 @@
         <span class="hidden sm:inline">Back</span>
     </button>
 
-    <div id="app-container" class="container mx-auto max-w-6xl">
+    <div id="app-container" class="container mx-auto max-w-7xl">
 
         <!-- Loading Screen -->
         <div id="loading-screen" class="screen-container">
@@ -632,7 +669,7 @@
                     </svg>
                 </div>
                 <h2 class="text-4xl font-bold text-gray-900 mb-4">Analyzing Your Performance...</h2>
-                <p class="text-xl text-gray-600 mb-8">Generating your comprehensive feedback report.</p>
+                <p class="text-xl text-gray-600 mb-8">Generating your comprehensive performance dashboard.</p>
                 <div class="flex justify-center mb-6">
                     <div class="loader"></div>
                 </div>
@@ -644,93 +681,91 @@
             </div>
         </div>
 
-        <!-- Feedback Screen -->
+        <!-- Performance Dashboard -->
         <div id="feedback-screen" class="hidden">
             <div class="card">
                 <!-- Professional Header -->
                 <div class="header-section">
-                    <h1 class="header-title">Interview Feedback Report</h1>
-                    <p class="header-subtitle">Comprehensive analysis to accelerate your interview success</p>
+                    <h1 class="header-title">Interview Performance Dashboard</h1>
+                    <p class="header-subtitle">Comprehensive dimension-by-dimension analysis for strategic career growth</p>
                 </div>
                 
                 <!-- Personal Header -->
                 <div class="personal-header">
-                    <h2>Interview Feedback Report</h2>
+                    <h2>Performance Assessment Report</h2>
                     <p id="role-context">Senior Software Engineer Assessment for System Design | 30 August 2025</p>
                 </div>
                 
-                <!-- Top Section: Overall Score + Skills Assessment -->
+                <!-- Top Section: Overall Score + Dimension Performance Radar -->
                 <div class="top-section">
                     <!-- Overall Score Card -->
                     <div class="overall-score-card">
                         <div class="score-gauge">
                             <div id="score-circle" class="score-circle">
-                                <span id="score-value" class="score-value">3.9</span>
+                                <span id="score-value" class="score-value">--</span>
                             </div>
                         </div>
-                        <h3 id="score-label" class="score-label">Exceeds Expectations</h3>
-                        <p id="score-description" class="score-description">Exceeds expectations (3.9/5) with room for targeted improvement in specific areas.</p>
+                        <h3 id="score-label" class="score-label">Loading...</h3>
+                        <p id="score-description" class="score-description">Analyzing your performance...</p>
                         
                         <!-- Executive Summary -->
                         <div class="executive-summary">
-                            <h4>Executive Summary</h4>
+                            <h4>
+                                <span class="icon">📊</span>
+                                Executive Summary
+                            </h4>
                             <p id="executive-summary-text">The candidate demonstrated exceptional problem-solving abilities and strong leadership potential. Their communication skills are outstanding, and they show solid technical foundations. The primary growth opportunity lies in developing strategic thinking and deepening technical expertise in emerging technologies.</p>
                         </div>
                     </div>
                     
-                    <!-- Skills Assessment Card -->
-                    <div class="skills-assessment-card">
-                        <h3>Skills Assessment</h3>
+                    <!-- Dimension Performance Radar -->
+                    <div class="dimension-performance-card">
+                        <h3>Dimension Performance Overview</h3>
                         <div class="radar-chart-container">
                             <canvas id="radarChart" width="400" height="400"></canvas>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Feedback Sections Grid -->
-                <div class="feedback-sections-grid">
-                    <!-- Key Strengths -->
-                    <div class="feedback-section">
-                        <h3 class="section-title">
-                            <span class="icon">S</span>
-                            Key Strengths
-                        </h3>
-                        <ul id="strengths-list" class="feedback-list">
-                            <!-- Dynamic content will be inserted here -->
-                        </ul>
-                    </div>
-                    
-                    <!-- Areas for Improvement -->
-                    <div class="feedback-section">
-                        <h3 class="section-title">
-                            <span class="icon">I</span>
-                            Areas for Improvement
-                        </h3>
-                        <ul id="improvements-list" class="feedback-list">
-                            <!-- Dynamic content will be inserted here -->
-                        </ul>
+                <!-- Dimension-by-Dimension Performance Grid -->
+                <div id="dimension-grid" class="dimension-grid">
+                    <!-- Dynamic dimension cards will be inserted here -->
+                </div>
+                
+                <!-- Seniority-Specific Insights -->
+                <div id="seniority-insights" class="seniority-insights hidden">
+                    <h3>
+                        <span class="icon">🎯</span>
+                        Seniority-Specific Insights
+                    </h3>
+                    <div id="insight-grid" class="insight-grid">
+                        <!-- Dynamic insight items will be inserted here -->
                     </div>
                 </div>
                 
-                <!-- Your Personalized Growth Plan -->
-                <div class="feedback-section overall">
-                    <h3 class="section-title">
-                        <span class="icon">G</span>
-                        Your Personalized Growth Plan
+                <!-- Interview Quality Analysis -->
+                <div id="interview-quality" class="interview-quality hidden">
+                    <h3>
+                        <span class="icon">🔍</span>
+                        Interview Quality Analysis
                     </h3>
-                    <div id="growth-plan-content">
-                        <!-- Dynamic content will be inserted here -->
+                    <div id="quality-grid" class="quality-grid">
+                        <!-- Dynamic quality items will be inserted here -->
                     </div>
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="action-buttons">
                     <button id="review-answers-btn" class="btn-primary">
-                        <span class="icon">R</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
                         Review My Answers
                     </button>
                     <button id="start-new-interview-btn" class="btn-secondary">
-                        <span class="icon">S</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
                         Start New Interview
                     </button>
                 </div>
@@ -745,14 +780,14 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
-                <h3 class="text-2xl font-semibold text-red-800 mb-3">Unable to Generate Feedback</h3>
+                <h3 class="text-2xl font-semibold text-red-800 mb-3">Unable to Generate Dashboard</h3>
                 <p class="text-red-600 mb-6 text-lg">We encountered an issue while analyzing your interview. Please try again.</p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <button id="retry-feedback-btn" class="btn-primary">
                         Try Again
                     </button>
                     <button id="skip-feedback-btn" class="btn-secondary">
-                        Skip Feedback
+                        Skip Dashboard
                     </button>
                 </div>
             </div>

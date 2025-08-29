@@ -430,17 +430,15 @@ function handleInterviewCompletion(data) {
 
 // Handle key press in chat input
 function handleKeyPress(event) {
-    if (event.key === 'Enter' && !event.shiftKey) {
+    if (event.key === 'Enter') {
         event.preventDefault();
         handleSendMessage();
     }
 }
 
-// Handle input change for auto-resize
+// Handle input change (simplified for single-line input)
 function handleInputChange(event) {
-    const textarea = event.target;
-    textarea.style.height = 'auto';
-    textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+    // No auto-resize needed for single-line input
 }
 
 // Enable chat input

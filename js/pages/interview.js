@@ -397,7 +397,7 @@ function handleInterviewCompletion(data) {
             <div class="message-bubble" style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0;">
                 <p><strong>Interview Complete!</strong> 🎉</p>
                 <p class="mt-2">You've successfully completed your interview practice session. Great job!</p>
-                <p class="mt-2">You can now exit the interview or review your responses.</p>
+                <p class="mt-2">Redirecting to your feedback report...</p>
             </div>
             <div class="message-meta">${new Date().toLocaleTimeString()}</div>
         </div>
@@ -407,8 +407,25 @@ function handleInterviewCompletion(data) {
     chatMessages.insertAdjacentHTML('beforeend', completionMessage);
     chatMessages.scrollTop = chatMessages.scrollHeight;
     
-    updateStatus('Interview complete');
+    updateStatus('Interview complete - Preparing feedback...');
     disableInput();
+    
+    // Save transcript and config for feedback analysis
+    try {
+        sessionStorage.setItem('prepai_interview_transcript', JSON.stringify(transcript));
+        sessionStorage.setItem('prepai_interview_config', JSON.stringify(interviewConfig));
+    } catch (error) {
+        console.error('❌ Error saving interview data:', error);
+    }
+    
+    // Navigate to feedback page after a brief delay
+    setTimeout(() => {
+        if (window.PrepAIUtils && window.PrepAIUtils.Navigation) {
+            window.PrepAIUtils.Navigation.goTo('feedback');
+        } else {
+            window.location.href = 'feedback.html';
+        }
+    }, 2000); // 2 second delay to show completion message
 }
 
 // Handle key press in chat input
@@ -529,26 +546,25 @@ function handleBeginInterview() {
 
 // Handle exit interview
 function handleExitInterview() {
-    if (confirm('Are you sure you want to exit the interview? Your progress will be saved.')) {
-        // User exiting interview
-        
-        // Stop timer
-        stopTimer();
-        
-        // Save transcript to sessionStorage
-        try {
-            sessionStorage.setItem('prepai_interview_transcript', JSON.stringify(transcript));
-            // Transcript saved to sessionStorage
-        } catch (error) {
-            console.error('❌ Error saving transcript:', error);
-        }
-        
-        // Navigate back to homepage
-        if (window.PrepAIUtils && window.PrepAIUtils.Navigation) {
-            window.PrepAIUtils.Navigation.goTo('index');
-        } else {
-            window.location.href = 'index.html';
-        }
+    // User exiting interview - no confirmation needed
+    
+    // Stop timer
+    stopTimer();
+    
+    // Save transcript to sessionStorage for feedback analysis
+    try {
+        sessionStorage.setItem('prepai_interview_transcript', JSON.stringify(transcript));
+        sessionStorage.setItem('prepai_interview_config', JSON.stringify(interviewConfig));
+        // Transcript and config saved for feedback
+    } catch (error) {
+        console.error('❌ Error saving interview data:', error);
+    }
+    
+    // Navigate to feedback page
+    if (window.PrepAIUtils && window.PrepAIUtils.Navigation) {
+        window.PrepAIUtils.Navigation.goTo('feedback');
+    } else {
+        window.location.href = 'feedback.html';
     }
 }
 

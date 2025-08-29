@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Feedback - PrepAI Interview Coach</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .hidden { display: none; }
+        .screen-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .card {
+            background-color: white;
+            padding: 3rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.08), 0 10px 10px -5px rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .loader { 
+            border: 4px solid #f3f3f3; 
+            border-top: 4px solid #3498db; 
+            border-radius: 50%; 
+            width: 40px; 
+            height: 40px; 
+            animation: spin 1s linear infinite; 
+        }
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+        
+        /* Back Button Styles */
+        .back-btn {
+            position: fixed !important;
+            top: 1.5rem;
+            left: 2rem;
+            z-index: 1000;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(209, 213, 219, 0.6);
+            color: #6b7280;
+            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            font-weight: 500;
+            cursor: pointer;
+            opacity: 1;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: rgba(156, 163, 175, 0.8);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            color: #374151;
+        }
+        
+        .back-btn:active {
+            transition: all 0.1s ease;
+        }
+        
+        /* Responsive back button positioning */
+        @media (max-width: 768px) {
+            .back-btn {
+                top: 1rem;
+                left: 1.5rem;
+                font-size: 0.75rem;
+                padding: 0.375rem 0.625rem;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .back-btn {
+                top: 2rem;
+                left: 3rem;
+                padding: 0.625rem 1rem;
+                font-size: 0.875rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .back-btn {
+                top: 0.75rem;
+                left: 1rem;
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+            
+            .back-btn span {
+                display: none;
+            }
+        }
+
+        /* Feedback card styles */
+        .feedback-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .feedback-section.strength {
+            background-color: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+
+        .feedback-section.improvement {
+            background-color: #fef3c7;
+            border-color: #fde047;
+        }
+
+        .feedback-section.overall {
+            background-color: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        .score-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .score-excellent { background: linear-gradient(135deg, #10b981, #059669); }
+        .score-good { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .score-fair { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .score-poor { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Back Button -->
+    <button id="back-to-homepage-btn" class="back-btn flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        <span class="hidden sm:inline">Back</span>
+    </button>
+
+    <div id="app-container" class="container mx-auto max-w-4xl">
+
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="screen-container">
+            <div class="card text-center">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Analyzing Your Performance...</h2>
+                <p class="text-lg text-gray-600 mb-8">Generating your personalized feedback report.</p>
+                <div class="flex justify-center">
+                    <div class="loader"></div>
+                </div>
+                <p class="text-sm text-gray-500 mt-4">This may take a few moments...</p>
+            </div>
+        </div>
+
+        <!-- Feedback Screen -->
+        <div id="feedback-screen" class="hidden screen-container">
+            <div class="card">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">Your Actionable Feedback Report</h2>
+                
+                <!-- Overall Score -->
+                <div class="text-center mb-8">
+                    <div id="overall-score-container" class="flex justify-center mb-4">
+                        <div id="overall-score" class="score-circle score-good">
+                            <span id="score-text">75</span>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Overall Performance</h3>
+                    <p id="overall-summary" class="text-gray-600">Good performance with room for improvement in specific areas.</p>
+                </div>
+
+                <!-- Feedback Content -->
+                <div id="feedback-content" class="space-y-6">
+                    <!-- Dynamic feedback sections will be inserted here -->
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+                    <button id="start-new-interview-btn" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
+                        Start New Interview
+                    </button>
+                    <button id="review-answers-btn" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors duration-200">
+                        Review My Answers
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Screen -->
+        <div id="error-screen" class="hidden screen-container">
+            <div class="card text-center">
+                <div class="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
+                    <svg class="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-red-800 mb-2">Unable to Generate Feedback</h3>
+                <p class="text-red-600 mb-4">We encountered an issue while analyzing your interview. Please try again.</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button id="retry-feedback-btn" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200">
+                        Try Again
+                    </button>
+                    <button id="skip-feedback-btn" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors duration-200">
+                        Skip Feedback
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Load shared utilities first -->
+    <script src="../js/shared/state.js"></script>
+    <script src="../js/shared/utils.js"></script>
+    <script src="../js/shared/security.js"></script>
+    <script src="../js/shared/error-handler.js"></script>
+    <script src="../js/shared/performance.js"></script>
+    <script src="../config.js"></script>
+    
+    <!-- Load page-specific JavaScript -->
+    <script src="../js/pages/feedback.js"></script>
+</body>
+</html>

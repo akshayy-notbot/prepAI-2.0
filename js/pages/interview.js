@@ -328,15 +328,15 @@ async function submitAnswer(answer) {
     }
 }
 
-// Display AI message
+// Display AI message using working format
 function displayAIMessage(message) {
     const chatMessages = document.getElementById('chat-messages');
     const aiMessage = `
-        <div class="message ai">
-            <div class="message-bubble">
+        <div class="chat-message justify-start">
+            <div class="message-bubble ai">
                 ${message}
+                <div class="text-xs text-gray-500 mt-2 font-mono">${new Date().toLocaleTimeString()}</div>
             </div>
-            <div class="message-meta">${new Date().toLocaleTimeString()}</div>
         </div>
     `;
     
@@ -351,15 +351,15 @@ function displayAIMessage(message) {
     });
 }
 
-// Display user message
+// Display user message using working format
 function displayUserMessage(message) {
     const chatMessages = document.getElementById('chat-messages');
     const userMessage = `
-        <div class="message user">
-            <div class="message-bubble">
+        <div class="chat-message justify-end">
+            <div class="message-bubble user">
                 ${message}
+                <div class="text-xs text-gray-500 mt-2 font-mono">${new Date().toLocaleTimeString()}</div>
             </div>
-            <div class="message-meta">${new Date().toLocaleTimeString()}</div>
         </div>
     `;
     
@@ -372,15 +372,15 @@ function displayUserMessage(message) {
     }
 }
 
-// Display error message
+// Display error message using working format
 function displayErrorMessage(message) {
     const chatMessages = document.getElementById('chat-messages');
     const errorMessage = `
-        <div class="message ai">
-            <div class="message-bubble" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;">
+        <div class="chat-message justify-start">
+            <div class="message-bubble ai" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;">
                 <strong>Error:</strong> ${message}
+                <div class="text-xs text-gray-500 mt-2 font-mono">${new Date().toLocaleTimeString()}</div>
             </div>
-            <div class="message-meta">${new Date().toLocaleTimeString()}</div>
         </div>
     `;
     

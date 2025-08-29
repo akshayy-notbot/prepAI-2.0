@@ -97,7 +97,7 @@ class PrepAIState {
             case 'dashboard':
                 return this.interviewConfig.role && this.interviewConfig.seniority && 
                        this.interviewConfig.skills && this.interviewConfig.skills.length > 0;
-            case 'interview-prep':
+            case 'interview':
                 return this.interviewConfig.role && this.interviewConfig.seniority && 
                        this.interviewConfig.skills && this.interviewConfig.skills.length > 0;
             case 'interview':

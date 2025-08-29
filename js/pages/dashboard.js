@@ -174,12 +174,12 @@ function handleStartInterview() {
         }
     }
     
-    // Navigate to interview prep page
+    // Navigate to interview page (now combined with interview-prep)
     if (window.PrepAIUtils && window.PrepAIUtils.Navigation) {
-        window.PrepAIUtils.Navigation.goTo('interview-prep');
+        window.PrepAIUtils.Navigation.goTo('interview');
     } else {
         // Fallback navigation
-        window.location.href = 'interview-prep.html';
+        window.location.href = 'interview.html';
     }
 }
 

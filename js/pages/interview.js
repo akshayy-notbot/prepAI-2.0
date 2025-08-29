@@ -21,15 +21,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Setup event listeners
     setupEventListeners();
     
-    // Initialize interview
-    initializeInterview();
+    // Show configuration summary first (don't auto-start interview)
+    showConfigurationSummary();
 });
 
 // Load interview configuration from multi-page system
 function loadInterviewConfiguration() {
     // Loading interview configuration
     
-    // Try to load from sessionStorage first (from interview-prep page)
+    // Try to load from sessionStorage first (from onboarding page)
     const storedConfig = sessionStorage.getItem('prepai_interview_config');
     if (storedConfig) {
         try {
@@ -89,12 +89,51 @@ function showConfigurationError() {
 function displayConfiguration() {
     const configDisplay = document.getElementById('interview-config-display');
     if (configDisplay && interviewConfig) {
-        configDisplay.textContent = `${interviewConfig.role} (${interviewConfig.seniority}) - ${interviewConfig.skills[0].split(' (')[0]}`;
+        configDisplay.textContent = `For a ${interviewConfig.role} role (${interviewConfig.seniority} level) to practice ${interviewConfig.skills[0].split(' (')[0]}`;
+    }
+}
+
+// Show configuration summary
+function showConfigurationSummary() {
+    const configSummary = document.getElementById('config-summary');
+    const interviewInterface = document.getElementById('interview-interface');
+    
+    if (configSummary && interviewInterface) {
+        configSummary.classList.remove('hidden');
+        interviewInterface.classList.add('hidden');
+    }
+}
+
+// Show interview interface
+function showInterviewInterface() {
+    const configSummary = document.getElementById('config-summary');
+    const interviewInterface = document.getElementById('interview-interface');
+    
+    if (configSummary && interviewInterface) {
+        configSummary.classList.add('hidden');
+        interviewInterface.classList.remove('hidden');
     }
 }
 
 // Setup all event listeners for the interview page
 function setupEventListeners() {
+    // Configuration buttons
+    const editConfigBtn = document.getElementById('edit-config-btn');
+    if (editConfigBtn) {
+        editConfigBtn.addEventListener('click', handleEditConfiguration);
+    }
+    
+    const beginInterviewBtn = document.getElementById('begin-interview-btn');
+    if (beginInterviewBtn) {
+        beginInterviewBtn.addEventListener('click', handleBeginInterview);
+    }
+    
+    // Back to dashboard button
+    const backToDashboardBtn = document.getElementById('back-to-dashboard-btn');
+    if (backToDashboardBtn) {
+        backToDashboardBtn.addEventListener('click', handleBackToDashboard);
+    }
+    
     // Send button
     const sendButton = document.getElementById('send-button');
     if (sendButton) {
@@ -349,7 +388,7 @@ function displayErrorMessage(message) {
     const chatMessages = document.getElementById('chat-messages');
     const errorMessage = `
         <div class="message ai">
-            <div class="message-bubble" style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.2);">
+            <div class="message-bubble" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;">
                 <strong>Error:</strong> ${message}
             </div>
             <div class="message-meta">${new Date().toLocaleTimeString()}</div>
@@ -366,7 +405,7 @@ function handleInterviewCompletion(data) {
     
     const completionMessage = `
         <div class="message ai">
-            <div class="message-bubble" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); color: #166534; border: 1px solid rgba(34, 197, 94, 0.2);">
+            <div class="message-bubble" style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0;">
                 <p><strong>Interview Complete!</strong> 🎉</p>
                 <p class="mt-2">You've successfully completed your interview practice session. Great job!</p>
                 <p class="mt-2">You can now exit the interview or review your responses.</p>
@@ -432,7 +471,7 @@ function showLoadingState(show) {
 
 // Update interview status
 function updateStatus(status) {
-    const statusElement = document.getElementById('interview-status');
+    const statusElement = document.getElementById('interview-status-display');
     if (statusElement) {
         statusElement.textContent = status;
     }
@@ -462,6 +501,35 @@ function stopTimer() {
         clearInterval(timerInterval);
         timerInterval = null;
     }
+}
+
+// Handle edit configuration
+function handleEditConfiguration() {
+    // Navigate back to onboarding to edit configuration
+    if (window.PrepAIUtils && window.PrepAIUtils.Navigation) {
+        window.PrepAIUtils.Navigation.goTo('onboarding');
+    } else {
+        window.location.href = 'onboarding.html';
+    }
+}
+
+// Handle back to dashboard
+function handleBackToDashboard() {
+    // Navigate back to dashboard
+    if (window.PrepAIUtils && window.PrepAIUtils.Navigation) {
+        window.PrepAIUtils.Navigation.goTo('dashboard');
+    } else {
+        window.location.href = 'dashboard.html';
+    }
+}
+
+// Handle begin interview
+function handleBeginInterview() {
+    // Show interview interface
+    showInterviewInterface();
+    
+    // Initialize and start the interview
+    initializeInterview();
 }
 
 // Handle exit interview
@@ -495,6 +563,9 @@ if (typeof module !== 'undefined' && module.exports) {
         loadInterviewConfiguration,
         startInterview,
         handleSendMessage,
-        handleExitInterview
+        handleExitInterview,
+        handleEditConfiguration,
+        handleBeginInterview,
+        handleBackToDashboard
     };
 }

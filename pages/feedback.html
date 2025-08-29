@@ -6,56 +6,545 @@
     <title>Interview Feedback - PrepAI Interview Coach</title>
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-        }
-        .hidden { display: none; }
-        .screen-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            background: #f8fafc;
             min-height: 100vh;
-            padding: 2rem;
+            color: #1e293b;
+            line-height: 1.6;
         }
+        
         .card {
-            background-color: white;
+            background: #ffffff;
             padding: 3rem;
             border-radius: 1.5rem;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.08), 0 10px 10px -5px rgba(0,0,0,0.04);
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            margin: 2rem auto;
+            max-width: 80rem;
+            position: relative;
         }
-        .loader { 
-            border: 4px solid #f3f3f3; 
-            border-top: 4px solid #3498db; 
-            border-radius: 50%; 
-            width: 40px; 
-            height: 40px; 
-            animation: spin 1s linear infinite; 
+        
+        .header-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            position: relative;
         }
-        @keyframes spin { 
-            0% { transform: rotate(0deg); } 
-            100% { transform: rotate(360deg); } 
+        
+        .header-section::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 2px;
+            background: #2563eb;
+            border-radius: 1px;
+        }
+        
+        .header-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.75rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+        
+        .header-subtitle {
+            font-size: 1.25rem;
+            color: #64748b;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+        
+        .personal-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .personal-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+        }
+        
+        .personal-header p {
+            color: #64748b;
+            font-size: 1.125rem;
+            margin: 0;
+            font-weight: 500;
+        }
+        
+        .top-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .overall-score-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .score-gauge {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 2rem;
+            position: relative;
+        }
+        
+        .score-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(#2563eb 0deg 280deg, #e2e8f0 280deg 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            bottom: 12px;
+            background: #ffffff;
+            border-radius: 50%;
+        }
+        
+        .score-value {
+            position: relative;
+            z-index: 1;
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        
+        .score-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+        }
+        
+        .score-description {
+            color: #64748b;
+            font-size: 1.125rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .executive-summary {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 1.75rem;
+            margin-top: 1.5rem;
+            text-align: left;
+            position: relative;
+        }
+        
+        .executive-summary h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+        
+        .executive-summary p {
+            color: #475569;
+            font-size: 1rem;
+            line-height: 1.7;
+            margin: 0;
+        }
+        
+        .skills-assessment-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .skills-assessment-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .radar-chart-container {
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .radar-chart-container canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .feedback-sections-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .feedback-section {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 0;
+        }
+        
+        .feedback-section.overall {
+            grid-column: 1 / -1;
+        }
+        
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .section-title .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: #2563eb;
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+        
+        .feedback-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .feedback-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .feedback-item:last-child {
+            border-bottom: none;
+        }
+        
+        .feedback-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: #10b981;
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+            margin-top: 0.125rem;
+        }
+        
+        .feedback-item.improvement .feedback-icon {
+            background: #f59e0b;
+        }
+        
+        .feedback-text {
+            color: #475569;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .learning-resource {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .learning-resource h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .learning-resource h4 .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: #2563eb;
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+        
+        .learning-resource p {
+            color: #64748b;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .resource-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .resource-item:last-child {
+            border-bottom: none;
+        }
+        
+        .resource-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background: #64748b;
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.625rem;
+            flex-shrink: 0;
+        }
+        
+        .resource-text {
+            color: #475569;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+        
+        .general-next-steps {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .general-next-steps h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .general-next-steps h4 .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: #2563eb;
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+        
+        .general-next-steps ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .general-next-steps li {
+            color: #475569;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .general-next-steps li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #2563eb;
+            font-weight: 700;
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+        
+        .general-next-steps li:last-child {
+            margin-bottom: 0;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 3rem;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 1.125rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #64748b;
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 1.125rem;
+            border: 2px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+        
+        .btn-secondary:hover {
+            border-color: #cbd5e1;
+            background: #f8fafc;
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary .icon,
+        .btn-secondary .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background: currentColor;
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+        
+        .btn-secondary .icon {
+            background: #64748b;
+        }
+        
+        .demo-notice {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 1px solid #f59e0b;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .demo-notice h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 0.75rem;
+        }
+        
+        .demo-notice p {
+            color: #a16207;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin: 0;
         }
         
         /* Back Button Styles */
         .back-btn {
             position: fixed !important;
-            top: 1.5rem;
+            top: 2rem;
             left: 2rem;
             z-index: 1000;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(209, 213, 219, 0.6);
             color: #6b7280;
             font-size: 0.875rem;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            font-weight: 500;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            font-weight: 600;
             cursor: pointer;
             opacity: 1;
         }
@@ -63,85 +552,63 @@
         .back-btn:hover {
             background: rgba(255, 255, 255, 1);
             border-color: rgba(156, 163, 175, 0.8);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             color: #374151;
+            transform: translateY(-2px);
         }
         
-        .back-btn:active {
-            transition: all 0.1s ease;
+        .hidden { display: none; }
+        
+        .screen-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
         }
         
-        /* Responsive back button positioning */
+        .loader { 
+            border: 4px solid #f3f3f3; 
+            border-top: 4px solid #2563eb; 
+            border-radius: 50%; 
+            width: 50px; 
+            height: 50px; 
+            animation: spin 1s linear infinite; 
+        }
+        
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+        
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .back-btn {
-                top: 1rem;
-                left: 1.5rem;
-                font-size: 0.75rem;
-                padding: 0.375rem 0.625rem;
-            }
-        }
-        
-        @media (min-width: 1024px) {
-            .back-btn {
-                top: 2rem;
-                left: 3rem;
-                padding: 0.625rem 1rem;
-                font-size: 0.875rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .back-btn {
-                top: 0.75rem;
-                left: 1rem;
-                padding: 0.25rem 0.5rem;
-                font-size: 0.75rem;
+            .top-section {
+                grid-template-columns: 1fr;
             }
             
-            .back-btn span {
-                display: none;
+            .feedback-sections-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card {
+                padding: 2rem;
+                margin: 1rem;
+            }
+            
+            .header-title {
+                font-size: 2rem;
+            }
+            
+            .score-gauge {
+                width: 140px;
+                height: 140px;
+            }
+            
+            .score-value {
+                font-size: 2.5rem;
             }
         }
-
-        /* Feedback card styles */
-        .feedback-section {
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            border-radius: 1rem;
-            border: 1px solid #e5e7eb;
-        }
-
-        .feedback-section.strength {
-            background-color: #f0fdf4;
-            border-color: #bbf7d0;
-        }
-
-        .feedback-section.improvement {
-            background-color: #fef3c7;
-            border-color: #fde047;
-        }
-
-        .feedback-section.overall {
-            background-color: #eff6ff;
-            border-color: #bfdbfe;
-        }
-
-        .score-circle {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: white;
-        }
-
-        .score-excellent { background: linear-gradient(135deg, #10b981, #059669); }
-        .score-good { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-        .score-fair { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        .score-poor { background: linear-gradient(135deg, #ef4444, #dc2626); }
     </style>
 </head>
 <body class="text-gray-800">
@@ -154,48 +621,117 @@
         <span class="hidden sm:inline">Back</span>
     </button>
 
-    <div id="app-container" class="container mx-auto max-w-4xl">
+    <div id="app-container" class="container mx-auto max-w-6xl">
 
         <!-- Loading Screen -->
         <div id="loading-screen" class="screen-container">
             <div class="card text-center">
-                <h2 class="text-3xl font-bold text-gray-900 mb-4">Analyzing Your Performance...</h2>
-                <p class="text-lg text-gray-600 mb-8">Generating your personalized feedback report.</p>
-                <div class="flex justify-center">
+                <div class="w-24 h-24 mx-auto mb-6 bg-blue-100 rounded-full flex items-center justify-center">
+                    <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Analyzing Your Performance...</h2>
+                <p class="text-xl text-gray-600 mb-8">Generating your comprehensive feedback report.</p>
+                <div class="flex justify-center mb-6">
                     <div class="loader"></div>
                 </div>
-                <p class="text-sm text-gray-500 mt-4">This may take a few moments...</p>
+                <p class="text-lg text-gray-500">This may take a few moments...</p>
+                <div class="mt-8 text-sm text-gray-400">
+                    <p>Our AI is carefully analyzing your responses</p>
+                    <p>to provide actionable insights and recommendations</p>
+                </div>
             </div>
         </div>
 
         <!-- Feedback Screen -->
-        <div id="feedback-screen" class="hidden screen-container">
+        <div id="feedback-screen" class="hidden">
             <div class="card">
-                <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">Your Actionable Feedback Report</h2>
+                <!-- Professional Header -->
+                <div class="header-section">
+                    <h1 class="header-title">Interview Feedback Report</h1>
+                    <p class="header-subtitle">Comprehensive analysis to accelerate your interview success</p>
+                </div>
                 
-                <!-- Overall Score -->
-                <div class="text-center mb-8">
-                    <div id="overall-score-container" class="flex justify-center mb-4">
-                        <div id="overall-score" class="score-circle score-good">
-                            <span id="score-text">75</span>
+                <!-- Personal Header -->
+                <div class="personal-header">
+                    <h2>Interview Feedback Report</h2>
+                    <p id="role-context">Senior Software Engineer Assessment for System Design | 30 August 2025</p>
+                </div>
+                
+                <!-- Top Section: Overall Score + Skills Assessment -->
+                <div class="top-section">
+                    <!-- Overall Score Card -->
+                    <div class="overall-score-card">
+                        <div class="score-gauge">
+                            <div id="score-circle" class="score-circle">
+                                <span id="score-value" class="score-value">3.9</span>
+                            </div>
+                        </div>
+                        <h3 id="score-label" class="score-label">Exceeds Expectations</h3>
+                        <p id="score-description" class="score-description">Exceeds expectations (3.9/5) with room for targeted improvement in specific areas.</p>
+                        
+                        <!-- Executive Summary -->
+                        <div class="executive-summary">
+                            <h4>Executive Summary</h4>
+                            <p id="executive-summary-text">The candidate demonstrated exceptional problem-solving abilities and strong leadership potential. Their communication skills are outstanding, and they show solid technical foundations. The primary growth opportunity lies in developing strategic thinking and deepening technical expertise in emerging technologies.</p>
                         </div>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Overall Performance</h3>
-                    <p id="overall-summary" class="text-gray-600">Good performance with room for improvement in specific areas.</p>
+                    
+                    <!-- Skills Assessment Card -->
+                    <div class="skills-assessment-card">
+                        <h3>Skills Assessment</h3>
+                        <div class="radar-chart-container">
+                            <canvas id="radarChart" width="400" height="400"></canvas>
+                        </div>
+                    </div>
                 </div>
-
-                <!-- Feedback Content -->
-                <div id="feedback-content" class="space-y-6">
-                    <!-- Dynamic feedback sections will be inserted here -->
+                
+                <!-- Feedback Sections Grid -->
+                <div class="feedback-sections-grid">
+                    <!-- Key Strengths -->
+                    <div class="feedback-section">
+                        <h3 class="section-title">
+                            <span class="icon">S</span>
+                            Key Strengths
+                        </h3>
+                        <ul id="strengths-list" class="feedback-list">
+                            <!-- Dynamic content will be inserted here -->
+                        </ul>
+                    </div>
+                    
+                    <!-- Areas for Improvement -->
+                    <div class="feedback-section">
+                        <h3 class="section-title">
+                            <span class="icon">I</span>
+                            Areas for Improvement
+                        </h3>
+                        <ul id="improvements-list" class="feedback-list">
+                            <!-- Dynamic content will be inserted here -->
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Your Personalized Growth Plan -->
+                <div class="feedback-section overall">
+                    <h3 class="section-title">
+                        <span class="icon">G</span>
+                        Your Personalized Growth Plan
+                    </h3>
+                    <div id="growth-plan-content">
+                        <!-- Dynamic content will be inserted here -->
+                    </div>
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-                    <button id="start-new-interview-btn" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
-                        Start New Interview
-                    </button>
-                    <button id="review-answers-btn" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors duration-200">
+                <div class="action-buttons">
+                    <button id="review-answers-btn" class="btn-primary">
+                        <span class="icon">R</span>
                         Review My Answers
+                    </button>
+                    <button id="start-new-interview-btn" class="btn-secondary">
+                        <span class="icon">S</span>
+                        Start New Interview
                     </button>
                 </div>
             </div>
@@ -204,18 +740,18 @@
         <!-- Error Screen -->
         <div id="error-screen" class="hidden screen-container">
             <div class="card text-center">
-                <div class="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
-                    <svg class="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-24 h-24 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
+                    <svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
-                <h3 class="text-xl font-semibold text-red-800 mb-2">Unable to Generate Feedback</h3>
-                <p class="text-red-600 mb-4">We encountered an issue while analyzing your interview. Please try again.</p>
+                <h3 class="text-2xl font-semibold text-red-800 mb-3">Unable to Generate Feedback</h3>
+                <p class="text-red-600 mb-6 text-lg">We encountered an issue while analyzing your interview. Please try again.</p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button id="retry-feedback-btn" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200">
+                    <button id="retry-feedback-btn" class="btn-primary">
                         Try Again
                     </button>
-                    <button id="skip-feedback-btn" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors duration-200">
+                    <button id="skip-feedback-btn" class="btn-secondary">
                         Skip Feedback
                     </button>
                 </div>

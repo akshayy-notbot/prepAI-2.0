@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Feedback - PrepAI Interview Coach</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .card {
+            background-color: white;
+            padding: 3rem;
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            margin: 2rem auto;
+            max-width: 6rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 1.125rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+            margin: 1rem;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto text-center">
+        <div class="card">
+            <h1 class="text-3xl font-bold text-gray-900 mb-6">Test Feedback System</h1>
+            <p class="text-lg text-gray-600 mb-8">Click the button below to test the new comprehensive feedback system</p>
+            
+            <button onclick="testFeedback()" class="btn-primary">
+                Test Enhanced Feedback
+            </button>
+            
+            <div class="mt-8 text-sm text-gray-500">
+                <p>This will simulate the new feedback system with sample data</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function testFeedback() {
+            // Simulate interview data in session storage
+            const mockTranscript = [
+                { question: "Tell me about a challenging project you worked on.", answer: "I led a team of 5 developers to build a real-time analytics dashboard..." },
+                { question: "How do you handle conflicting priorities?", answer: "I use a prioritization matrix to evaluate impact vs effort..." },
+                { question: "Describe your problem-solving approach.", answer: "I start by understanding the root cause, then break down the problem..." }
+            ];
+            
+            const mockConfig = {
+                role: "Product Manager",
+                seniority: "Mid-Level",
+                skills: ["Problem Framing", "Tradeoff Analysis", "Communication"]
+            };
+            
+            // Store mock data
+            sessionStorage.setItem('prepai_interview_transcript', JSON.stringify(mockTranscript));
+            sessionStorage.setItem('prepai_interview_config', JSON.stringify(mockConfig));
+            
+            // Navigate to feedback page
+            window.location.href = 'pages/feedback.html';
+        }
+    </script>
+</body>
+</html>

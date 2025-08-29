@@ -16,9 +16,9 @@
         .screen-container {
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            height: 100vh;
             padding: 1rem;
-            padding-bottom: 2rem;
+            overflow: hidden;
         }
         .card {
             background-color: white;
@@ -272,7 +272,7 @@
             </div>
 
             <!-- Interview Interface (Hidden Initially) -->
-            <div id="interview-interface" class="hidden">
+            <div id="interview-interface" class="hidden flex flex-col flex-1">
                 <!-- Interview Screen Header -->
                 <div class="card w-full mb-4">
                     <div class="flex justify-between items-start">
@@ -288,7 +288,7 @@
                 </div>
 
             <!-- Main Chat Area -->
-            <div class="card w-full overflow-hidden">
+            <div class="card w-full overflow-hidden flex flex-col flex-1">
                 <!-- Professional Chat Header -->
                 <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
                     <div class="flex items-center justify-between">
@@ -326,7 +326,7 @@
                 </div>
 
                 <!-- Professional Chat Messages Container -->
-                <div id="chat-messages" class="px-6 py-4 h-[65vh] overflow-y-auto flex flex-col gap-3 bg-white">
+                <div id="chat-messages" class="px-6 py-4 flex-1 overflow-y-auto flex flex-col gap-3 bg-white">
                     <!-- Welcome message will be added here -->
                 </div>
 

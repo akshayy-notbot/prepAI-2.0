@@ -360,7 +360,11 @@ function handleRetryFeedback() {
 
 function handleSkipFeedback() {
     // Skip feedback and go to homepage
-    handleBackToHomepage();
+    if (window.PrepAIUtils && window.PrepAIUtils.Navigation) {
+        window.PrepAIUtils.Navigation.goTo('index');
+    } else {
+        window.location.href = 'index.html';
+    }
 }
 
 // Export for testing if needed

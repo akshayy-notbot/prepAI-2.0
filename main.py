@@ -72,6 +72,12 @@ class SubmitAnswerRequest(BaseModel):
     session_id: str
     answer: str
 
+class EvaluateInterviewRequest(BaseModel):
+    role: str
+    seniority: str
+    skills: List[str]
+    transcript: List[Dict[str, Any]]
+
 # --- Root Endpoint ---
 @app.get("/")
 @app.head("/")
@@ -83,6 +89,91 @@ async def root():
         "health_check": "/health",
         "docs": "/docs"
     }
+
+# --- Evaluation Endpoint ---
+@app.post("/api/evaluate-interview")
+async def evaluate_interview(request: EvaluateInterviewRequest):
+    """
+    Evaluate an interview transcript and generate feedback.
+    """
+    try:
+        print(f"🔍 Evaluating interview for {request.role} role ({request.seniority} level)")
+        
+        # Extract Q&A pairs from transcript
+        qa_pairs = []
+        for item in request.transcript:
+            if item.get("question") and item.get("answer"):
+                qa_pairs.append({
+                    "question": item["question"],
+                    "answer": item["answer"]
+                })
+        
+        if not qa_pairs:
+            raise HTTPException(status_code=400, detail="No valid question-answer pairs found in transcript")
+        
+        print(f"📊 Found {len(qa_pairs)} Q&A pairs for evaluation")
+        
+        # Evaluate each answer using the evaluation agent
+        evaluations = []
+        skills_to_assess = request.skills if request.skills else ["Problem Solving", "Communication", "Technical Knowledge"]
+        
+        for qa in qa_pairs:
+            print(f"🔍 Evaluating Q: {qa['question'][:50]}...")
+            evaluation = evaluate_answer(qa["answer"], qa["question"], skills_to_assess)
+            evaluations.append({
+                "question": qa["question"],
+                "answer": qa["answer"],
+                "evaluation": evaluation
+            })
+        
+        # Calculate overall scores and extract feedback
+        all_scores = []
+        strengths = []
+        improvements = []
+        category_feedback = {}
+        
+        for eval_data in evaluations:
+            if "evaluation" in eval_data and "scores" in eval_data["evaluation"]:
+                scores = eval_data["evaluation"]["scores"]
+                for skill, score_data in scores.items():
+                    if isinstance(score_data, dict) and "score" in score_data:
+                        all_scores.append(score_data["score"])
+                        
+                        # Categorize feedback
+                        feedback_text = score_data.get("feedback", "")
+                        if score_data["score"] >= 4:
+                            strengths.append(f"{skill}: {feedback_text}")
+                        elif score_data["score"] <= 2:
+                            improvements.append(f"{skill}: {feedback_text}")
+                        
+                        category_feedback[skill] = feedback_text
+        
+        overall_score = int(round(sum(all_scores) / len(all_scores) * 20, 0)) if all_scores else 0  # Convert to 0-100 scale
+        
+        # Generate response matching feedback page expectations
+        feedback_response = {
+            "overall_score": overall_score,
+            "overall_feedback": f"Your interview performance shows {'strong' if overall_score >= 80 else 'good' if overall_score >= 60 else 'developing'} skills in {request.role} for {request.seniority} level.",
+            "strengths": strengths[:3] if strengths else ["Good communication throughout the interview"],
+            "improvements": improvements[:3] if improvements else ["Continue practicing to build confidence"],
+            "category_feedback": category_feedback,
+            "recommendations": [
+                f"Focus on practicing {request.skills[0] if request.skills else 'core skills'} with real-world examples",
+                "Review industry best practices and current trends",
+                "Practice articulating your thought process clearly"
+            ],
+            "questions_evaluated": len(qa_pairs),
+            "role": request.role,
+            "seniority": request.seniority,
+            "skills_assessed": skills_to_assess
+        }
+        
+        print(f"✅ Evaluation completed successfully with overall score: {overall_score}")
+        return feedback_response
+        
+    except Exception as e:
+        print(f"❌ Error in evaluate_interview: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to evaluate interview: {str(e)}")
 
 # --- Health Check Endpoint ---
 @app.get("/health")

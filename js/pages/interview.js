@@ -112,6 +112,15 @@ function showInterviewInterface() {
     if (configSummary && interviewInterface) {
         configSummary.classList.add('hidden');
         interviewInterface.classList.remove('hidden');
+        
+        // Clear any existing chat messages
+        const chatMessages = document.getElementById('chat-messages');
+        if (chatMessages) {
+            chatMessages.innerHTML = '';
+        }
+        
+        // Initialize the interview status
+        updateStatus('Starting interview...');
     }
 }
 
@@ -128,10 +137,10 @@ function setupEventListeners() {
         beginInterviewBtn.addEventListener('click', handleBeginInterview);
     }
     
-    // Back to dashboard button
-    const backToDashboardBtn = document.getElementById('back-to-dashboard-btn');
-    if (backToDashboardBtn) {
-        backToDashboardBtn.addEventListener('click', handleBackToDashboard);
+    // Back to homepage button
+    const backToHomepageBtn = document.getElementById('back-to-homepage-btn');
+    if (backToHomepageBtn) {
+        backToHomepageBtn.addEventListener('click', handleBackToHomepage);
     }
     
     // Send button
@@ -168,31 +177,11 @@ async function initializeInterview() {
     // Start timer
     startTimer();
     
-    // Show welcome message
-    showWelcomeMessage();
-    
-    // Start the interview
+    // Start the interview directly
     await startInterview();
 }
 
-// Show welcome message
-function showWelcomeMessage() {
-    const chatMessages = document.getElementById('chat-messages');
-    const welcomeMessage = `
-        <div class="message ai">
-            <div class="message-bubble">
-                <p>Welcome to your AI interview! I'm here to help you practice for your ${interviewConfig.role} role at the ${interviewConfig.seniority} level.</p>
-                <p class="mt-2">We'll be focusing on: <strong>${interviewConfig.skills[0].split(' (')[0]}</strong></p>
-                <p class="mt-2">Take your time with your answers. This is a practice session, so feel free to think through your responses carefully.</p>
-                <p class="mt-2">Ready to begin? I'll start with your first question.</p>
-            </div>
-            <div class="message-meta">${new Date().toLocaleTimeString()}</div>
-        </div>
-    `;
-    
-    chatMessages.innerHTML = welcomeMessage;
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
+
 
 // Start the interview
 async function startInterview() {
@@ -475,6 +464,12 @@ function updateStatus(status) {
     if (statusElement) {
         statusElement.textContent = status;
     }
+    
+    // Also update the interview status in the chat header
+    const interviewStatusElement = document.getElementById('interview-status');
+    if (interviewStatusElement) {
+        interviewStatusElement.textContent = status;
+    }
 }
 
 // Timer functions
@@ -513,13 +508,13 @@ function handleEditConfiguration() {
     }
 }
 
-// Handle back to dashboard
-function handleBackToDashboard() {
-    // Navigate back to dashboard
+// Handle back to homepage
+function handleBackToHomepage() {
+    // Navigate back to homepage
     if (window.PrepAIUtils && window.PrepAIUtils.Navigation) {
-        window.PrepAIUtils.Navigation.goTo('dashboard');
+        window.PrepAIUtils.Navigation.goTo('index');
     } else {
-        window.location.href = 'dashboard.html';
+        window.location.href = 'index.html';
     }
 }
 
@@ -548,11 +543,11 @@ function handleExitInterview() {
             console.error('❌ Error saving transcript:', error);
         }
         
-        // Navigate back to dashboard
+        // Navigate back to homepage
         if (window.PrepAIUtils && window.PrepAIUtils.Navigation) {
-            window.PrepAIUtils.Navigation.goTo('dashboard');
+            window.PrepAIUtils.Navigation.goTo('index');
         } else {
-            window.location.href = 'dashboard.html';
+            window.location.href = 'index.html';
         }
     }
 }
@@ -566,6 +561,6 @@ if (typeof module !== 'undefined' && module.exports) {
         handleExitInterview,
         handleEditConfiguration,
         handleBeginInterview,
-        handleBackToDashboard
+        handleBackToHomepage
     };
 }

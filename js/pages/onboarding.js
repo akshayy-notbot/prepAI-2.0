@@ -83,7 +83,7 @@ function setupEventListeners() {
     // Continue button
     const continueBtn = document.getElementById('onboarding-continue-btn');
     if (continueBtn) {
-        continueBtn.addEventListener('click', handleContinueToDashboard);
+        continueBtn.addEventListener('click', handleContinueToInterview);
         console.log('✅ Continue button event listener added');
     } else {
         console.error('❌ Continue button not found!');
@@ -341,8 +341,8 @@ function populateSkillsOptions() {
     });
 }
 
-// Handle continue to dashboard
-function handleContinueToDashboard() {
+// Handle continue to interview
+function handleContinueToInterview() {
     if (!window.prepAIState) {
         console.error('❌ State management not available');
         return;
@@ -356,14 +356,14 @@ function handleContinueToDashboard() {
         return;
     }
     
-    console.log('✅ Configuration complete, navigating to dashboard');
+    console.log('✅ Configuration complete, navigating to interview');
     
-    // Navigate to dashboard
+    // Navigate directly to interview
     if (window.PrepAIUtils && window.PrepAIUtils.Navigation) {
-        window.PrepAIUtils.Navigation.goTo('dashboard');
+        window.PrepAIUtils.Navigation.goTo('interview');
     } else {
         // Fallback navigation
-        window.location.href = 'dashboard.html';
+        window.location.href = 'interview.html';
     }
 }
 
@@ -373,6 +373,6 @@ if (typeof module !== 'undefined' && module.exports) {
         handleRoleSelect, 
         handleExperienceSelect, 
         handleSkillSelection,
-        handleContinueToDashboard
+        handleContinueToInterview
     };
 }

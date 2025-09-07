@@ -249,7 +249,7 @@ async function startOrchestratorInterview() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            role: interviewConfig.role === 'Product Manager' ? 'Product Manger' : interviewConfig.role, // Temporary fix for database typo
+            role: interviewConfig.role,
             seniority: interviewConfig.seniority,
             skills: interviewConfig.skills,
             skill_context: {

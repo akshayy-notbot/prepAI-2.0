@@ -195,25 +195,72 @@ const SkillsMapping = {
     getSkillsByRoleAndSeniority(role, seniority) {
         const skillsMapping = {
             'Product Manager': {
-                'Student/Intern': [
-                    'Product Sense (Understand users, solve problems)',
-                    'Execution (Analyze data, manage tasks)'
-                ],
                 'Junior': [
-                    'Product Sense (Design valuable user experiences)',
-                    'Execution (Ship features, measure impact)'
+                    'Product Sense',
+                    'Execution',
+                    'Communication'
                 ],
-                'Mid-Level': [
-                    'Product Sense (Design valuable user experiences)',
-                    'Execution (Ship features, measure impact)'
+                'Mid': [
+                    'Product Sense',
+                    'Execution',
+                    'Strategic Thinking',
+                    'Leadership & Influence'
                 ],
                 'Senior': [
-                    'Product Sense (Define product area vision)',
-                    'Execution (Lead complex, cross-team projects)'
+                    'Product Sense',
+                    'Execution',
+                    'Strategic Thinking',
+                    'Leadership & Influence'
                 ],
-                'Manager / Lead': [
-                    'Product Sense (Set org-wide design vision)',
-                    'Execution (Scale operations, forecast business)'
+                'Manager': [
+                    'Product Sense',
+                    'Execution',
+                    'Strategic Thinking',
+                    'Leadership & Influence'
+                ]
+            },
+            'Software Engineer': {
+                'Junior': [
+                    'Coding Fundamentals',
+                    'Understanding Systems',
+                    'Team Collaboration'
+                ],
+                'Mid': [
+                    'CS Fundamentals in Practice',
+                    'Component-Level Design',
+                    'Operational Health'
+                ],
+                'Senior': [
+                    'System Design',
+                    'Technical Leadership',
+                    'Strategic Implementation'
+                ],
+                'Manager': [
+                    'System Architecture',
+                    'Technical Strategy',
+                    'Engineering Excellence'
+                ]
+            },
+            'Data Analyst': {
+                'Junior': [
+                    'Technical Foundations',
+                    'Analytical Basics',
+                    'Reporting'
+                ],
+                'Mid': [
+                    'Technical Proficiency',
+                    'Statistical Analysis',
+                    'Business Impact'
+                ],
+                'Senior': [
+                    'Technical Depth',
+                    'Advanced Analytics',
+                    'Strategic Partnership'
+                ],
+                'Manager': [
+                    'Technical & Systems Thinking',
+                    'Strategic Leadership',
+                    'Executive Communication & Influence'
                 ]
             }
         };

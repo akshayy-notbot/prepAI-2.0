@@ -53,6 +53,9 @@ class AutonomousInterviewer:
             Dict containing chain_of_thought, response_text, interview_state, and signal_evidence
         """
         
+        # Extract execution guidance if available
+        execution_guidance = self._extract_execution_guidance(interview_plan)
+        
         start_time = time.time()
         
         try:
@@ -230,6 +233,9 @@ You have full autonomy to conduct this interview however you think is best.
 - Interview Objective: {interview_objective}
 - Session Context: {json.dumps(session_context, indent=2)}
 
+**EXECUTION GUIDANCE (use as reference, adapt to current conversation):**
+{self._extract_execution_guidance(interview_plan)}
+
 **SIGNAL EVIDENCE COLLECTED SO FAR:**
 {signal_summary}
 
@@ -266,21 +272,15 @@ Let the candidate drive the conversation naturally, but use your signal map stra
 
 **Some examples of SIGNAL-BASED INTERVENTION STRATEGY:**
 
+Note -- the below are just examples and you can use your judgement to guide the conversation.
+
 - **If they jump straight to solutions**: Gently pull them back to test Problem Scoping
   - "That's an interesting idea! Before we dive into features, can you tell me a bit more about the specific user you're building this for?"
   - "I want to make sure I understand the problem space first. What specific pain points are you trying to solve?"
   
-- **If their user pain points are generic**: Probe for deeper User Empathy
-  - "A lot of apps show points of interest. What are some of the unique anxieties or problems a tourist faces specifically in Chennai that we could solve?"
-  - "Can you give me a specific example of a user scenario that would be challenging?"
-  
 - **If they list endless features**: Force a test of Prioritization
   - "This is a great list of ten features! If we only had three months to launch, what are the absolute essential three we would build, and why?"
   - "How would you decide which features to build first? What's your prioritization framework?"
-  
-- **If they have a core idea**: Pivot to test Business Acumen
-  - "This sounds like a great user-centric product. How might this product create value for our business?"
-  - "What would be the key metrics you'd track to measure success?"
   
 - **If they're struggling with complexity**: Provide gentle guidance and simpler questions
   - "Let's take a step back. Can you start with a simpler version of this problem?"
@@ -291,8 +291,7 @@ Let the candidate drive the conversation naturally, but use your signal map stra
   - "How would your solution change if we had to scale this to [larger scope]?"
 
 **KEY PRINCIPLES:**
-- Always let the candidate lead first
-- Intervene only when they're stuck or missing key areas
+- Always let the candidate lead first, but guide them as per the SIGNAL-BASED INTERVENTION STRATEGY when they're stuck or missing key areas
 - Use your signal map to identify gaps in evaluation coverage
 - Balance between letting them explore and ensuring comprehensive assessment
 - Keep the conversation natural and engaging
@@ -398,6 +397,22 @@ Your response MUST be a single, valid JSON object with this exact structure:
         
         # If no plan provided, raise an error
         raise Exception(f"No interview plan provided for {seniority} {role} - {skill}. PreInterviewPlanner must generate a plan first.")
+
+    def _extract_execution_guidance(self, interview_plan: Dict[str, Any]) -> str:
+        """Extract execution guidance patterns from interview plan"""
+        if not interview_plan or not isinstance(interview_plan, dict):
+            raise ValueError("Interview plan must be a non-empty dictionary")
+        
+        # Check if execution guidance is available in the interview plan
+        if 'during_interview_execution' in interview_plan and interview_plan['during_interview_execution']:
+            return interview_plan['during_interview_execution']
+        
+        # Check if it's available in session context
+        session_context = interview_plan.get('session_context', {})
+        if 'during_interview_execution' in session_context and session_context['during_interview_execution']:
+            return session_context['during_interview_execution']
+        
+        raise ValueError("No execution guidance found in interview plan. The playbook must include 'during_interview_execution' data.")
 
 
 class SignalTracker:

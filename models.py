@@ -83,6 +83,9 @@ class InterviewPlaybook(Base):
     evaluation_dimensions = Column(JSON)  # Each dimension with signals and probes
     seniority_criteria = Column(JSON)  # How evaluation differs by level
     good_vs_great_examples = Column(JSON)  # Examples of different performance levels
+    pre_interview_strategy = Column(Text, nullable=True)  # Strategy guidance for planning
+    during_interview_execution = Column(Text, nullable=True)  # Execution guidance for interviewer
+    post_interview_evaluation = Column(Text, nullable=True)  # Evaluation guidance for assessment
     created_at = Column(DateTime, default=datetime.utcnow)
     
     def __repr__(self):

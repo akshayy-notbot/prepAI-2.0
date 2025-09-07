@@ -99,6 +99,56 @@ def run_startup_checks():
         print(f"❌ Failed to create database schema: {e}")
         return False
     
+    # Create interview_playbooks table if it doesn't exist
+    print("\n📋 Creating interview_playbooks table...")
+    try:
+        from sqlalchemy import inspect
+        inspector = inspect(get_engine())
+        existing_tables = inspector.get_table_names()
+        
+        if 'interview_playbooks' not in existing_tables:
+            print("🔄 Creating interview_playbooks table...")
+            with get_engine().connect() as connection:
+                trans = connection.begin()
+                try:
+                    # Create the interview_playbooks table
+                    connection.execute(text("""
+                        CREATE TABLE interview_playbooks (
+                            id SERIAL PRIMARY KEY,
+                            role VARCHAR(255) NOT NULL,
+                            skill VARCHAR(255) NOT NULL,
+                            seniority VARCHAR(255) NOT NULL,
+                            archetype VARCHAR(255),
+                            interview_objective TEXT,
+                            evaluation_dimensions JSONB,
+                            seniority_criteria JSONB,
+                            good_vs_great_examples JSONB,
+                            pre_interview_strategy TEXT,
+                            during_interview_execution TEXT,
+                            post_interview_evaluation TEXT,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        )
+                    """))
+                    
+                    # Create indexes for better performance
+                    connection.execute(text("CREATE INDEX IF NOT EXISTS idx_interview_playbooks_role ON interview_playbooks(role)"))
+                    connection.execute(text("CREATE INDEX IF NOT EXISTS idx_interview_playbooks_skill ON interview_playbooks(skill)"))
+                    connection.execute(text("CREATE INDEX IF NOT EXISTS idx_interview_playbooks_seniority ON interview_playbooks(seniority)"))
+                    connection.execute(text("CREATE INDEX IF NOT EXISTS idx_interview_playbooks_combo ON interview_playbooks(role, skill, seniority)"))
+                    
+                    trans.commit()
+                    print("✅ interview_playbooks table created successfully with indexes")
+                except Exception as e:
+                    trans.rollback()
+                    print(f"❌ Failed to create interview_playbooks table: {e}")
+                    raise
+        else:
+            print("✅ interview_playbooks table already exists")
+            
+    except Exception as e:
+        print(f"❌ Error creating interview_playbooks table: {e}")
+        return False
+    
     # Run specific migrations
     print("\n🔄 Running database migrations...")
     migration_status = {}
@@ -304,7 +354,7 @@ def run_startup_checks():
     # Verify tables exist
     print("\n🔍 Verifying database tables...")
     try:
-        from models import get_session_local, SessionState
+        from models import get_session_local, SessionState, InterviewPlaybook
         
         db = get_session_local()()
         
@@ -314,6 +364,15 @@ def run_startup_checks():
             print(f"✅ session_states table: {count} records")
         except Exception as e:
             print(f"❌ session_states table: {e}")
+        
+        # Check if interview_playbooks table exists and has data
+        try:
+            playbook_count = db.query(InterviewPlaybook).count()
+            print(f"✅ interview_playbooks table: {playbook_count} records")
+            if playbook_count == 0:
+                print("ℹ️  interview_playbooks table is empty - ready for data import")
+        except Exception as e:
+            print(f"❌ interview_playbooks table: {e}")
         
         db.close()
         

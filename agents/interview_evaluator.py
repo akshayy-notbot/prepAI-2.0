@@ -247,7 +247,7 @@ Return ONLY a JSON object with this exact structure:
             if evidence.get("quotes"):
                 formatted.append(f"  💬 Key Quotes:")
                 for quote in evidence["quotes"]:
-                    formatted.append(f"    - \"{quote}\"")
+                    formatted.append(f'    - "{quote}"')
             
             if evidence.get("confidence"):
                 formatted.append(f"  🎯 Confidence: {evidence['confidence']}")
@@ -268,6 +268,9 @@ Return ONLY a JSON object with this exact structure:
             overall = evaluation_results.get("overall_assessment", {})
             dimensions = evaluation_results.get("dimension_evaluations", {})
             
+            # Define newline character outside f-string to avoid syntax error
+            newline = '\n'
+            
             summary = f"""
 # Interview Evaluation Summary
 
@@ -277,10 +280,10 @@ Return ONLY a JSON object with this exact structure:
 **Summary**: {overall.get('performance_summary', 'N/A')}
 
 ## Key Strengths
-{chr(10).join([f"- {strength}" for strength in overall.get('key_strengths', [])])}
+{newline.join([f"- {strength}" for strength in overall.get('key_strengths', [])])}
 
 ## Development Areas
-{chr(10).join([f"- {area}" for area in overall.get('development_areas', [])])}
+{newline.join([f"- {area}" for area in overall.get('development_areas', [])])}
 
 ## Dimension-by-Dimension Breakdown
 """
@@ -295,13 +298,13 @@ Return ONLY a JSON object with this exact structure:
 **Performance Level**: {dim_eval.get('good_vs_great', 'N/A')}
 
 **Strengths:**
-{chr(10).join([f"- {s}" for s in dim_eval.get('strengths', [])])}
+{newline.join([f"- {s}" for s in dim_eval.get('strengths', [])])}
 
 **Areas for Improvement:**
-{chr(10).join([f"- {a}" for a in dim_eval.get('areas_for_improvement', [])])}
+{newline.join([f"- {a}" for a in dim_eval.get('areas_for_improvement', [])])}
 
 **Evidence:**
-{chr(10).join([f"- \"{e}\"" for e in dim_eval.get('evidence', [])])}
+{newline.join([f'- "{e}"' for e in dim_eval.get('evidence', [])])}
 
 **Good vs Great Analysis**: {dim_eval.get('good_vs_great_analysis', 'N/A')}
 """

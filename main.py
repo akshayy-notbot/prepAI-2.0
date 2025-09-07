@@ -1021,8 +1021,8 @@ async def generate_test_prompt_data():
         components = ["autonomous_interviewer", "evaluation", "pre_interview_planner"]
         methods = ["conduct_interview_turn", "evaluate_answer", "create_interview_plan"]
         prompt_types = ["interview_question", "evaluation", "planning"]
-        roles = ["Software Engineer", "Product Manager", "Data Scientist"]
-        seniorities = ["Junior", "Mid", "Senior"]
+        roles = ["Product Manager", "Software Engineer", "Data Analyst"]
+        seniorities = ["Junior", "Mid", "Senior", "Manager"]
         skills = ["System Design", "Problem Solving", "Communication"]
         
         count = 0

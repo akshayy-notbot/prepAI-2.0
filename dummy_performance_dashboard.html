@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interview Performance Dashboard - PrepAI Interview Coach</title>
+    <title>DUMMY: Interview Performance Dashboard - PrepAI Interview Coach</title>
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -130,7 +130,7 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            background: conic-gradient(#2563eb 0deg 320deg, #e2e8f0 320deg 360deg);
+            background: conic-gradient(#2563eb 0deg 280deg, #e2e8f0 280deg 360deg);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -587,6 +587,30 @@
             transform: translateY(-2px);
         }
         
+        .hidden { display: none; }
+        
+        .screen-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .loader { 
+            border: 4px solid #f3f3f3; 
+            border-top: 4px solid #2563eb; 
+            border-radius: 50%; 
+            width: 50px; 
+            height: 50px; 
+            animation: spin 1s linear infinite; 
+        }
+        
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+        
         /* Responsive Design */
         @media (max-width: 768px) {
             .top-section {
@@ -627,469 +651,514 @@
 <body class="text-gray-800">
 
     <!-- Back Button -->
-    <button class="back-btn flex items-center gap-2">
+    <button id="back-to-homepage-btn" class="back-btn flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
         </svg>
         <span class="hidden sm:inline">Back</span>
     </button>
 
-    <div class="container mx-auto max-w-7xl">
+    <div id="app-container" class="container mx-auto max-w-7xl">
+
+
+
+        <!-- DUMMY NOTICE -->
+        <div class="card mb-4" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b;">
+            <div class="text-center">
+                <h3 class="text-2xl font-bold text-amber-800 mb-2">🚨 DUMMY DATA VISUALIZATION</h3>
+                <p class="text-amber-700 text-lg">This page shows how the enhanced performance dashboard will look with sample data.</p>
+                <p class="text-amber-600 mt-2">All scores, quotes, and insights are fictional examples for demonstration purposes.</p>
+            </div>
+        </div>
 
         <!-- Performance Dashboard -->
-        <div class="card">
-            <!-- Professional Header -->
-            <div class="header-section">
-                <h1 class="header-title">Interview Performance Dashboard</h1>
-                <p class="header-subtitle">Comprehensive dimension-by-dimension analysis for strategic career growth</p>
-            </div>
-            
-            <!-- Personal Header -->
-            <div class="personal-header">
-                <h2>Performance Assessment Report</h2>
-                <p>Senior Product Manager Assessment for Product Design | 15 January 2025</p>
-            </div>
-            
-            <!-- Top Section: Overall Score + Dimension Performance Radar -->
-            <div class="top-section">
-                <!-- Overall Score Card -->
-                <div class="overall-score-card">
-                    <div class="score-gauge">
-                        <div class="score-circle">
-                            <span class="score-value">4.2</span>
-                        </div>
-                    </div>
-                    <h3 class="score-label">Exceeds Expectations</h3>
-                    <p class="score-description">Exceeds Expectations (4.2/5) with room for targeted improvement in specific areas.</p>
-                    
-                    <!-- Executive Summary -->
-                    <div class="executive-summary">
-                        <h4>
-                            <span class="icon">📊</span>
-                            Executive Summary
-                        </h4>
-                        <p>The candidate demonstrated exceptional problem-solving abilities and strong leadership potential. Their communication skills are outstanding, and they show solid technical foundations. The primary growth opportunity lies in developing strategic thinking and deepening technical expertise in emerging technologies.</p>
-                    </div>
+        <div id="feedback-screen">
+            <div class="card">
+                <!-- Professional Header -->
+                <div class="header-section">
+                    <h1 class="header-title">DUMMY: Interview Performance Dashboard</h1>
+                    <p class="header-subtitle">This is a visualization with sample data - Comprehensive dimension-by-dimension analysis for strategic career growth</p>
                 </div>
                 
-                <!-- Dimension Performance Radar -->
-                <div class="dimension-performance-card">
-                    <h3>Dimension Performance Overview</h3>
-                    <div class="radar-chart-container">
-                        <canvas id="radarChart" width="400" height="400"></canvas>
-                    </div>
+                <!-- Personal Header -->
+                <div class="personal-header">
+                    <h2>DUMMY: Performance Assessment Report</h2>
+                    <p id="role-context">Senior Product Manager Assessment for Product Design | 15 January 2025</p>
                 </div>
-            </div>
-            
-            <!-- Dimension-by-Dimension Performance Grid -->
-            <div class="dimension-grid">
-                <!-- Problem Scoping Card -->
-                <div class="dimension-card">
-                    <div class="dimension-header">
-                        <div class="dimension-name">Problem Scoping</div>
-                        <div class="dimension-score">
-                            <div class="score-badge">4.5/5</div>
-                            <div class="confidence-indicator">High</div>
+                
+                <!-- Top Section: Overall Score + Dimension Performance Radar -->
+                <div class="top-section">
+                    <!-- Overall Score Card -->
+                    <div class="overall-score-card">
+                        <div class="score-gauge">
+                            <div id="score-circle" class="score-circle">
+                                <span id="score-value" class="score-value">--</span>
+                            </div>
+                        </div>
+                        <h3 id="score-label" class="score-label">Loading...</h3>
+                        <p id="score-description" class="score-description">Analyzing your performance...</p>
+                        
+                        <!-- Executive Summary -->
+                        <div class="executive-summary">
+                            <h4>
+                                <span class="icon">📊</span>
+                                Executive Summary
+                            </h4>
+                            <p id="executive-summary-text">The candidate demonstrated exceptional problem-solving abilities and strong leadership potential. Their communication skills are outstanding, and they show solid technical foundations. The primary growth opportunity lies in developing strategic thinking and deepening technical expertise in emerging technologies.</p>
                         </div>
                     </div>
                     
-                    <div class="dimension-content">
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">📝</span>
-                                Assessment
-                            </h4>
-                            <p class="content-text">Exceptional problem scoping with clear user definition and scope narrowing. The candidate demonstrated systematic approach to understanding complex problems.</p>
-                        </div>
-                        
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">🎯</span>
-                                Seniority Alignment
-                            </h4>
-                            <p class="content-text">Exceeds mid-level expectations, approaching senior-level problem analysis capabilities.</p>
-                        </div>
-                        
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">🌟</span>
-                                Performance Level
-                            </h4>
-                            <p class="content-text"><strong>Great</strong></p>
-                            <p class="content-text">Demonstrates deep understanding of problem complexity and user needs.</p>
-                        </div>
-                        
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">✅</span>
-                                Strengths
-                            </h4>
-                            <ul class="content-list">
-                                <li class="content-item">
-                                    <span class="content-icon">•</span>
-                                    <span class="content-text">Asked clarifying questions about user demographics</span>
-                                </li>
-                                <li class="content-item">
-                                    <span class="content-icon">•</span>
-                                    <span class="content-text">Narrowed scope to specific user persona</span>
-                                </li>
-                                <li class="content-item">
-                                    <span class="content-icon">•</span>
-                                    <span class="content-text">Systematic problem breakdown approach</span>
-                                </li>
-                            </ul>
-                        </div>
-                        
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">💬</span>
-                                Key Evidence
-                            </h4>
-                            <div class="quote-item">"Before we dive into features, can you tell me more about the specific user? Are we focusing on solo travelers, families, or business tourists?"</div>
-                            <div class="quote-item">"Let's focus on solo travelers aged 25-35, budget-conscious, visiting for 1-2 weeks."</div>
+                    <!-- Dimension Performance Radar -->
+                    <div class="dimension-performance-card">
+                        <h3>Dimension Performance Overview</h3>
+                        <div class="radar-chart-container">
+                            <canvas id="radarChart" width="400" height="400"></canvas>
                         </div>
                     </div>
                 </div>
                 
-                <!-- User Empathy Card -->
-                <div class="dimension-card">
-                    <div class="dimension-header">
-                        <div class="dimension-name">User Empathy</div>
-                        <div class="dimension-score">
-                            <div class="score-badge">4.8/5</div>
-                            <div class="confidence-indicator">High</div>
+                <!-- Dimension-by-Dimension Performance Grid -->
+                <div id="dimension-grid" class="dimension-grid">
+                    <!-- Problem Scoping Card -->
+                    <div class="dimension-card">
+                        <div class="dimension-header">
+                            <div class="dimension-name">Problem Scoping</div>
+                            <div class="dimension-score">
+                                <div class="score-badge">4.5/5</div>
+                                <div class="confidence-indicator">High</div>
+                            </div>
+                        </div>
+                        
+                        <div class="dimension-content">
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">📝</span>
+                                    Assessment
+                                </h4>
+                                <p class="content-text">Exceptional problem scoping with clear user definition and scope narrowing. The candidate demonstrated systematic approach to understanding complex problems.</p>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">🎯</span>
+                                    Seniority Alignment
+                                </h4>
+                                <p class="content-text">Exceeds mid-level expectations, approaching senior-level problem analysis capabilities.</p>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">🌟</span>
+                                    Performance Level
+                                </h4>
+                                <p class="content-text"><strong>Great</strong></p>
+                                <p class="content-text">Demonstrates deep understanding of problem complexity and user needs.</p>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">✅</span>
+                                    Strengths
+                                </h4>
+                                <ul class="content-list">
+                                    <li class="content-item">
+                                        <span class="content-icon">•</span>
+                                        <span class="content-text">Asked clarifying questions about user demographics</span>
+                                    </li>
+                                    <li class="content-item">
+                                        <span class="content-icon">•</span>
+                                        <span class="content-text">Narrowed scope to specific user persona</span>
+                                    </li>
+                                    <li class="content-item">
+                                        <span class="content-icon">•</span>
+                                        <span class="content-text">Systematic problem breakdown approach</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">💬</span>
+                                    Key Evidence
+                                </h4>
+                                <div class="quote-item">"Before we dive into features, can you tell me more about the specific user? Are we focusing on solo travelers, families, or business tourists?"</div>
+                                <div class="quote-item">"Let's focus on solo travelers aged 25-35, budget-conscious, visiting for 1-2 weeks."</div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="dimension-content">
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">📝</span>
-                                Assessment
-                            </h4>
-                            <p class="content-text">Outstanding user empathy with deep understanding of user pain points and emotional needs. Created compelling user personas.</p>
+                    <!-- User Empathy Card -->
+                    <div class="dimension-card">
+                        <div class="dimension-header">
+                            <div class="dimension-name">User Empathy</div>
+                            <div class="dimension-score">
+                                <div class="score-badge">4.8/5</div>
+                                <div class="confidence-indicator">High</div>
+                            </div>
                         </div>
                         
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">🎯</span>
-                                Seniority Alignment
-                            </h4>
-                            <p class="content-text">Significantly exceeds mid-level expectations, demonstrates senior-level empathy and insight.</p>
+                        <div class="dimension-content">
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">📝</span>
+                                    Assessment
+                                </h4>
+                                <p class="content-text">Outstanding user empathy with deep understanding of user pain points and emotional needs. Created compelling user personas.</p>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">🎯</span>
+                                    Seniority Alignment
+                                </h4>
+                                <p class="content-text">Significantly exceeds mid-level expectations, demonstrates senior-level empathy and insight.</p>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">🌟</span>
+                                    Performance Level
+                                </h4>
+                                <p class="content-text"><strong>Great</strong></p>
+                                <p class="content-text">Shows exceptional ability to understand and articulate user needs and emotions.</p>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">✅</span>
+                                    Strengths
+                                </h4>
+                                <ul class="content-list">
+                                    <li class="content-item">
+                                        <span class="content-icon">•</span>
+                                        <span class="content-text">Created detailed user persona (Sarah, 30-year-old solo traveler)</span>
+                                    </li>
+                                    <li class="content-item">
+                                        <span class="content-icon">•</span>
+                                        <span class="content-text">Identified non-obvious pain points beyond basic needs</span>
+                                    </li>
+                                    <li class="content-item">
+                                        <span class="content-icon">•</span>
+                                        <span class="content-text">Emotional understanding of user anxieties</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">💬</span>
+                                    Key Evidence
+                                </h4>
+                                <div class="quote-item">"So we're targeting Sarah, a 30-year-old solo traveler from Europe on a two-week trip."</div>
+                                <div class="quote-item">"The main pain points I see are safety concerns, navigating local transport, language barriers, and finding authentic food that won't make them sick."</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Creativity & Vision Card -->
+                    <div class="dimension-card">
+                        <div class="dimension-header">
+                            <div class="dimension-name">Creativity & Vision</div>
+                            <div class="dimension-score">
+                                <div class="score-badge">3.8/5</div>
+                                <div class="confidence-indicator">Medium</div>
+                            </div>
                         </div>
                         
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">🌟</span>
-                                Performance Level
-                            </h4>
-                            <p class="content-text"><strong>Great</strong></p>
-                            <p class="content-text">Shows exceptional ability to understand and articulate user needs and emotions.</p>
+                        <div class="dimension-content">
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">📝</span>
+                                    Assessment
+                                </h4>
+                                <p class="content-text">Good creative thinking with room for improvement in innovative solution generation and long-term vision development.</p>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">🎯</span>
+                                    Seniority Alignment
+                                </h4>
+                                <p class="content-text">Meets mid-level expectations but could develop more senior-level innovative thinking.</p>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">🌟</span>
+                                    Performance Level
+                                </h4>
+                                <p class="content-text"><strong>Good</strong></p>
+                                <p class="content-text">Solid foundation with potential for growth in innovative thinking.</p>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">✅</span>
+                                    Strengths
+                                </h4>
+                                <ul class="content-list">
+                                    <li class="content-item">
+                                        <span class="content-icon">•</span>
+                                        <span class="content-text">Practical solution approach</span>
+                                    </li>
+                                    <li class="content-item">
+                                        <span class="content-icon">•</span>
+                                        <span class="content-text">Clear product vision for MVP</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">⚠️</span>
+                                    Areas for Improvement
+                                </h4>
+                                <ul class="content-list">
+                                    <li class="content-item improvement">
+                                        <span class="content-icon">•</span>
+                                        <span class="content-text">Could explore more innovative solutions</span>
+                                    </li>
+                                    <li class="content-item improvement">
+                                        <span class="content-icon">•</span>
+                                        <span class="content-text">Long-term vision development</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Business Acumen Card -->
+                    <div class="dimension-card">
+                        <div class="dimension-header">
+                            <div class="dimension-name">Business Acumen</div>
+                            <div class="dimension-score">
+                                <div class="score-badge">3.2/5</div>
+                                <div class="confidence-indicator">Medium</div>
+                            </div>
                         </div>
                         
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">✅</span>
-                                Strengths
-                            </h4>
-                            <ul class="content-list">
-                                <li class="content-item">
-                                    <span class="content-icon">•</span>
-                                    <span class="content-text">Created detailed user persona (Sarah, 30-year-old solo traveler)</span>
-                                </li>
-                                <li class="content-item">
-                                    <span class="content-icon">•</span>
-                                    <span class="content-text">Identified non-obvious pain points beyond basic needs</span>
-                                </li>
-                                <li class="content-item">
-                                    <span class="content-icon">•</span>
-                                    <span class="content-text">Emotional understanding of user anxieties</span>
-                                </li>
-                            </ul>
+                        <div class="dimension-content">
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">📝</span>
+                                    Assessment
+                                </h4>
+                                <p class="content-text">Basic business understanding with significant room for growth in strategic thinking and business impact analysis.</p>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">🎯</span>
+                                    Seniority Alignment
+                                </h4>
+                                <p class="content-text">Below mid-level expectations, needs development in business strategy.</p>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">🌟</span>
+                                    Performance Level
+                                </h4>
+                                <p class="content-text"><strong>Good</strong></p>
+                                <p class="content-text">Basic understanding with clear path to improvement.</p>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">⚠️</span>
+                                    Areas for Improvement
+                                </h4>
+                                <ul class="content-list">
+                                    <li class="content-item improvement">
+                                        <span class="content-icon">•</span>
+                                        <span class="content-text">Business model development</span>
+                                    </li>
+                                    <li class="content-item improvement">
+                                        <span class="content-icon">•</span>
+                                        <span class="content-text">Market analysis and competitive positioning</span>
+                                    </li>
+                                    <li class="content-item improvement">
+                                        <span class="content-icon">•</span>
+                                        <span class="content-text">Revenue and growth strategy</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">💬</span>
+                                    Key Evidence
+                                </h4>
+                                <div class="quote-item">"We could offer premium guided tours or take a commission from partner restaurants."</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Prioritization & Trade-offs Card -->
+                    <div class="dimension-card">
+                        <div class="dimension-header">
+                            <div class="dimension-name">Prioritization & Trade-offs</div>
+                            <div class="dimension-score">
+                                <div class="score-badge">4.0/5</div>
+                                <div class="confidence-indicator">High</div>
+                            </div>
                         </div>
                         
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">💬</span>
-                                Key Evidence
-                            </h4>
-                            <div class="quote-item">"So we're targeting Sarah, a 30-year-old solo traveler from Europe on a two-week trip."</div>
-                            <div class="quote-item">"The main pain points I see are safety concerns, navigating local transport, language barriers, and finding authentic food that won't make them sick."</div>
+                        <div class="dimension-content">
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">📝</span>
+                                    Assessment
+                                </h4>
+                                <p class="content-text">Strong prioritization skills with clear reasoning and trade-off understanding. Demonstrates mature decision-making approach.</p>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">🎯</span>
+                                    Seniority Alignment
+                                </h4>
+                                <p class="content-text">Meets mid-level expectations well, approaching senior-level prioritization thinking.</p>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">🌟</span>
+                                    Performance Level
+                                </h4>
+                                <p class="content-text"><strong>Good</strong></p>
+                                <p class="content-text">Solid prioritization with room for growth in complex trade-off analysis.</p>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">✅</span>
+                                    Strengths
+                                </h4>
+                                <ul class="content-list">
+                                    <li class="content-item">
+                                        <span class="content-icon">•</span>
+                                        <span class="content-text">Ruthlessly prioritized MVP features</span>
+                                    </li>
+                                    <li class="content-item">
+                                        <span class="content-icon">•</span>
+                                        <span class="content-text">Articulated reasoning behind priorities</span>
+                                    </li>
+                                    <li class="content-item">
+                                        <span class="content-icon">•</span>
+                                        <span class="content-text">Clear understanding of trade-offs</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4>
+                                    <span class="icon">💬</span>
+                                    Key Evidence
+                                </h4>
+                                <div class="quote-item">"For the first version, we absolutely must nail navigation, safety features, and a curated list of experiences. The social features can wait."</div>
+                                <div class="quote-item">"Navigation is critical because getting lost in a foreign city is terrifying. Safety features address the real anxiety of being alone in an unfamiliar place."</div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Creativity & Vision Card -->
-                <div class="dimension-card">
-                    <div class="dimension-header">
-                        <div class="dimension-name">Creativity & Vision</div>
-                        <div class="dimension-score">
-                            <div class="score-badge">3.8/5</div>
-                            <div class="confidence-indicator">Medium</div>
+                <!-- Seniority-Specific Insights -->
+                <div class="seniority-insights">
+                    <h3>
+                        <span class="icon">🎯</span>
+                        Seniority-Specific Insights
+                    </h3>
+                    <div class="insight-grid">
+                        <div class="insight-item">
+                            <h4>Career Growth Trajectory</h4>
+                            <p>The candidate shows strong potential for advancement to senior level within 12-18 months. Their user empathy and problem-solving skills are already at senior level, while business acumen and strategic thinking are developing areas that can be accelerated through targeted mentorship and project exposure.</p>
                         </div>
-                    </div>
-                    
-                    <div class="dimension-content">
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">📝</span>
-                                Assessment
-                            </h4>
-                            <p class="content-text">Good creative thinking with room for improvement in innovative solution generation and long-term vision development.</p>
+                        <div class="insight-item">
+                            <h4>Career Development</h4>
+                            <p>Focus on business strategy projects, market analysis assignments, and cross-functional leadership opportunities. Consider pairing with senior business strategists for mentorship. The candidate's strong user research skills can be leveraged to develop business impact thinking.</p>
                         </div>
-                        
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">🎯</span>
-                                Seniority Alignment
-                            </h4>
-                            <p class="content-text">Meets mid-level expectations but could develop more senior-level innovative thinking.</p>
-                        </div>
-                        
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">🌟</span>
-                                Performance Level
-                            </h4>
-                            <p class="content-text"><strong>Good</strong></p>
-                            <p class="content-text">Solid foundation with potential for growth in innovative thinking.</p>
-                        </div>
-                        
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">✅</span>
-                                Strengths
-                            </h4>
-                            <ul class="content-list">
-                                <li class="content-item">
-                                    <span class="content-icon">•</span>
-                                    <span class="content-text">Practical solution approach</span>
-                                </li>
-                                <li class="content-item">
-                                    <span class="content-icon">•</span>
-                                    <span class="content-text">Clear product vision for MVP</span>
-                                </li>
-                            </ul>
-                        </div>
-                        
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">⚠️</span>
-                                Areas for Improvement
-                            </h4>
-                            <ul class="content-list">
-                                <li class="content-item improvement">
-                                    <span class="content-icon">•</span>
-                                    <span class="content-text">Could explore more innovative solutions</span>
-                                </li>
-                                <li class="content-item improvement">
-                                    <span class="content-icon">•</span>
-                                    <span class="content-text">Long-term vision development</span>
-                                </li>
-                            </ul>
+                        <div class="insight-item">
+                            <h4>Next Steps</h4>
+                            <p>Immediate: Assign to business model development projects. Short-term: Lead user research initiatives with business impact focus. Medium-term: Cross-functional project leadership with business stakeholders. Long-term: Strategic product planning and market entry initiatives.</p>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Business Acumen Card -->
-                <div class="dimension-card">
-                    <div class="dimension-header">
-                        <div class="dimension-name">Business Acumen</div>
-                        <div class="dimension-score">
-                            <div class="score-badge">3.2/5</div>
-                            <div class="confidence-indicator">Medium</div>
+                <!-- Interview Quality Analysis -->
+                <div class="interview-quality">
+                    <h3>
+                        <span class="icon">🔍</span>
+                        Interview Quality Analysis
+                    </h3>
+                    <div class="quality-grid">
+                        <div class="quality-item">
+                            <h4>Archetype Effectiveness</h4>
+                            <p>The "Broad Design" archetype worked exceptionally well for this candidate. It provided the perfect blank canvas to demonstrate their problem-scoping abilities and user empathy skills. The open-ended nature allowed for comprehensive evaluation across all dimensions.</p>
                         </div>
-                    </div>
-                    
-                    <div class="dimension-content">
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">📝</span>
-                                Assessment
-                            </h4>
-                            <p class="content-text">Basic business understanding with significant room for growth in strategic thinking and business impact analysis.</p>
+                        <div class="quality-item">
+                            <h4>Evidence Coverage</h4>
+                            <p>Excellent coverage across all evaluation dimensions. We collected strong evidence for problem scoping, user empathy, and prioritization. The interview naturally progressed through different aspects, allowing for comprehensive assessment without forced questioning.</p>
                         </div>
-                        
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">🎯</span>
-                                Seniority Alignment
-                            </h4>
-                            <p class="content-text">Below mid-level expectations, needs development in business strategy.</p>
-                        </div>
-                        
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">🌟</span>
-                                Performance Level
-                            </h4>
-                            <p class="content-text"><strong>Good</strong></p>
-                            <p class="content-text">Basic understanding with clear path to improvement.</p>
-                        </div>
-                        
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">⚠️</span>
-                                Areas for Improvement
-                            </h4>
-                            <ul class="content-list">
-                                <li class="content-item improvement">
-                                    <span class="content-icon">•</span>
-                                    <span class="content-text">Business model development</span>
-                                </li>
-                                <li class="content-item improvement">
-                                    <span class="content-icon">•</span>
-                                    <span class="content-text">Market analysis and competitive positioning</span>
-                                </li>
-                                <li class="content-item improvement">
-                                    <span class="content-icon">•</span>
-                                    <span class="content-text">Revenue and growth strategy</span>
-                                </li>
-                            </ul>
-                        </div>
-                        
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">💬</span>
-                                Key Evidence
-                            </h4>
-                            <div class="quote-item">"We could offer premium guided tours or take a commission from partner restaurants."</div>
+                        <div class="quality-item">
+                            <h4>Interview Flow</h4>
+                            <p>The interview flowed naturally with excellent candidate engagement. The conversation progressed organically from problem understanding to solution design, allowing the candidate to demonstrate their thinking process while maintaining professional interview standards.</p>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Prioritization & Trade-offs Card -->
-                <div class="dimension-card">
-                    <div class="dimension-header">
-                        <div class="dimension-name">Prioritization & Trade-offs</div>
-                        <div class="dimension-score">
-                            <div class="score-badge">4.0/5</div>
-                            <div class="confidence-indicator">High</div>
-                        </div>
-                    </div>
-                    
-                    <div class="dimension-content">
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">📝</span>
-                                Assessment
-                            </h4>
-                            <p class="content-text">Strong prioritization skills with clear reasoning and trade-off understanding. Demonstrates mature decision-making approach.</p>
-                        </div>
-                        
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">🎯</span>
-                                Seniority Alignment
-                            </h4>
-                            <p class="content-text">Meets mid-level expectations well, approaching senior-level prioritization thinking.</p>
-                        </div>
-                        
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">🌟</span>
-                                Performance Level
-                            </h4>
-                            <p class="content-text"><strong>Good</strong></p>
-                            <p class="content-text">Solid prioritization with room for growth in complex trade-off analysis.</p>
-                        </div>
-                        
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">✅</span>
-                                Strengths
-                            </h4>
-                            <ul class="content-list">
-                                <li class="content-item">
-                                    <span class="content-icon">•</span>
-                                    <span class="content-text">Ruthlessly prioritized MVP features</span>
-                                </li>
-                                <li class="content-item">
-                                    <span class="content-icon">•</span>
-                                    <span class="content-text">Articulated reasoning behind priorities</span>
-                                </li>
-                                <li class="content-item">
-                                    <span class="content-icon">•</span>
-                                    <span class="content-text">Clear understanding of trade-offs</span>
-                                </li>
-                            </ul>
-                        </div>
-                        
-                        <div class="content-section">
-                            <h4>
-                                <span class="icon">💬</span>
-                                Key Evidence
-                            </h4>
-                            <div class="quote-item">"For the first version, we absolutely must nail navigation, safety features, and a curated list of experiences. The social features can wait."</div>
-                            <div class="quote-item">"Navigation is critical because getting lost in a foreign city is terrifying. Safety features address the real anxiety of being alone in an unfamiliar place."</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Seniority-Specific Insights -->
-            <div class="seniority-insights">
-                <h3>
-                    <span class="icon">🎯</span>
-                    Seniority-Specific Insights
-                </h3>
-                <div class="insight-grid">
-                    <div class="insight-item">
-                        <h4>Career Growth Trajectory</h4>
-                        <p>The candidate shows strong potential for advancement to senior level within 12-18 months. Their user empathy and problem-solving skills are already at senior level, while business acumen and strategic thinking are developing areas that can be accelerated through targeted mentorship and project exposure.</p>
-                    </div>
-                    <div class="insight-item">
-                        <h4>Career Development</h4>
-                        <p>Focus on business strategy projects, market analysis assignments, and cross-functional leadership opportunities. Consider pairing with senior business strategists for mentorship. The candidate's strong user research skills can be leveraged to develop business impact thinking.</p>
-                    </div>
-                    <div class="insight-item">
-                        <h4>Next Steps</h4>
-                        <p>Immediate: Assign to business model development projects. Short-term: Lead user research initiatives with business impact focus. Medium-term: Cross-functional project leadership with business stakeholders. Long-term: Strategic product planning and market entry initiatives.</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Interview Quality Analysis -->
-            <div class="interview-quality">
-                <h3>
-                    <span class="icon">🔍</span>
-                    Interview Quality Analysis
-                </h3>
-                <div class="quality-grid">
-                    <div class="quality-item">
-                        <h4>Archetype Effectiveness</h4>
-                        <p>The "Broad Design" archetype worked exceptionally well for this candidate. It provided the perfect blank canvas to demonstrate their problem-scoping abilities and user empathy skills. The open-ended nature allowed for comprehensive evaluation across all dimensions.</p>
-                    </div>
-                    <div class="quality-item">
-                        <h4>Evidence Coverage</h4>
-                        <p>Excellent coverage across all evaluation dimensions. We collected strong evidence for problem scoping, user empathy, and prioritization. The interview naturally progressed through different aspects, allowing for comprehensive assessment without forced questioning.</p>
-                    </div>
-                    <div class="quality-item">
-                        <h4>Interview Flow</h4>
-                        <p>The interview flowed naturally with excellent candidate engagement. The conversation progressed organically from problem understanding to solution design, allowing the candidate to demonstrate their thinking process while maintaining professional interview standards.</p>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Action Buttons -->
-            <div class="action-buttons">
-                <button class="btn-primary">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button id="review-answers-btn" class="btn-primary">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Review My Answers
+                    </button>
+                    <button id="start-new-interview-btn" class="btn-secondary">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Start New Interview
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Screen -->
+        <div id="error-screen" class="hidden screen-container">
+            <div class="card text-center">
+                <div class="w-24 h-24 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
+                    <svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
-                    Review My Answers
-                </button>
-                <button class="btn-secondary">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
-                    Start New Interview
-                </button>
+                </div>
+                <h3 class="text-2xl font-semibold text-red-800 mb-3">Unable to Generate Dashboard</h3>
+                <p class="text-red-600 mb-6 text-lg">We encountered an issue while analyzing your interview. Please try again.</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button id="retry-feedback-btn" class="btn-primary">
+                        Try Again
+                    </button>
+                    <button id="skip-feedback-btn" class="btn-secondary">
+                        Skip Dashboard
+                    </button>
+                </div>
             </div>
         </div>
 
     </div>
 
+    <!-- Load shared utilities first -->
+    <script src="../js/shared/state.js"></script>
+    <script src="../js/shared/utils.js"></script>
+    <script src="../js/shared/security.js"></script>
+    <script src="../js/shared/error-handler.js"></script>
+    <script src="../js/shared/performance.js"></script>
+    <script src="../config.js"></script>
+    
+    <!-- Load page-specific JavaScript -->
+    <script src="../js/pages/feedback.js"></script>
+    
     <script>
         // Initialize the radar chart with dummy data
         document.addEventListener('DOMContentLoaded', function() {

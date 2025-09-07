@@ -51,8 +51,8 @@ class PreInterviewPlanner:
                 "role": role,
                 "skill": skill,
                 "seniority": seniority,
-                "seniority_criteria": playbook.seniority_criteria,
-                "good_vs_great_examples": playbook.good_vs_great_examples,
+                "seniority_criteria": self._get_seniority_criteria_content(playbook.seniority_criteria),
+                "good_vs_great_examples": self._get_good_vs_great_examples_content(playbook.good_vs_great_examples),
                 "interview_objective": playbook.interview_objective,
                 "core_philosophy": getattr(playbook, 'core_philosophy', None),
                 "created_at": str(datetime.utcnow())
@@ -64,6 +64,18 @@ class PreInterviewPlanner:
         except Exception as e:
             print(f"❌ Failed to create interview plan: {e}")
             raise Exception(f"Failed to create interview plan for {role} - {skill} - {seniority}: {str(e)}")
+    
+    def _get_seniority_criteria_content(self, seniority_criteria):
+        """Extract content from seniority_criteria, handling both old and new formats"""
+        if isinstance(seniority_criteria, dict) and "content" in seniority_criteria:
+            return seniority_criteria["content"]
+        return seniority_criteria
+    
+    def _get_good_vs_great_examples_content(self, good_vs_great_examples):
+        """Extract content from good_vs_great_examples, handling both old and new formats"""
+        if isinstance(good_vs_great_examples, dict) and "content" in good_vs_great_examples:
+            return good_vs_great_examples["content"]
+        return good_vs_great_examples
     
     def _get_playbook(self, role: str, skill: str, seniority: str) -> Any:
         """
@@ -109,14 +121,18 @@ class PreInterviewPlanner:
             raise Exception(f"No evaluation dimensions found in playbook for {role} - {skill} - {seniority}")
         
         # Get all evaluation dimensions from the playbook
-        evaluation_dimensions = playbook.evaluation_dimensions
+        # Handle both old string format and new JSON structure
+        if isinstance(playbook.evaluation_dimensions, dict) and "content" in playbook.evaluation_dimensions:
+            evaluation_dimensions = playbook.evaluation_dimensions["content"]
+        else:
+            evaluation_dimensions = playbook.evaluation_dimensions
         
         # Create prompt for LLM to make intelligent decisions
         prompt = f"""You are a senior expert Interview designer from a top-tier tech company (like Google or Meta) with an experience of more than 15 years in taking interviews.
 You are an expert interviewer planning a {skill} interview for a {seniority} {role} position.
 
 Available evaluation dimensions for this a {skill} interview for a {seniority} {role} position:
-{evaluation_dimensions}. And Seniority expectations are as follows {playbook.seniority_criteria}
+{evaluation_dimensions}. And Seniority expectations are as follows {self._get_seniority_criteria_content(playbook.seniority_criteria)}
 
 Interview objective: {playbook.interview_objective}
 
@@ -185,7 +201,7 @@ Interview Objective: {playbook.interview_objective}
 Archetype: {archetype}
 
 Top evaluation dimensions for this {skill} interview for a {seniority} {role} position we want to evaluate:
-{top_dimensions}. And Seniority expectations are as follows: {playbook.seniority_criteria}
+{top_dimensions}. And Seniority expectations are as follows: {self._get_seniority_criteria_content(playbook.seniority_criteria)}
 
 Interview objective: {playbook.interview_objective}
 

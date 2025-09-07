@@ -147,11 +147,19 @@ def _get_good_vs_great_examples(role_context: Dict[str, str]) -> str:
     
     # Check if good vs great examples are available in the role context
     if 'good_vs_great_examples' in role_context and role_context['good_vs_great_examples']:
-        return str(role_context['good_vs_great_examples'])
+        examples = role_context['good_vs_great_examples']
+        # Handle both old string format and new JSON structure
+        if isinstance(examples, dict) and "content" in examples:
+            return examples["content"]
+        return str(examples)
     
     # Check if it's available in interview plan
     interview_plan = role_context.get('interview_plan', {})
     if 'good_vs_great_examples' in interview_plan and interview_plan['good_vs_great_examples']:
-        return str(interview_plan['good_vs_great_examples'])
+        examples = interview_plan['good_vs_great_examples']
+        # Handle both old string format and new JSON structure
+        if isinstance(examples, dict) and "content" in examples:
+            return examples["content"]
+        return str(examples)
     
     raise ValueError("No good vs great examples found in role context. The playbook must include 'good_vs_great_examples' data.")

@@ -54,6 +54,7 @@ class PreInterviewPlanner:
                 "seniority_criteria": playbook.seniority_criteria,
                 "good_vs_great_examples": playbook.good_vs_great_examples,
                 "interview_objective": playbook.interview_objective,
+                "core_philosophy": getattr(playbook, 'core_philosophy', None),
                 "created_at": str(datetime.utcnow())
             }
             

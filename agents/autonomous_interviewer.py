@@ -212,6 +212,7 @@ Return ONLY a JSON object with this structure:
         top_dimensions = interview_plan.get("top_evaluation_dimensions", "")
         selected_archetype = interview_plan.get("selected_archetype", "")
         interview_objective = interview_plan.get("interview_objective", "")
+        core_philosophy = interview_plan.get("core_philosophy", "")
         
         # Format signal evidence for context
         signal_summary = self._format_signal_evidence(signal_evidence)
@@ -232,6 +233,9 @@ You have full autonomy to conduct this interview however you think is best.
 - Selected Archetype: {selected_archetype}
 - Interview Objective: {interview_objective}
 - Session Context: {json.dumps(session_context, indent=2)}
+
+**CORE PHILOSOPHY (foundational guidance - use as philosophical direction, not rigid instruction):**
+{core_philosophy if core_philosophy else "Focus on understanding the candidate's thinking process and practical problem-solving approach."}
 
 **EXECUTION GUIDANCE (use as reference, adapt to current conversation):**
 {self._extract_execution_guidance(interview_plan)}

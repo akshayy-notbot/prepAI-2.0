@@ -145,6 +145,29 @@ def run_startup_checks():
         else:
             print("✅ interview_playbooks table already exists")
             
+        # Check if core_philosophy column exists and add it if missing
+        if 'interview_playbooks' in existing_tables:
+            print("🔍 Checking for core_philosophy column...")
+            columns = [col['name'] for col in inspector.get_columns('interview_playbooks')]
+            
+            if 'core_philosophy' not in columns:
+                print("🔄 Adding core_philosophy column to interview_playbooks table...")
+                with get_engine().connect() as connection:
+                    trans = connection.begin()
+                    try:
+                        connection.execute(text("""
+                            ALTER TABLE interview_playbooks 
+                            ADD COLUMN core_philosophy TEXT
+                        """))
+                        trans.commit()
+                        print("✅ core_philosophy column added successfully")
+                    except Exception as e:
+                        trans.rollback()
+                        print(f"❌ Failed to add core_philosophy column: {e}")
+                        raise
+            else:
+                print("✅ core_philosophy column already exists")
+            
     except Exception as e:
         print(f"❌ Error creating interview_playbooks table: {e}")
         return False

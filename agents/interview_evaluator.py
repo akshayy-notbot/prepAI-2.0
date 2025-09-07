@@ -51,6 +51,7 @@ class InterviewEvaluator:
             interview_objective = interview_plan.get("interview_objective", "")
             seniority_criteria = interview_plan.get("seniority_criteria", {})
             good_vs_great_examples = interview_plan.get("good_vs_great_examples", {})
+            core_philosophy = interview_plan.get("core_philosophy", "")
             
             # Format conversation history for analysis
             formatted_history = self._format_conversation_history(conversation_history)
@@ -59,7 +60,7 @@ class InterviewEvaluator:
             prompt = self._build_evaluation_prompt(
                 role, seniority, skill, top_dimensions, selected_archetype,
                 interview_objective, formatted_history, signal_evidence,
-                seniority_criteria, good_vs_great_examples
+                seniority_criteria, good_vs_great_examples, core_philosophy
             )
             
             # Get LLM evaluation
@@ -103,7 +104,7 @@ class InterviewEvaluator:
                                 top_dimensions: str, selected_archetype: str,
                                 interview_objective: str, conversation_history: str,
                                 signal_evidence: Dict, seniority_criteria: Dict,
-                                good_vs_great_examples: Dict) -> str:
+                                good_vs_great_examples: Dict, core_philosophy: str) -> str:
         """
         Build comprehensive evaluation prompt.
         """
@@ -120,6 +121,9 @@ class InterviewEvaluator:
 - Selected Archetype: {selected_archetype}
 - Interview Objective: {interview_objective}
 - Top Evaluation Dimensions: {top_dimensions}
+
+**CORE PHILOSOPHY (evaluation guidance - use as philosophical direction, not rigid criteria):**
+{core_philosophy if core_philosophy else "Focus on understanding the candidate's thinking process and practical problem-solving approach."}
 
 **COMPLETE INTERVIEW TRANSCRIPT:**
 {conversation_history}

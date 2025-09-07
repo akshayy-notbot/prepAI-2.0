@@ -24,7 +24,7 @@ def validate_csv_structure(csv_file_path):
     required_columns = [
         'role', 'skill', 'seniority', 'archetype', 'interview_objective',
         'evaluation_dimensions', 'seniority_criteria', 'good_vs_great_examples',
-        'pre_interview_strategy', 'during_interview_execution', 'post_interview_evaluation'
+        'core_philosophy', 'pre_interview_strategy', 'during_interview_execution', 'post_interview_evaluation'
     ]
     
     try:
@@ -98,12 +98,12 @@ def import_csv_to_database(csv_file_path):
                             INSERT INTO interview_playbooks (
                                 role, skill, seniority, archetype, interview_objective,
                                 evaluation_dimensions, seniority_criteria, good_vs_great_examples,
-                                pre_interview_strategy, during_interview_execution, post_interview_evaluation,
+                                core_philosophy, pre_interview_strategy, during_interview_execution, post_interview_evaluation,
                                 created_at
                             ) VALUES (
                                 :role, :skill, :seniority, :archetype, :interview_objective,
                                 :evaluation_dimensions, :seniority_criteria, :good_vs_great_examples,
-                                :pre_interview_strategy, :during_interview_execution, :post_interview_evaluation,
+                                :core_philosophy, :pre_interview_strategy, :during_interview_execution, :post_interview_evaluation,
                                 :created_at
                             )
                         """)
@@ -117,6 +117,7 @@ def import_csv_to_database(csv_file_path):
                             'evaluation_dimensions': json.dumps(evaluation_dimensions) if evaluation_dimensions else None,
                             'seniority_criteria': json.dumps(seniority_criteria) if seniority_criteria else None,
                             'good_vs_great_examples': json.dumps(good_vs_great_examples) if good_vs_great_examples else None,
+                            'core_philosophy': row.get('core_philosophy', '').strip(),
                             'pre_interview_strategy': row.get('pre_interview_strategy', '').strip(),
                             'during_interview_execution': row.get('during_interview_execution', '').strip(),
                             'post_interview_evaluation': row.get('post_interview_evaluation', '').strip(),
@@ -201,6 +202,7 @@ def create_sample_csv():
             'evaluation_dimensions': '{"problem_scoping": {"signals": ["asks clarifying questions"]}}',
             'seniority_criteria': '{"mid_level": {"problem_scoping": "Should ask basic questions"}}',
             'good_vs_great_examples': '{"problem_scoping": {"good": "Asks basic questions", "great": "Asks detailed clarifying questions"}}',
+            'core_philosophy': 'Focus on user-centric thinking and systematic problem-solving. Encourage breaking down complex problems into manageable components while maintaining sight of overall user value.',
             'pre_interview_strategy': 'Step 1: Select archetype based on role and seniority...',
             'during_interview_execution': 'Guide conversation to collect signals...',
             'post_interview_evaluation': 'Review evidence and rate against rubric...'

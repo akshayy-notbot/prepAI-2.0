@@ -158,11 +158,11 @@ def main():
                             'seniority': seniority,
                             'skill': skill,
                             'core_philosophy': core_philosophy,
-                            'evaluation_dimensions': json.dumps(evaluation_dimensions_json),
-                            'seniority_criteria': json.dumps(seniority_criteria_json),
+                            'evaluation_dimensions': evaluation_dimensions_json,  # Store as dict, not JSON string
+                            'seniority_criteria': seniority_criteria_json,      # Store as dict, not JSON string
                             'archetype': archetype,
                             'interview_objective': interview_objective,
-                            'good_vs_great_examples': json.dumps(good_vs_great_examples_json),
+                            'good_vs_great_examples': good_vs_great_examples_json,  # Store as dict, not JSON string
                             'pre_interview_strategy': pre_interview_strategy,
                             'during_interview_execution': during_interview_execution,
                             'post_interview_evaluation': post_interview_evaluation
@@ -201,13 +201,13 @@ def main():
                 # Show the actual content structure
                 print(f"\n📋 Sample evaluation_dimensions structure:")
                 if sample[4]:
-                    try:
-                        eval_data = json.loads(sample[4])
-                        print(f"Type: {type(eval_data)}")
+                    eval_data = sample[4]
+                    print(f"Type: {type(eval_data)}")
+                    if isinstance(eval_data, dict) and 'content' in eval_data:
                         print(f"Content preview: {eval_data['content'][:200]}...")
                         print(f"Metadata: {eval_data['metadata']}")
-                    except:
-                        print(f"Raw content: {sample[4][:200]}...")
+                    else:
+                        print(f"Raw content: {str(eval_data)[:200]}...")
         
         print(f"\n🎉 Import completed successfully! {imported_count} records imported.")
         return True

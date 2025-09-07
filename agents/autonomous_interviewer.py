@@ -53,8 +53,8 @@ class AutonomousInterviewer:
             Dict containing chain_of_thought, response_text, interview_state, and signal_evidence
         """
         
-        # Extract execution guidance if available
-        execution_guidance = self._extract_execution_guidance(interview_plan)
+        # Get execution guidance directly from interview plan
+        execution_guidance = interview_plan.get('during_interview_execution', 'No execution guidance available')
         
         start_time = time.time()
         
@@ -238,7 +238,7 @@ You have full autonomy to conduct this interview however you think is best.
 {core_philosophy if core_philosophy else "Focus on understanding the candidate's thinking process and practical problem-solving approach."}
 
 **EXECUTION GUIDANCE (use as reference, adapt to current conversation):**
-{self._extract_execution_guidance(interview_plan)}
+{interview_plan.get('during_interview_execution', 'No execution guidance available')}
 
 **SIGNAL EVIDENCE COLLECTED SO FAR:**
 {signal_summary}
@@ -402,21 +402,6 @@ Your response MUST be a single, valid JSON object with this exact structure:
         # If no plan provided, raise an error
         raise Exception(f"No interview plan provided for {seniority} {role} - {skill}. PreInterviewPlanner must generate a plan first.")
 
-    def _extract_execution_guidance(self, interview_plan: Dict[str, Any]) -> str:
-        """Extract execution guidance patterns from interview plan"""
-        if not interview_plan or not isinstance(interview_plan, dict):
-            raise ValueError("Interview plan must be a non-empty dictionary")
-        
-        # Check if execution guidance is available in the interview plan
-        if 'during_interview_execution' in interview_plan and interview_plan['during_interview_execution']:
-            return interview_plan['during_interview_execution']
-        
-        # Check if it's available in session context
-        session_context = interview_plan.get('session_context', {})
-        if 'during_interview_execution' in session_context and session_context['during_interview_execution']:
-            return session_context['during_interview_execution']
-        
-        raise ValueError("No execution guidance found in interview plan. The playbook must include 'during_interview_execution' data.")
 
 
 class SignalTracker:

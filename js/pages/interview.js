@@ -195,18 +195,25 @@ async function startInterview() {
         // Call the backend to start the interview
         const response = await startOrchestratorInterview();
         
+        console.log('🔍 Full response from startOrchestratorInterview:', response);
+        console.log('🔍 Response type:', typeof response);
+        console.log('🔍 Response keys:', response ? Object.keys(response) : 'No response');
+        console.log('🔍 Session ID check:', response?.session_id);
+        
         if (response && response.session_id) {
             sessionId = response.session_id;
             interviewId = Date.now();
             
-            // Interview started with session ID
+            console.log('✅ Interview started with session ID:', sessionId);
             
             // Display opening statement if provided
             if (response.opening_statement) {
+                console.log('📝 Displaying opening statement:', response.opening_statement);
                 displayAIMessage(response.opening_statement);
                 updateStatus('Ready for your answer');
                 enableInput();
             } else {
+                console.log('⚠️ No opening statement, using fallback question');
                 // Fallback: ask first question manually
                 displayAIMessage("Let's start with your first question. Can you tell me about your experience with " + interviewConfig.skills[0].split(' (')[0] + "?");
                 updateStatus('Ready for your answer');
@@ -214,6 +221,11 @@ async function startInterview() {
             }
             
         } else {
+            console.error('❌ Response validation failed:');
+            console.error('  - Response exists:', !!response);
+            console.error('  - Response content:', response);
+            console.error('  - Session ID exists:', !!response?.session_id);
+            console.error('  - Session ID value:', response?.session_id);
             throw new Error('Failed to start interview - no session ID received');
         }
         
@@ -237,7 +249,7 @@ async function startOrchestratorInterview() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            role: interviewConfig.role,
+            role: interviewConfig.role === 'Product Manager' ? 'Product Manger' : interviewConfig.role, // Temporary fix for database typo
             seniority: interviewConfig.seniority,
             skills: interviewConfig.skills,
             skill_context: {
@@ -255,6 +267,19 @@ async function startOrchestratorInterview() {
 
     const data = await response.json();
     console.log('✅ Interview started successfully:', data);
+    console.log('🔍 Response data type:', typeof data);
+    console.log('🔍 Response data keys:', data ? Object.keys(data) : 'No data');
+    console.log('🔍 Session ID in data:', data?.session_id);
+    
+    // Validate the response structure
+    if (!data) {
+        throw new Error('Empty response from server');
+    }
+    
+    if (!data.session_id) {
+        console.error('❌ Missing session_id in response:', data);
+        throw new Error('Server response missing session_id field');
+    }
     
     return data;
 }

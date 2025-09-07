@@ -97,9 +97,9 @@ class PreInterviewPlanner:
             if not playbook:
                 raise Exception(f"No interview playbook found for {role} - {skill} - {seniority}. Please ensure the playbook exists in the database.")
             
-            # Extract guidance patterns for autonomous decision making
+            # Store the strategy text directly for use in prompts
             if hasattr(playbook, 'pre_interview_strategy') and playbook.pre_interview_strategy:
-                playbook.guidance_patterns = self._extract_guidance_patterns(playbook.pre_interview_strategy)
+                playbook.strategy_text = playbook.pre_interview_strategy
             
             return playbook
                 
@@ -136,8 +136,8 @@ Available evaluation dimensions for this a {skill} interview for a {seniority} {
 
 Interview objective: {playbook.interview_objective}
 
-Guidance Examples (use as reference, adapt to this specific context):
-{getattr(playbook, 'guidance_patterns', {}).get('archetype_examples', 'No specific guidance available')}
+Pre-Interview Strategy (use as reference, adapt to this specific context):
+{getattr(playbook, 'strategy_text', 'No strategy guidance available')}
 
 Your task is to:
 1. PRIORITIZE: Select the top 3-4 evaluation dimension that should be the primary focus for this role × skill × seniority combination
@@ -278,53 +278,4 @@ Return ONLY a JSON object with this exact structure:
         except Exception as e:
             raise Exception(f"LLM prompt generation failed for {role} - {skill} - {seniority}: {str(e)}")
     
-    def _extract_guidance_patterns(self, strategy_text: str) -> Dict[str, Any]:
-        """Extract reusable patterns from strategy text for autonomous decision making"""
-        if not strategy_text or not isinstance(strategy_text, str):
-            raise ValueError("Strategy text must be a non-empty string to extract guidance patterns")
-        
-        return {
-            "archetype_examples": self._extract_archetype_examples(strategy_text),
-            "signal_prioritization_examples": self._extract_signal_examples(strategy_text),
-            "interview_structure_examples": self._extract_structure_examples(strategy_text)
-        }
-
-    def _extract_archetype_examples(self, strategy_text: str) -> str:
-        """Extract archetype selection examples from strategy text"""
-        if not strategy_text or not isinstance(strategy_text, str):
-            raise ValueError("Strategy text must be a non-empty string")
-        
-        # Simple extraction - look for archetype mentions
-        if "Broad Design" in strategy_text:
-            return "Broad Design examples found in guidance"
-        if "Improvement" in strategy_text:
-            return "Improvement examples found in guidance"
-        if "Strategic" in strategy_text:
-            return "Strategic examples found in guidance"
-        
-        raise ValueError(f"No recognized archetype patterns found in strategy text: {strategy_text[:100]}...")
-
-    def _extract_signal_examples(self, strategy_text: str) -> str:
-        """Extract signal prioritization examples"""
-        if not strategy_text or not isinstance(strategy_text, str):
-            raise ValueError("Strategy text must be a non-empty string")
-        
-        # Look for signal-related keywords
-        signal_keywords = ["signal", "evaluation", "dimension", "criteria", "assessment"]
-        if any(keyword in strategy_text.lower() for keyword in signal_keywords):
-            return "Signal prioritization examples available in guidance"
-        
-        raise ValueError(f"No signal prioritization patterns found in strategy text: {strategy_text[:100]}...")
-
-    def _extract_structure_examples(self, strategy_text: str) -> str:
-        """Extract interview structure examples"""
-        if not strategy_text or not isinstance(strategy_text, str):
-            raise ValueError("Strategy text must be a non-empty string")
-        
-        # Look for structure-related keywords
-        structure_keywords = ["structure", "phase", "stage", "timing", "duration", "flow"]
-        if any(keyword in strategy_text.lower() for keyword in structure_keywords):
-            return "Interview structure examples available in guidance"
-        
-        raise ValueError(f"No interview structure patterns found in strategy text: {strategy_text[:100]}...")
     

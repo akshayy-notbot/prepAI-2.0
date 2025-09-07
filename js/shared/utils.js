@@ -197,70 +197,23 @@ const SkillsMapping = {
             'Product Manager': {
                 'Student/Intern': [
                     'Product Sense (Understand users, solve problems)',
-                    'Execution (Analyze data, manage tasks)',
-                    'Communication (Collaborate with the team)'
+                    'Execution (Analyze data, manage tasks)'
                 ],
-                'Junior / Mid-Level': [
+                'Junior': [
                     'Product Sense (Design valuable user experiences)',
-                    'Execution (Ship features, measure impact)',
-                    'Strategic Thinking (Analyze market, build roadmap)',
-                    'Leadership & Influence (Align team, manage stakeholders)'
+                    'Execution (Ship features, measure impact)'
+                ],
+                'Mid-Level': [
+                    'Product Sense (Design valuable user experiences)',
+                    'Execution (Ship features, measure impact)'
                 ],
                 'Senior': [
                     'Product Sense (Define product area vision)',
-                    'Execution (Lead complex, cross-team projects)',
-                    'Strategic Thinking (Formulate winning product strategy)',
-                    'Leadership & Influence (Influence roadmaps, mentor others)'
+                    'Execution (Lead complex, cross-team projects)'
                 ],
                 'Manager / Lead': [
                     'Product Sense (Set org-wide design vision)',
-                    'Execution (Scale operations, forecast business)',
-                    'Strategic Thinking (Find new market opportunities)',
-                    'Leadership & Influence (Align executives, drive change)'
-                ]
-            },
-            'Software Engineer': {
-                'Student/Intern': [
-                    'Coding Fundamentals (Write clean, tested code)',
-                    'Understanding Systems (Learn the existing codebase)',
-                    'Team Collaboration (Respond to code reviews)'
-                ],
-                'Junior / Mid-Level': [
-                    'CS Fundamentals in Practice (Apply algorithms, data structures)',
-                    'Component-Level Design (Design APIs and databases)',
-                    'Operational Health (Optimize and debug features)'
-                ],
-                'Senior': [
-                    'System Design Leadership (Lead complex system designs)',
-                    'Technical Leadership (Mentor engineers, drive decisions)',
-                    'Strategic Implementation (Define team testing strategy)'
-                ],
-                'Manager / Lead': [
-                    'System Architecture (Design multi-service platform architecture)',
-                    'Technical Strategy (Set long-term technical vision)',
-                    'Engineering Excellence (Drive org-wide quality standards)'
-                ]
-            },
-            'Data Analyst': {
-                'Student/Intern': [
-                    'Technical Foundations (Query and clean data)',
-                    'Analytical Basics (Perform simple statistical analysis)',
-                    'Reporting (Populate dashboards with data)'
-                ],
-                'Junior / Mid-Level': [
-                    'Technical Proficiency (Develop interactive BI dashboards)',
-                    'Statistical Analysis (Analyze experiments, find insights)',
-                    'Business Impact (Tell compelling stories with data)'
-                ],
-                'Senior': [
-                    'Technical Depth (Optimize queries, build models)',
-                    'Advanced Analytics (Design complex A/B tests)',
-                    'Strategic Partnership (Define key business metrics)'
-                ],
-                'Manager / Lead': [
-                    'Technical & Systems Thinking (Understand data engineering architecture)',
-                    'Strategic Leadership (Own company-wide experimentation strategy)',
-                    'Executive Communication & Influence (Drive leadership decisions with data)'
+                    'Execution (Scale operations, forecast business)'
                 ]
             }
         };

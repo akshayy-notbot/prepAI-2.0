@@ -196,119 +196,71 @@ const SkillsMapping = {
         const skillsMapping = {
             'Product Manager': {
                 'Student/Intern': [
-                    'Basic Product Sense (Understanding what makes a good product)',
-                    'User Research Fundamentals (Surveys, basic interviews)',
-                    'Data Analysis Basics (Simple metrics, Excel)',
-                    'Communication Skills (Clear written and verbal communication)',
-                    'Basic Project Management (Task organization, timelines)'
+                    'Product Sense (Understand users, solve problems)',
+                    'Execution (Analyze data, manage tasks)',
+                    'Communication (Collaborate with the team)'
                 ],
                 'Junior / Mid-Level': [
-                    'Product Sense (Feature prioritization, user value)',
-                    'User Research (Interviews, usability testing, personas)',
-                    'Data Analysis (A/B testing, key metrics, dashboards)',
-                    'Strategic Thinking (Roadmap planning, OKRs)',
-                    'Execution (Agile processes, stakeholder coordination)',
-                    'Stakeholder Management (Cross-functional collaboration)',
-                    'Metrics & KPIs (Defining success metrics)',
-                    'User Experience Design (Basic UX principles)'
+                    'Product Sense (Design valuable user experiences)',
+                    'Execution (Ship features, measure impact)',
+                    'Strategic Thinking (Analyze market, build roadmap)',
+                    'Leadership & Influence (Align team, manage stakeholders)'
                 ],
                 'Senior': [
-                    'Advanced Product Sense (Market positioning, competitive analysis)',
-                    'Strategic User Research (Market research, user segmentation)',
-                    'Advanced Data Analysis (Predictive analytics, business intelligence)',
-                    'Strategic Thinking (Business strategy, market expansion)',
-                    'Complex Execution (Multi-team coordination, risk management)',
-                    'Advanced Stakeholder Management (C-level communication, board presentations)',
-                    'Advanced Metrics & KPIs (Attribution modeling, LTV analysis)',
-                    'UX Strategy (Design systems, user journey optimization)'
+                    'Product Sense (Define product area vision)',
+                    'Execution (Lead complex, cross-team projects)',
+                    'Strategic Thinking (Formulate winning product strategy)',
+                    'Leadership & Influence (Influence roadmaps, mentor others)'
                 ],
                 'Manager / Lead': [
-                    'Product Strategy (Portfolio management, market entry)',
-                    'Research Leadership (Research methodology, team management)',
-                    'Business Intelligence (Advanced analytics, predictive modeling)',
-                    'Strategic Leadership (Company vision, market strategy)',
-                    'Program Management (Multiple product lines, resource allocation)',
-                    'Executive Stakeholder Management (Board relations, investor communication)',
-                    'Business Metrics (Financial modeling, market analysis)',
-                    'Design Leadership (Design strategy, brand management)'
+                    'Product Sense (Set org-wide design vision)',
+                    'Execution (Scale operations, forecast business)',
+                    'Strategic Thinking (Find new market opportunities)',
+                    'Leadership & Influence (Align executives, drive change)'
                 ]
             },
             'Software Engineer': {
                 'Student/Intern': [
-                    'Basic Coding (Syntax, simple algorithms)',
-                    'Version Control (Git basics, commit workflow)',
-                    'Simple Debugging (Error identification, basic fixes)',
-                    'Basic Testing (Unit test concepts, manual testing)',
-                    'Documentation (Code comments, README files)'
+                    'Coding Fundamentals (Write clean, tested code)',
+                    'Understanding Systems (Learn the existing codebase)',
+                    'Team Collaboration (Respond to code reviews)'
                 ],
                 'Junior / Mid-Level': [
-                    'System Design (Basic architecture patterns)',
-                    'Algorithms & Data Structures (Common algorithms, optimization)',
-                    'Code Quality (Clean code, design patterns)',
-                    'Testing & Debugging (Unit tests, debugging tools)',
-                    'Performance Optimization (Basic profiling, bottlenecks)',
-                    'Security (Input validation, authentication)',
-                    'API Design (REST principles, basic design)',
-                    'Database Design (Normalization, basic queries)'
+                    'CS Fundamentals in Practice (Apply algorithms, data structures)',
+                    'Component-Level Design (Design APIs and databases)',
+                    'Operational Health (Optimize and debug features)'
                 ],
                 'Senior': [
-                    'Advanced System Design (Distributed systems, scalability)',
-                    'Advanced Algorithms (Complex problem solving, optimization)',
-                    'Code Quality Leadership (Code reviews, standards)',
-                    'Testing Strategy (Test automation, CI/CD)',
-                    'Advanced Performance (Distributed performance, caching)',
-                    'Security Architecture (Threat modeling, secure design)',
-                    'API Architecture (Microservices, event-driven)',
-                    'Database Architecture (Sharding, replication, NoSQL)'
+                    'System Design Leadership (Lead complex system designs)',
+                    'Technical Leadership (Mentor engineers, drive decisions)',
+                    'Strategic Implementation (Define team testing strategy)'
                 ],
                 'Manager / Lead': [
-                    'System Architecture (Enterprise architecture, cloud strategy)',
-                    'Technical Strategy (Technology roadmap, vendor selection)',
-                    'Quality Engineering (Quality processes, metrics)',
-                    'DevOps Strategy (Infrastructure as code, monitoring)',
-                    'Performance Engineering (Capacity planning, optimization)',
-                    'Security Strategy (Compliance, risk management)',
-                    'Platform Architecture (Internal platforms, developer experience)',
-                    'Data Architecture (Data lakes, real-time processing)'
+                    'System Architecture (Design multi-service platform architecture)',
+                    'Technical Strategy (Set long-term technical vision)',
+                    'Engineering Excellence (Drive org-wide quality standards)'
                 ]
             },
             'Data Analyst': {
                 'Student/Intern': [
-                    'Basic Excel (Formulas, pivot tables, charts)',
-                    'Simple Data Visualization (Charts, graphs, basic dashboards)',
-                    'Basic Statistics (Mean, median, standard deviation)',
-                    'SQL Fundamentals (SELECT, WHERE, JOIN basics)',
-                    'Data Cleaning Basics (Handling missing values, duplicates)'
+                    'Technical Foundations (Query and clean data)',
+                    'Analytical Basics (Perform simple statistical analysis)',
+                    'Reporting (Populate dashboards with data)'
                 ],
                 'Junior / Mid-Level': [
-                    'Data Visualization (Tableau, Power BI, advanced charts)',
-                    'Statistical Analysis (Hypothesis testing, regression)',
-                    'SQL & Data Querying (Complex queries, optimization)',
-                    'Business Intelligence (Dashboards, KPI tracking)',
-                    'A/B Testing (Experiment design, analysis)',
-                    'Data Storytelling (Narrative building, insights)',
-                    'Machine Learning Basics (Supervised learning, model evaluation)',
-                    'Data Quality & Governance (Data validation, documentation)'
+                    'Technical Proficiency (Develop interactive BI dashboards)',
+                    'Statistical Analysis (Analyze experiments, find insights)',
+                    'Business Impact (Tell compelling stories with data)'
                 ],
                 'Senior': [
-                    'Advanced Data Visualization (Interactive dashboards, custom charts)',
-                    'Advanced Statistics (Multivariate analysis, time series)',
-                    'Advanced SQL (Stored procedures, performance tuning)',
-                    'Advanced BI (Predictive analytics, real-time dashboards)',
-                    'Advanced A/B Testing (Multivariate testing, Bayesian analysis)',
-                    'Advanced Data Storytelling (Executive presentations, strategic insights)',
-                    'Machine Learning (Unsupervised learning, feature engineering)',
-                    'Data Strategy (Data architecture, governance frameworks)'
+                    'Technical Depth (Optimize queries, build models)',
+                    'Advanced Analytics (Design complex A/B tests)',
+                    'Strategic Partnership (Define key business metrics)'
                 ],
                 'Manager / Lead': [
-                    'Data Strategy (Data roadmap, platform selection)',
-                    'Advanced Analytics Leadership (Team management, methodology)',
-                    'Data Engineering (ETL pipelines, data infrastructure)',
-                    'Business Intelligence Strategy (Analytics roadmap, tool selection)',
-                    'Experimentation Strategy (Testing frameworks, cultural change)',
-                    'Data Communication (Stakeholder management, executive reporting)',
-                    'AI/ML Strategy (Model deployment, ethical AI)',
-                    'Data Governance (Compliance, data privacy, quality standards)'
+                    'Technical & Systems Thinking (Understand data engineering architecture)',
+                    'Strategic Leadership (Own company-wide experimentation strategy)',
+                    'Executive Communication & Influence (Drive leadership decisions with data)'
                 ]
             }
         };

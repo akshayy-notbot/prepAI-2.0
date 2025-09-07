@@ -179,9 +179,40 @@ def run_startup_checks():
     try:
         from sqlalchemy import inspect
         inspector = inspect(get_engine())
-        columns = [col['name'] for col in inspector.get_columns('session_states')]
         
-        print(f"📋 Current table columns: {columns}")
+        # Check interview_sessions table for playbook_id column
+        if 'interview_sessions' in inspector.get_table_names():
+            session_columns = [col['name'] for col in inspector.get_columns('interview_sessions')]
+            print(f"📋 Current interview_sessions columns: {session_columns}")
+            
+            # Migration 0: Add playbook_id column to interview_sessions
+            if 'playbook_id' not in session_columns:
+                print("🔄 Adding playbook_id column to interview_sessions table...")
+                try:
+                    with get_engine().connect() as connection:
+                        trans = connection.begin()
+                        try:
+                            connection.execute(text("""
+                                ALTER TABLE interview_sessions 
+                                ADD COLUMN playbook_id INTEGER
+                            """))
+                            trans.commit()
+                            print("✅ playbook_id column added successfully")
+                            migration_status['playbook_id'] = 'ADDED'
+                        except Exception as e:
+                            trans.rollback()
+                            print(f"❌ Failed to add playbook_id column: {e}")
+                            raise
+                except Exception as e:
+                    print(f"❌ Error adding playbook_id column: {e}")
+                    return False
+            else:
+                print("✅ playbook_id column already exists in interview_sessions")
+                migration_status['playbook_id'] = 'EXISTS'
+        
+        # Check session_states table
+        columns = [col['name'] for col in inspector.get_columns('session_states')]
+        print(f"📋 Current session_states columns: {columns}")
         
         # Migration 1: Add complete_interview_data column
         if 'complete_interview_data' not in columns:
@@ -287,9 +318,18 @@ def run_startup_checks():
             final_columns = [col['name'] for col in inspector.get_columns('session_states')]
             print(f"📋 Final table columns: {final_columns}")
             
-            # Check migration success
+            # Check migration success for session_states
             required_columns = ['complete_interview_data', 'average_score']
             all_migrations_successful = all(col in final_columns for col in required_columns)
+            
+            # Check interview_sessions table for playbook_id
+            if 'interview_sessions' in inspector.get_table_names():
+                session_columns = [col['name'] for col in inspector.get_columns('interview_sessions')]
+                if 'playbook_id' not in session_columns:
+                    print("❌ playbook_id column missing from interview_sessions table")
+                    all_migrations_successful = False
+                else:
+                    print("✅ playbook_id column verified in interview_sessions table")
             
             if all_migrations_successful:
                 print("🎉 All database migrations completed successfully!")
@@ -472,6 +512,7 @@ def run_startup_checks():
         print("   3. Verify Redis session management is working")
         print("   4. Check database performance under load")
         print("\n🗄️  Database Migration Status:")
+        print("   ✅ playbook_id column: INTEGER support for interview session tracking")
         print("   ✅ complete_interview_data column: JSON support for enhanced data storage")
         print("   ✅ average_score column: INTEGER support for performance tracking")
         print("   ✅ All migrations completed and verified via schema inspection")

@@ -185,30 +185,52 @@ def run_startup_checks():
             session_columns = [col['name'] for col in inspector.get_columns('interview_sessions')]
             print(f"📋 Current interview_sessions columns: {session_columns}")
             
-            # Migration 0: Add playbook_id column to interview_sessions
-            if 'playbook_id' not in session_columns:
-                print("🔄 Adding playbook_id column to interview_sessions table...")
-                try:
-                    with get_engine().connect() as connection:
-                        trans = connection.begin()
-                        try:
-                            connection.execute(text("""
-                                ALTER TABLE interview_sessions 
-                                ADD COLUMN playbook_id INTEGER
-                            """))
-                            trans.commit()
-                            print("✅ playbook_id column added successfully")
-                            migration_status['playbook_id'] = 'ADDED'
-                        except Exception as e:
-                            trans.rollback()
-                            print(f"❌ Failed to add playbook_id column: {e}")
-                            raise
-                except Exception as e:
-                    print(f"❌ Error adding playbook_id column: {e}")
-                    return False
-            else:
-                print("✅ playbook_id column already exists in interview_sessions")
-                migration_status['playbook_id'] = 'EXISTS'
+            # Migration 0: Add all missing columns to interview_sessions
+            required_session_columns = {
+                'playbook_id': 'INTEGER',
+                'selected_archetype': 'VARCHAR(255)',
+                'generated_prompt': 'TEXT',
+                'signal_map': 'JSON',
+                'evaluation_criteria': 'JSON',
+                'conversation_history': 'JSON',
+                'collected_signals': 'JSON',
+                'final_evaluation': 'JSON',
+                'interview_started_at': 'TIMESTAMP',
+                'interview_completed_at': 'TIMESTAMP'
+            }
+            
+            for column_name, column_type in required_session_columns.items():
+                if column_name not in session_columns:
+                    print(f"🔄 Adding {column_name} column to interview_sessions table...")
+                    try:
+                        with get_engine().connect() as connection:
+                            trans = connection.begin()
+                            try:
+                                if column_name == 'playbook_id':
+                                    # Add foreign key constraint for playbook_id
+                                    connection.execute(text(f"""
+                                        ALTER TABLE interview_sessions 
+                                        ADD COLUMN {column_name} {column_type}
+                                    """))
+                                else:
+                                    # Add other columns
+                                    connection.execute(text(f"""
+                                        ALTER TABLE interview_sessions 
+                                        ADD COLUMN {column_name} {column_type}
+                                    """))
+                                trans.commit()
+                                print(f"✅ {column_name} column added successfully")
+                                migration_status[column_name] = 'ADDED'
+                            except Exception as e:
+                                trans.rollback()
+                                print(f"❌ Failed to add {column_name} column: {e}")
+                                raise
+                    except Exception as e:
+                        print(f"❌ Error adding {column_name} column: {e}")
+                        return False
+                else:
+                    print(f"✅ {column_name} column already exists in interview_sessions")
+                    migration_status[column_name] = 'EXISTS'
         
         # Check session_states table
         columns = [col['name'] for col in inspector.get_columns('session_states')]
@@ -322,14 +344,22 @@ def run_startup_checks():
             required_columns = ['complete_interview_data', 'average_score']
             all_migrations_successful = all(col in final_columns for col in required_columns)
             
-            # Check interview_sessions table for playbook_id
+            # Check interview_sessions table for all required columns
             if 'interview_sessions' in inspector.get_table_names():
                 session_columns = [col['name'] for col in inspector.get_columns('interview_sessions')]
-                if 'playbook_id' not in session_columns:
-                    print("❌ playbook_id column missing from interview_sessions table")
+                required_session_columns = [
+                    'playbook_id', 'selected_archetype', 'generated_prompt', 
+                    'signal_map', 'evaluation_criteria', 'conversation_history', 
+                    'collected_signals', 'final_evaluation', 'interview_started_at', 
+                    'interview_completed_at'
+                ]
+                
+                missing_session_columns = [col for col in required_session_columns if col not in session_columns]
+                if missing_session_columns:
+                    print(f"❌ Missing columns from interview_sessions table: {missing_session_columns}")
                     all_migrations_successful = False
                 else:
-                    print("✅ playbook_id column verified in interview_sessions table")
+                    print("✅ All required columns verified in interview_sessions table")
             
             if all_migrations_successful:
                 print("🎉 All database migrations completed successfully!")
@@ -512,7 +542,7 @@ def run_startup_checks():
         print("   3. Verify Redis session management is working")
         print("   4. Check database performance under load")
         print("\n🗄️  Database Migration Status:")
-        print("   ✅ playbook_id column: INTEGER support for interview session tracking")
+        print("   ✅ interview_sessions table: All required columns added (playbook_id, selected_archetype, generated_prompt, etc.)")
         print("   ✅ complete_interview_data column: JSON support for enhanced data storage")
         print("   ✅ average_score column: INTEGER support for performance tracking")
         print("   ✅ All migrations completed and verified via schema inspection")

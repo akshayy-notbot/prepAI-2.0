@@ -158,11 +158,11 @@ def main():
                             'seniority': seniority,
                             'skill': skill,
                             'core_philosophy': core_philosophy,
-                            'evaluation_dimensions': evaluation_dimensions_json,  # Store as dict, not JSON string
-                            'seniority_criteria': seniority_criteria_json,      # Store as dict, not JSON string
+                            'evaluation_dimensions': json.dumps(evaluation_dimensions_json),  # Convert dict to JSON string
+                            'seniority_criteria': json.dumps(seniority_criteria_json),      # Convert dict to JSON string
                             'archetype': archetype,
                             'interview_objective': interview_objective,
-                            'good_vs_great_examples': good_vs_great_examples_json,  # Store as dict, not JSON string
+                            'good_vs_great_examples': json.dumps(good_vs_great_examples_json),  # Convert dict to JSON string
                             'pre_interview_strategy': pre_interview_strategy,
                             'during_interview_execution': during_interview_execution,
                             'post_interview_evaluation': post_interview_evaluation
@@ -201,13 +201,17 @@ def main():
                 # Show the actual content structure
                 print(f"\n📋 Sample evaluation_dimensions structure:")
                 if sample[4]:
-                    eval_data = sample[4]
-                    print(f"Type: {type(eval_data)}")
-                    if isinstance(eval_data, dict) and 'content' in eval_data:
-                        print(f"Content preview: {eval_data['content'][:200]}...")
-                        print(f"Metadata: {eval_data['metadata']}")
-                    else:
-                        print(f"Raw content: {str(eval_data)[:200]}...")
+                    try:
+                        eval_data = json.loads(sample[4])
+                        print(f"Type: {type(eval_data)}")
+                        if isinstance(eval_data, dict) and 'content' in eval_data:
+                            print(f"Content preview: {eval_data['content'][:200]}...")
+                            print(f"Metadata: {eval_data['metadata']}")
+                        else:
+                            print(f"Raw content: {str(eval_data)[:200]}...")
+                    except Exception as e:
+                        print(f"Error parsing JSON: {e}")
+                        print(f"Raw content: {str(sample[4])[:200]}...")
         
         print(f"\n🎉 Import completed successfully! {imported_count} records imported.")
         return True

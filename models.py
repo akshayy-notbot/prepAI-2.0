@@ -103,7 +103,7 @@ class InterviewSession(Base):
     session_id = Column(String, unique=True, index=True)
     
     # Interview metadata
-    selected_skills = Column(String, nullable=False)
+    selected_skills = Column(JSON, nullable=False)  # Fixed: should be JSON array, not String
     role = Column(String, nullable=False)
     seniority = Column(String, nullable=False)
     skill = Column(String, nullable=False)

@@ -398,7 +398,6 @@ async def start_interview(request: StartInterviewRequest):
                 "generated_prompt": interview_plan["interview_prompt"],
                 "conversation_history": [],
                 "collected_signals": {},
-                # JSON fields with None values are omitted to let SQLAlchemy handle defaults properly
                 "playbook_id": None,
                 "interview_started_at": None,
                 "interview_completed_at": None

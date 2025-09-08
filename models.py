@@ -116,8 +116,8 @@ class InterviewSession(Base):
     evaluation_criteria = Column(JSON)
     
     # Interview execution data
-    conversation_history = Column(JSON, default=list)
-    collected_signals = Column(JSON, default=dict)
+    conversation_history = Column(JSON, default=lambda: [])
+    collected_signals = Column(JSON, default=lambda: {})
     
     # Post-interview data
     final_evaluation = Column(JSON, nullable=True)
@@ -259,8 +259,14 @@ def persist_interview_session(session_data: dict) -> bool:
         session_local = get_session_local()
         db = session_local()
         
-        # Simple fix: don't pass None values for JSON fields
-        processed_data = {k: v for k, v in session_data.items() if v is not None or k not in ['final_evaluation', 'signal_map', 'evaluation_criteria']}
+        # Handle JSON fields properly
+        processed_data = session_data.copy()
+        
+        # Remove None values for JSON fields that can be None
+        json_fields_that_can_be_none = ['final_evaluation', 'signal_map', 'evaluation_criteria']
+        for field in json_fields_that_can_be_none:
+            if field in processed_data and processed_data[field] is None:
+                del processed_data[field]
         
         # Create new interview session
         interview_session = InterviewSession(**processed_data)

@@ -275,7 +275,8 @@ def persist_interview_session(session_data: dict) -> bool:
         print(f"❌ Failed to persist interview session: {e}")
         if db:
             db.rollback()
-        return False
+        # Re-raise the exception to preserve error details
+        raise e
         
     finally:
         if db:

@@ -259,14 +259,8 @@ def persist_interview_session(session_data: dict) -> bool:
         session_local = get_session_local()
         db = session_local()
         
-        # Handle JSON fields properly
-        processed_data = session_data.copy()
-        
-        # Remove None values for JSON fields that can be None
-        json_fields_that_can_be_none = ['final_evaluation', 'signal_map', 'evaluation_criteria']
-        for field in json_fields_that_can_be_none:
-            if field in processed_data and processed_data[field] is None:
-                del processed_data[field]
+        # Simple: just use the session data as-is since we're not passing JSON fields
+        processed_data = session_data
         
         # Debug: Print exactly what we're sending to the database
         print(f"🔍 DEBUG - Final data being sent to InterviewSession:")

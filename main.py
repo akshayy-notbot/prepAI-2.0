@@ -396,8 +396,7 @@ async def start_interview(request: StartInterviewRequest):
                 "skill": request.skills[0] if request.skills else "General",
                 "selected_archetype": interview_plan["selected_archetype"],
                 "generated_prompt": interview_plan["interview_prompt"],
-                "conversation_history": [],
-                "collected_signals": {},
+                # Don't pass JSON fields - let SQLAlchemy use column defaults
                 "playbook_id": None,
                 "interview_started_at": None,
                 "interview_completed_at": None

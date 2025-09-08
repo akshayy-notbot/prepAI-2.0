@@ -404,6 +404,10 @@ async def start_interview(request: StartInterviewRequest):
                 "interview_completed_at": None
             }
             
+            # Debug: Print session data to identify JSON parsing issue
+            print(f"🔍 DEBUG - Session data keys and types:")
+            for k, v in session_data.items():
+                print(f"  {k}: {type(v)} = {repr(v)}")
             
             if not persist_interview_session(session_data):
                 raise Exception("Failed to persist interview session to database")

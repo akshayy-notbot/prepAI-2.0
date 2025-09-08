@@ -258,8 +258,24 @@ def persist_interview_session(session_data: dict) -> bool:
         session_local = get_session_local()
         db = session_local()
         
+        # Ensure JSON fields are properly handled
+        processed_data = session_data.copy()
+        
+        # Handle JSON fields - ensure they are proper Python objects, not strings
+        json_fields = ['conversation_history', 'collected_signals', 'final_evaluation', 'signal_map', 'evaluation_criteria']
+        for field in json_fields:
+            if field in processed_data and processed_data[field] is not None:
+                # If it's a string, try to parse it as JSON
+                if isinstance(processed_data[field], str):
+                    try:
+                        import json
+                        processed_data[field] = json.loads(processed_data[field])
+                    except (json.JSONDecodeError, TypeError):
+                        # If it's not valid JSON, keep as is
+                        pass
+        
         # Create new interview session
-        interview_session = InterviewSession(**session_data)
+        interview_session = InterviewSession(**processed_data)
         db.add(interview_session)
         db.commit()
         db.refresh(interview_session)

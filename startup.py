@@ -187,6 +187,7 @@ def run_startup_checks():
             
             # Migration 0: Add all missing columns to interview_sessions
             required_session_columns = {
+                'selected_skills': 'VARCHAR(255)',
                 'role': 'VARCHAR(255)',
                 'seniority': 'VARCHAR(255)',
                 'skill': 'VARCHAR(255)',
@@ -351,10 +352,10 @@ def run_startup_checks():
             if 'interview_sessions' in inspector.get_table_names():
                 session_columns = [col['name'] for col in inspector.get_columns('interview_sessions')]
                 required_session_columns = [
-                    'role', 'seniority', 'skill', 'playbook_id', 'selected_archetype', 
-                    'generated_prompt', 'signal_map', 'evaluation_criteria', 
-                    'conversation_history', 'collected_signals', 'final_evaluation', 
-                    'interview_started_at', 'interview_completed_at'
+                    'selected_skills', 'role', 'seniority', 'skill', 'playbook_id', 
+                    'selected_archetype', 'generated_prompt', 'signal_map', 
+                    'evaluation_criteria', 'conversation_history', 'collected_signals', 
+                    'final_evaluation', 'interview_started_at', 'interview_completed_at'
                 ]
                 
                 missing_session_columns = [col for col in required_session_columns if col not in session_columns]

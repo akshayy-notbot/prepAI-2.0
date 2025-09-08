@@ -102,6 +102,7 @@ class InterviewSession(Base):
     session_id = Column(String, unique=True, index=True)
     
     # Interview metadata
+    selected_skills = Column(String, nullable=False)
     role = Column(String, nullable=False)
     seniority = Column(String, nullable=False)
     skill = Column(String, nullable=False)

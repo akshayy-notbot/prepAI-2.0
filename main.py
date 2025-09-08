@@ -390,6 +390,7 @@ async def start_interview(request: StartInterviewRequest):
         try:
             session_data = {
                 "session_id": session_id,
+                "selected_skills": request.skills[0] if request.skills else "General",
                 "role": request.role,
                 "seniority": request.seniority,
                 "skill": request.skills[0] if request.skills else "General",

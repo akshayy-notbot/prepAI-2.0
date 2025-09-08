@@ -268,8 +268,25 @@ def persist_interview_session(session_data: dict) -> bool:
             if field in processed_data and processed_data[field] is None:
                 del processed_data[field]
         
+        # Debug: Print exactly what we're sending to the database
+        print(f"🔍 DEBUG - Final data being sent to InterviewSession:")
+        for k, v in processed_data.items():
+            print(f"  {k}: {repr(v)} (type: {type(v)})")
+        
         # Create new interview session
         interview_session = InterviewSession(**processed_data)
+        
+        # Debug: Print the object attributes
+        print(f"🔍 DEBUG - InterviewSession object attributes:")
+        for attr in dir(interview_session):
+            if not attr.startswith('_'):
+                try:
+                    value = getattr(interview_session, attr)
+                    if not callable(value):
+                        print(f"  {attr}: {repr(value)} (type: {type(value)})")
+                except:
+                    pass
+        
         db.add(interview_session)
         db.commit()
         db.refresh(interview_session)

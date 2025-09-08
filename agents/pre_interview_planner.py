@@ -257,11 +257,22 @@ Return ONLY a JSON object with this exact structure:
             response = self.llm.generate_content(prompt)
             response_text = response.text.strip()
             
+            # Debug: Print the raw response
+            print(f"🔍 DEBUG - Raw LLM response:")
+            print(f"Response length: {len(response_text)}")
+            print(f"First 500 chars: {response_text[:500]}")
+            print(f"Last 200 chars: {response_text[-200:]}")
+            
             # Parse JSON response
             if response_text.startswith('```json'):
                 response_text = response_text[7:]
             if response_text.endswith('```'):
                 response_text = response_text[:-3]
+            
+            # Debug: Print the cleaned response
+            print(f"🔍 DEBUG - Cleaned response for JSON parsing:")
+            print(f"Cleaned length: {len(response_text)}")
+            print(f"Cleaned text: {response_text}")
             
             result = json.loads(response_text.strip())
             

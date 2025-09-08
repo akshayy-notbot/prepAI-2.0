@@ -31,6 +31,7 @@ def get_session_local():
     """Get database session factory"""
     return sessionmaker(autocommit=False, autoflush=False, bind=get_engine())
 
+
 # --- Simplified Table Definitions - Only What We Actually Use ---
 
 class SessionState(Base):
@@ -258,21 +259,8 @@ def persist_interview_session(session_data: dict) -> bool:
         session_local = get_session_local()
         db = session_local()
         
-        # Ensure JSON fields are properly handled
-        processed_data = session_data.copy()
-        
-        # Handle JSON fields - ensure they are proper Python objects, not strings
-        json_fields = ['conversation_history', 'collected_signals', 'final_evaluation', 'signal_map', 'evaluation_criteria']
-        for field in json_fields:
-            if field in processed_data and processed_data[field] is not None:
-                # If it's a string, try to parse it as JSON
-                if isinstance(processed_data[field], str):
-                    try:
-                        import json
-                        processed_data[field] = json.loads(processed_data[field])
-                    except (json.JSONDecodeError, TypeError):
-                        # If it's not valid JSON, keep as is
-                        pass
+        # Simple fix: don't pass None values for JSON fields
+        processed_data = {k: v for k, v in session_data.items() if v is not None or k not in ['final_evaluation', 'signal_map', 'evaluation_criteria']}
         
         # Create new interview session
         interview_session = InterviewSession(**processed_data)

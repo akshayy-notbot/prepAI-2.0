@@ -398,16 +398,12 @@ async def start_interview(request: StartInterviewRequest):
                 "generated_prompt": interview_plan["interview_prompt"],
                 "conversation_history": [],
                 "collected_signals": {},
-                "final_evaluation": None,
-                "signal_map": None,
-                "evaluation_criteria": None,
+                # JSON fields with None values are omitted to let SQLAlchemy handle defaults properly
                 "playbook_id": None,
                 "interview_started_at": None,
                 "interview_completed_at": None
             }
             
-            # Debug: Print the session data to see what we're sending
-            print(f"🔍 Session data being sent: {session_data}")
             
             if not persist_interview_session(session_data):
                 raise Exception("Failed to persist interview session to database")

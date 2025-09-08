@@ -55,6 +55,8 @@ class PreInterviewPlanner:
                 "good_vs_great_examples": self._get_good_vs_great_examples_content(playbook.good_vs_great_examples),
                 "interview_objective": playbook.interview_objective,
                 "core_philosophy": getattr(playbook, 'core_philosophy', None),
+                "signal_map": {},  # Initialize empty signal map
+                "evaluation_criteria": {},  # Initialize empty evaluation criteria
                 "created_at": str(datetime.utcnow())
             }
             

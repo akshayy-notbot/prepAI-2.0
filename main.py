@@ -502,7 +502,7 @@ async def start_interview(request: StartInterviewRequest):
             "interview_plan": {
                 "archetype": interview_plan["selected_archetype"],
                 "objective": interview_plan.get("evaluation_criteria", {}).get("seniority_adjustments", {}).get(request.seniority.lower(), "Standard evaluation"),
-                "evaluation_dimensions": list(interview_plan["signal_map"].keys())
+                "evaluation_dimensions": list(interview_plan.get("signal_map", {}).keys())
             }
         }
         

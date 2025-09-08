@@ -390,6 +390,9 @@ async def start_interview(request: StartInterviewRequest):
         try:
             session_data = {
                 "session_id": session_id,
+                "role": request.role,
+                "seniority": request.seniority,
+                "skill": request.skills[0] if request.skills else "General",
                 "selected_archetype": interview_plan["selected_archetype"],
                 "generated_prompt": interview_plan["interview_prompt"],
                 "conversation_history": [],

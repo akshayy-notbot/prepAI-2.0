@@ -101,6 +101,11 @@ class InterviewSession(Base):
     id = Column(Integer, primary_key=True)
     session_id = Column(String, unique=True, index=True)
     
+    # Interview metadata
+    role = Column(String, nullable=False)
+    seniority = Column(String, nullable=False)
+    skill = Column(String, nullable=False)
+    
     # Pre-interview planning data
     playbook_id = Column(Integer, ForeignKey("interview_playbooks.id"), nullable=True)
     selected_archetype = Column(String)

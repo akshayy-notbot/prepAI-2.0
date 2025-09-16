@@ -227,6 +227,21 @@ async def evaluate_interview(request: EvaluateInterviewRequest):
         print(f"❌ Error in evaluate_interview: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to evaluate interview: {str(e)}")
 
+# --- Debug Endpoint ---
+@app.post("/api/debug-request")
+async def debug_request(request: dict):
+    """Debug endpoint to see what the frontend is actually sending."""
+    print("🔍 DEBUG: Received request")
+    print(f"📦 Request type: {type(request)}")
+    print(f"📦 Request keys: {list(request.keys()) if isinstance(request, dict) else 'Not a dict'}")
+    print(f"📦 Request content: {json.dumps(request, indent=2)}")
+    
+    return {
+        "success": True,
+        "received_data": request,
+        "message": "Debug endpoint - request received successfully"
+    }
+
 # --- Enhanced Interview Evaluation Endpoint ---
 @app.post("/api/evaluate-interview-enhanced")
 async def evaluate_interview_enhanced(request: EvaluateInterviewRequest):

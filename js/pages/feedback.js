@@ -94,10 +94,26 @@ function loadInterviewData() {
             interviewConfig = JSON.parse(configData);
         }
         
-        console.log('📊 Interview data loaded:', {
-            transcript: interviewTranscript.length + ' interactions',
-            config: interviewConfig
-        });
+        console.log('📊 Interview data loaded:');
+        console.log('   Transcript items:', interviewTranscript?.length || 0);
+        console.log('   Config:', interviewConfig);
+        
+        // Debug sessionStorage data
+        console.log('🔍 Raw sessionStorage data:');
+        console.log('   Transcript:', transcriptData?.substring(0, 200) + '...');
+        console.log('   Config:', configData);
+        
+        // Validate loaded data
+        if (!interviewTranscript || interviewTranscript.length === 0) {
+            console.error('❌ No transcript data found in sessionStorage');
+            return;
+        }
+        
+        if (!interviewConfig || !interviewConfig.role || !interviewConfig.seniority) {
+            console.error('❌ Invalid or missing config data in sessionStorage');
+            console.error('   Expected fields: role, seniority, skills/skill');
+            return;
+        }
         
         // Generate evaluation
         generateEvaluation();
@@ -122,19 +138,46 @@ async function generateEvaluation() {
             transcript: interviewTranscript // Backend expects transcript field
         };
         
-        // Debug logging
-        console.log('📤 Sending evaluation request:', {
-            role: evaluationRequest.role,
-            seniority: evaluationRequest.seniority,
-            skills: evaluationRequest.skills,
-            transcriptLength: evaluationRequest.transcript?.length || 0,
-            sampleTranscriptItem: evaluationRequest.transcript?.[0] || null
-        });
+        // Comprehensive debug logging
+        console.log('📤 Sending evaluation request:');
+        console.log('   Role:', evaluationRequest.role);
+        console.log('   Seniority:', evaluationRequest.seniority);
+        console.log('   Skills:', evaluationRequest.skills);
+        console.log('   Transcript length:', evaluationRequest.transcript?.length || 0);
+        
+        // Check transcript structure
+        if (evaluationRequest.transcript && evaluationRequest.transcript.length > 0) {
+            console.log('📋 First transcript item:');
+            console.log('   Keys:', Object.keys(evaluationRequest.transcript[0]));
+            console.log('   Has question:', !!evaluationRequest.transcript[0].question);
+            console.log('   Has answer:', !!evaluationRequest.transcript[0].answer);
+            console.log('   Sample:', evaluationRequest.transcript[0]);
+        } else {
+            console.error('❌ Transcript is empty or invalid!');
+        }
+        
+        // Validate data before sending
+        if (!evaluationRequest.role || !evaluationRequest.seniority) {
+            console.error('❌ Missing required fields: role or seniority');
+        }
+        
+        if (!evaluationRequest.transcript || evaluationRequest.transcript.length === 0) {
+            console.error('❌ Transcript is empty or missing');
+        }
+        
+        // Log the full request for debugging
+        console.log('📦 Full request body:', JSON.stringify(evaluationRequest, null, 2));
+        
+        // TEMPORARY: Test with debug endpoint first
+        const USE_DEBUG_ENDPOINT = true; // Set to false to use real endpoint
         
         // Call the enhanced evaluation API
         const API_BASE_URL = window.PREPAI_CONFIG?.API_BASE_URL || 'https://prepai-api.onrender.com';
         
-        const response = await fetch(`${API_BASE_URL}/api/evaluate-interview-enhanced`, {
+        const endpoint = USE_DEBUG_ENDPOINT ? '/api/debug-request' : '/api/evaluate-interview-enhanced';
+        console.log(`🔗 Using endpoint: ${API_BASE_URL}${endpoint}`);
+        
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json'
@@ -143,13 +186,40 @@ async function generateEvaluation() {
         });
         
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error('❌ Server error response:', errorText);
-            throw new Error(`Server responded with ${response.status}: ${errorText || response.statusText}`);
+            let errorDetails = 'No error details available';
+            try {
+                const errorText = await response.text();
+                console.error('❌ Server error response (raw):', errorText);
+                
+                // Try to parse as JSON for better error details
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    errorDetails = errorJson.detail || errorText;
+                    console.error('❌ Parsed error details:', errorJson);
+                } catch (parseError) {
+                    errorDetails = errorText;
+                    console.error('❌ Raw error text:', errorText);
+                }
+            } catch (readError) {
+                console.error('❌ Could not read error response:', readError);
+            }
+            
+            throw new Error(`Server responded with ${response.status}: ${errorDetails}`);
         }
         
         const data = await response.json();
-        console.log('✅ Enhanced evaluation generated successfully:', data);
+        console.log('✅ Response received successfully:', data);
+        
+        if (USE_DEBUG_ENDPOINT) {
+            console.log('🔍 Debug response - checking what backend received:');
+            console.log('   Received data keys:', Object.keys(data.received_data || {}));
+            console.log('   Backend saw request as:', data.received_data);
+            
+            // Don't try to display dashboard with debug data
+            console.log('🛑 Debug mode active - check console logs above for request analysis');
+            alert('Debug mode: Check console for detailed request analysis');
+            return;
+        }
         
         evaluationData = data;
         displayDashboard(data);

@@ -1,5 +1,5 @@
-// Production Configuration for PrepAI
-// This file contains production-optimized settings
+// Production Configuration for PrepAI - Custom Domain
+// This file contains production-optimized settings for doaiprep.xyz
 
 window.PREPAI_CONFIG = {
     // Production API endpoints

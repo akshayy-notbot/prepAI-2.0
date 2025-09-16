@@ -18,6 +18,12 @@ const CONFIG = {
     githubPages: {
         API_BASE_URL: "https://prepai-api.onrender.com", // Your Render backend URL
         ENVIRONMENT: "production"
+    },
+    
+    // Custom Domain Environment
+    customDomain: {
+        API_BASE_URL: "https://prepai-api.onrender.com", // Your Render backend URL
+        ENVIRONMENT: "production"
     }
 };
 
@@ -30,7 +36,9 @@ function getCurrentConfig() {
         return CONFIG.development;
     } else if (hostname.includes('github.io')) {
         return CONFIG.githubPages;
-    } else if (hostname.includes('onrender.com') || hostname.includes('github.io') || hostname.includes('prepai')) {
+    } else if (hostname === 'doaiprep.xyz') {
+        return CONFIG.customDomain;
+    } else if (hostname.includes('onrender.com') || hostname.includes('prepai')) {
         return CONFIG.production;
     } else {
         return CONFIG.production; // Default to production for safety

@@ -1,12 +1,12 @@
 // Enhanced Performance Dashboard JavaScript for PrepAI Multi-Page System
 
-// Global variables for dashboard state
+// Global variables for feedback state
 let interviewTranscript = [];
 let interviewConfig = null;
 let evaluationData = null;
 let radarChart = null;
 
-// Initialize dashboard when DOM loads
+// Initialize feedback page when DOM loads
 document.addEventListener('DOMContentLoaded', function() {
     console.log('📊 Performance Dashboard initialized');
     
@@ -44,7 +44,7 @@ function validatePageAccess() {
 
 // Setup event listeners
 function setupEventListeners() {
-    console.log('🔧 Setting up dashboard event listeners...');
+    console.log('🔧 Setting up feedback event listeners...');
     
     // Back button
     const backBtn = document.getElementById('back-to-homepage-btn');
@@ -163,15 +163,15 @@ async function generateEvaluation() {
     }
 }
 
-// Display the enhanced performance dashboard
+// Display the enhanced performance feedback
 function displayDashboard(data) {
-    console.log('📊 Displaying enhanced performance dashboard');
+    console.log('📊 Displaying enhanced performance feedback');
     console.log('📊 Raw evaluation data:', data);
     
     // Store evaluation data globally for review modal
     evaluationData = data;
     
-    // Hide loading, show dashboard
+    // Hide loading, show feedback
     document.getElementById('loading-screen').classList.add('hidden');
     document.getElementById('feedback-screen').classList.remove('hidden');
     

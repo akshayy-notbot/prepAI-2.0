@@ -40,10 +40,10 @@ function validatePageAccess() {
     return true;
 }
 
-// Add back button to return to dashboard
+// Add back button to return to onboarding
 function addBackButton() {
     if (window.PrepAIUtils && window.PrepAIUtils.UI) {
-        window.PrepAIUtils.UI.createBackButton('dashboard', document.body);
+        window.PrepAIUtils.UI.createBackButton('onboarding', document.body);
     } else {
         // Fallback back button
         const backBtn = document.createElement('button');
@@ -56,7 +56,7 @@ function addBackButton() {
         `;
         
         backBtn.addEventListener('click', () => {
-            window.location.href = 'dashboard.html';
+            window.location.href = 'onboarding.html';
         });
         
         document.body.appendChild(backBtn);

@@ -21,12 +21,12 @@ function checkExistingConfiguration() {
     const stateSummary = window.prepAIState.getStateSummary();
     console.log('🔍 Current state summary:', stateSummary);
     
-    // If user has complete configuration, redirect to dashboard
+    // If user has complete configuration, redirect to interview
     if (stateSummary.isComplete) {
-        console.log('✅ User has complete configuration, redirecting to dashboard');
+        console.log('✅ User has complete configuration, redirecting to interview');
         // Small delay to ensure page is fully loaded
         setTimeout(() => {
-            window.PrepAIUtils.Navigation.goTo('dashboard');
+            window.PrepAIUtils.Navigation.goTo('interview');
         }, 100);
     }
 }

@@ -66,7 +66,7 @@ const Navigation = {
         } else if (!stateSummary.hasSkills) {
             this.goTo('onboarding');
         } else if (!stateSummary.sessionActive) {
-            this.goTo('dashboard');
+            this.goTo('interview');
         } else {
             this.goTo('index');
         }

@@ -94,14 +94,9 @@ class PrepAIState {
         switch (step) {
             case 'onboarding':
                 return true; // Always accessible
-            case 'dashboard':
-                return this.interviewConfig.role && this.interviewConfig.seniority && 
-                       this.interviewConfig.skills && this.interviewConfig.skills.length > 0;
             case 'interview':
                 return this.interviewConfig.role && this.interviewConfig.seniority && 
                        this.interviewConfig.skills && this.interviewConfig.skills.length > 0;
-            case 'interview':
-                return this.sessionId !== null;
             default:
                 return false;
         }

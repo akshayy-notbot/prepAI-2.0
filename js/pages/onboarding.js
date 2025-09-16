@@ -146,7 +146,7 @@ function updateRoleSelection(role) {
     });
     
     // Select the chosen role
-    const selectedBtn = document.querySelector(`[data-value="${role}"]`);
+    const selectedBtn = document.querySelector(`.role-btn[data-value="${role}"]`);
     if (selectedBtn) {
         selectedBtn.classList.add('selected');
     }
@@ -180,7 +180,7 @@ function updateSenioritySelection(level) {
     });
     
     // Select the chosen experience level
-    const selectedBtn = document.querySelector(`[data-value="${level}"]`);
+    const selectedBtn = document.querySelector(`.experience-btn[data-value="${level}"]`);
     if (selectedBtn) {
         selectedBtn.classList.add('selected');
     }
@@ -240,53 +240,15 @@ function updateOnboardingUI() {
     if (!window.prepAIState) return;
     
     const config = window.prepAIState.interviewConfig;
-    const roleSection = document.getElementById('role-section');
-    const experienceSection = document.getElementById('experience-section');
     const skillsSection = document.getElementById('skills-section');
     const continueBtn = document.getElementById('onboarding-continue-btn');
     
-    // Update role section styling
-    if (config.role) {
-        roleSection.classList.add('selected');
-        roleSection.classList.remove('unselected');
-        
-        // Show experience section when role is selected
-        experienceSection.classList.remove('hidden');
-        experienceSection.classList.remove('disabled');
-    } else {
-        roleSection.classList.remove('selected');
-        roleSection.classList.add('unselected');
-        
-        // Hide experience section when no role is selected
-        experienceSection.classList.add('hidden');
-        experienceSection.classList.add('disabled');
-    }
-    
-    // Update experience section styling
+    // Show skills section when both role and seniority are selected
     if (config.role && config.seniority) {
-        experienceSection.classList.add('selected');
-        experienceSection.classList.remove('unselected');
-        
-        // Show skills section when seniority is selected
         skillsSection.classList.remove('hidden');
-        
-        // Populate skills options
         populateSkillsOptions();
     } else {
-        experienceSection.classList.remove('selected');
-        experienceSection.classList.add('unselected');
-        
-        // Hide skills section when no seniority is selected
         skillsSection.classList.add('hidden');
-    }
-    
-    // Update skills section
-    if (config.role && config.seniority && config.skills && config.skills.length === 1) {
-        skillsSection.classList.add('selected');
-        skillsSection.classList.remove('unselected');
-    } else {
-        skillsSection.classList.remove('selected');
-        skillsSection.classList.add('unselected');
     }
     
     // Enable/disable continue button
@@ -324,9 +286,9 @@ function populateSkillsOptions() {
         
         return `
             <button type="button" 
-                    class="skill-brick choice-button p-4 bg-gray-100 rounded-lg text-left transition-all duration-200 ${selectedClass}" 
+                    class="skill-brick option-button ${selectedClass}" 
                     data-skill="${skill}">
-                <h4 class="font-semibold text-gray-800">${skillName}</h4>
+                <h4 class="option-title">${skillName}</h4>
                 ${skillDescription ? `<p class="text-sm text-gray-600 mt-1">${skillDescription}</p>` : ''}
             </button>
         `;

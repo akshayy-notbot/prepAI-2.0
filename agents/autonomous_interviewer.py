@@ -315,6 +315,32 @@ Note -- the below are just examples and you can use your judgement to guide the 
 **MAINTAIN FAANG-LEVEL RIGOR**: Ensure all follow-up questions maintain the same strategic depth and first-principles thinking
 **SENIORITY CONSISTENCY**: Keep questions aligned with the {seniority} level scope established in the initial case study
 
+**COMPLETION ASSESSMENT:**
+Based on your signal evidence analysis, evaluate if this interview should continue or complete.
+
+**CURRENT COVERAGE STATUS:**
+{self._format_coverage_status(signal_evidence, top_dimensions)}
+
+**COMPLETION CRITERIA FOR {seniority} {role} - {skill}:**
+- HIGH confidence on at least 3 evaluation dimensions (4+ for Senior/Manager)
+- MEDIUM+ confidence on all critical dimensions for this seniority level
+- Sufficient evidence depth (specific examples, clear reasoning, frameworks)
+- Minimum 6-8 substantial question exchanges (8-12 for Senior+)
+- Current conversation length: {len(conversation_history)} exchanges
+
+**COMPLETION DECISION FRAMEWORK:**
+1. **Evidence Quality**: Review signal confidence levels across top dimensions
+2. **Coverage Completeness**: Assess if all critical dimensions have adequate evidence
+3. **Additional Value**: Consider if continuing would add significant new evidence
+4. **Efficiency Balance**: Weigh thoroughness against interview length
+5. **Seniority Standards**: Ensure depth meets {seniority} level expectations
+
+**COVERAGE GAP ALERTS:**
+- Identify any untested critical dimensions
+- Flag dimensions with LOW confidence that need validation
+- Consider interview length vs. remaining coverage needs
+- Prioritize most critical gaps if efficiency limits approached
+
 **OUTPUT FORMAT:**
 Your response MUST be a single, valid JSON object with this exact structure:
 
@@ -323,14 +349,22 @@ Your response MUST be a single, valid JSON object with this exact structure:
     "Your first reasoning step - analyze their response",
     "Your second reasoning step - assess signal evidence collected", 
     "Your third reasoning step - identify gaps in evaluation coverage",
-    "Your fourth reasoning step - plan your next question strategy"
+    "Your fourth reasoning step - plan your next question strategy OR completion decision"
   ],
-  "response_text": "The exact words you will say to the candidate. This should be your next question or a clarification statement.",
+  "response_text": "The exact words you will say to the candidate. This should be your next question, clarification statement, or interview completion.",
   "interview_state": {{
     "current_stage": "The interview stage you're currently in or moving to",
     "skill_progress": "How well they're doing: 'beginner', 'intermediate', 'advanced', or 'expert'",
     "next_focus": "What specific aspect you plan to explore next",
-    "evaluation_coverage": "Which evaluation dimensions still need more evidence"
+    "evaluation_coverage": "Current coverage status: HIGH/MEDIUM/LOW confidence per dimension"
+  }},
+  "completion_assessment": {{
+    "should_complete": true/false,
+    "completion_confidence": "High/Medium/Low",
+    "reason": "Specific reason for completion decision with evidence summary",
+    "evidence_summary": "Coverage status across all dimensions with confidence levels",
+    "remaining_gaps": ["List any critical gaps if not completing"],
+    "coverage_percentage": "Estimated percentage of adequate coverage achieved"
   }}
 }}
 
@@ -374,6 +408,64 @@ Your response MUST be a single, valid JSON object with this exact structure:
             formatted.append(f"Turn {i+1} - {role.title()}: {content}")
         
         return "\n".join(formatted)
+    
+    def _format_coverage_status(self, signal_evidence: Dict, top_dimensions: str) -> str:
+        """
+        Format current coverage status for completion assessment.
+        """
+        if not signal_evidence:
+            return "No signal evidence collected yet. All dimensions need initial assessment."
+        
+        # Parse top dimensions (they come as a string like "Problem Scoping, User Empathy, Business Acumen")
+        dimensions_list = [dim.strip() for dim in top_dimensions.split(',')]
+        
+        coverage_status = []
+        high_confidence = []
+        medium_confidence = []
+        low_confidence = []
+        untested = []
+        
+        for dimension in dimensions_list:
+            # Check if this dimension has been tested
+            dimension_found = False
+            for evidence_key in signal_evidence.keys():
+                # Flexible matching - check if dimension name is contained in evidence key
+                if any(word in evidence_key.lower() for word in dimension.lower().split()):
+                    dimension_found = True
+                    confidence = signal_evidence[evidence_key].get("confidence", "Low")
+                    
+                    if confidence == "High":
+                        high_confidence.append(dimension)
+                    elif confidence == "Medium":
+                        medium_confidence.append(dimension)
+                    else:
+                        low_confidence.append(dimension)
+                    break
+            
+            if not dimension_found:
+                untested.append(dimension)
+        
+        # Build coverage summary
+        if high_confidence:
+            coverage_status.append(f"HIGH CONFIDENCE: {', '.join(high_confidence)}")
+        if medium_confidence:
+            coverage_status.append(f"MEDIUM CONFIDENCE: {', '.join(medium_confidence)}")
+        if low_confidence:
+            coverage_status.append(f"LOW CONFIDENCE: {', '.join(low_confidence)}")
+        if untested:
+            coverage_status.append(f"UNTESTED: {', '.join(untested)}")
+        
+        if not coverage_status:
+            return "No clear coverage mapping available. Focus on primary dimensions."
+        
+        # Add summary statistics
+        total_dimensions = len(dimensions_list)
+        tested_dimensions = total_dimensions - len(untested)
+        adequate_dimensions = len(high_confidence) + len(medium_confidence)
+        
+        status_summary = f"\nCOVERAGE SUMMARY: {tested_dimensions}/{total_dimensions} dimensions tested, {adequate_dimensions}/{total_dimensions} with adequate evidence"
+        
+        return "\n".join(coverage_status) + status_summary
     
     def get_initial_question(self, role: str, seniority: str, skill: str, 
                            session_context: Dict[str, Any],

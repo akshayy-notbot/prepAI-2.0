@@ -144,13 +144,13 @@ function setupEventListeners() {
     }
     
     // Send button
-    const sendButton = document.getElementById('send-button');
+    const sendButton = document.getElementById('send-message-btn');
     if (sendButton) {
         sendButton.addEventListener('click', handleSendMessage);
     }
     
     // Chat input
-    const chatInput = document.getElementById('chat-input');
+    const chatInput = document.getElementById('user-input');
     if (chatInput) {
         chatInput.addEventListener('keypress', handleKeyPress);
         chatInput.addEventListener('input', handleInputChange);
@@ -160,6 +160,12 @@ function setupEventListeners() {
     const exitButton = document.getElementById('exit-interview-btn');
     if (exitButton) {
         exitButton.addEventListener('click', handleExitInterview);
+    }
+    
+    // End session button
+    const endSessionButton = document.getElementById('end-session-btn');
+    if (endSessionButton) {
+        endSessionButton.addEventListener('click', handleExitInterview);
     }
     
             // Interview event listeners setup complete
@@ -286,7 +292,7 @@ async function startOrchestratorInterview() {
 
 // Handle send message
 async function handleSendMessage() {
-    const chatInput = document.getElementById('chat-input');
+    const chatInput = document.getElementById('user-input');
     const message = chatInput.value.trim();
     
     if (!message || isWaitingForAI) return;
@@ -342,13 +348,34 @@ async function submitAnswer(answer) {
     const data = await response.json();
             // Answer submitted successfully
     
-    if (data.success && data.next_question) {
-        // Display next question
+    // Check for AI-driven completion first
+    if (data.interview_completed) {
+        // AI determined interview should complete
+        console.log('🎉 Interview completed by AI assessment');
+        console.log('📊 Completion reason:', data.completion_reason);
+        console.log('📈 Evidence summary:', data.evidence_summary);
+        console.log('🎯 Coverage percentage:', data.coverage_percentage);
+        
+        // Display final message and handle completion
+        displayAIMessage(data.next_question);
+        handleInterviewCompletion(data);
+    } else if (data.success && data.next_question) {
+        // Continue interview - display next question
         displayAIMessage(data.next_question);
         updateStatus('Ready for your answer');
         enableInput();
+        
+        // Log completion assessment for debugging (if available)
+        if (data.completion_assessment) {
+            console.log('🔍 Coverage status:', data.completion_assessment.evidence_summary);
+            console.log('📊 Should complete:', data.completion_assessment.should_complete);
+            if (data.completion_assessment.remaining_gaps && data.completion_assessment.remaining_gaps.length > 0) {
+                console.log('⚠️ Remaining gaps:', data.completion_assessment.remaining_gaps);
+            }
+        }
     } else {
-        // Interview complete
+        // Fallback - interview complete (shouldn't happen with new logic)
+        console.log('⚠️ Interview completed via fallback logic');
         handleInterviewCompletion(data);
     }
 }
@@ -417,12 +444,25 @@ function displayErrorMessage(message) {
 function handleInterviewCompletion(data) {
     // Interview completed
     
+    // Build completion details if available
+    let completionDetails = '';
+    if (data.completion_reason) {
+        completionDetails += `<p class="mt-2 text-sm"><strong>Completion Assessment:</strong> ${data.completion_reason}</p>`;
+    }
+    if (data.evidence_summary) {
+        completionDetails += `<p class="mt-1 text-sm"><strong>Coverage Achieved:</strong> ${data.evidence_summary}</p>`;
+    }
+    if (data.coverage_percentage) {
+        completionDetails += `<p class="mt-1 text-sm"><strong>Assessment Coverage:</strong> ${data.coverage_percentage}</p>`;
+    }
+    
     const completionMessage = `
         <div class="message ai">
             <div class="message-bubble" style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0;">
                 <p><strong>Interview Complete!</strong> 🎉</p>
                 <p class="mt-2">You've successfully completed your interview practice session. Great job!</p>
-                <p class="mt-2">Redirecting to your feedback report...</p>
+                ${completionDetails}
+                <p class="mt-3 font-medium">Redirecting to your feedback report...</p>
             </div>
             <div class="message-meta">${new Date().toLocaleTimeString()}</div>
         </div>
@@ -455,10 +495,11 @@ function handleInterviewCompletion(data) {
 
 // Handle key press in chat input
 function handleKeyPress(event) {
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
         handleSendMessage();
     }
+    // Allow Shift+Enter for new lines (default textarea behavior)
 }
 
 // Handle input change (simplified for single-line input)
@@ -468,8 +509,8 @@ function handleInputChange(event) {
 
 // Enable chat input
 function enableInput() {
-    const chatInput = document.getElementById('chat-input');
-    const sendButton = document.getElementById('send-button');
+    const chatInput = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-message-btn');
     
     if (chatInput) chatInput.disabled = false;
     if (sendButton) sendButton.disabled = false;
@@ -481,8 +522,8 @@ function enableInput() {
 
 // Disable chat input
 function disableInput() {
-    const chatInput = document.getElementById('chat-input');
-    const sendButton = document.getElementById('send-button');
+    const chatInput = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-message-btn');
     
     if (chatInput) chatInput.disabled = true;
     if (sendButton) sendButton.disabled = true;

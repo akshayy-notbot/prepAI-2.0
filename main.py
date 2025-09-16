@@ -637,11 +637,42 @@ async def submit_answer(request: SubmitAnswerRequest):
             # Add the new question to conversation history
             session_tracker.add_conversation_turn(request.session_id, "interviewer", new_ai_question)
             
-            # Check if interview should end (based on skill progress or other criteria)
-            if skill_progress in ["expert", "advanced"] and len(conversation_history) > 10:
-                print("🎉 Interview completed by Autonomous Interviewer!")
-                # Mark session as completed
-                session_tracker.update_session(request.session_id, {"status": "completed"})
+            # Enhanced completion check based on AI assessment
+            completion_assessment = interviewer_result.get("completion_assessment", {})
+            
+            if (completion_assessment.get("should_complete") and 
+                completion_assessment.get("completion_confidence") in ["High", "Medium"]):
+                
+                print("🎉 Interview completed by AI-driven assessment!")
+                print(f"📊 Completion reason: {completion_assessment.get('reason', 'AI determined sufficient evidence collected')}")
+                print(f"📈 Evidence summary: {completion_assessment.get('evidence_summary', 'N/A')}")
+                print(f"🎯 Coverage percentage: {completion_assessment.get('coverage_percentage', 'N/A')}")
+                
+                # Mark session as completed with AI decision
+                session_tracker.update_session(request.session_id, {
+                    "status": "completed_by_ai",
+                    "completion_reason": completion_assessment.get("reason"),
+                    "final_coverage": completion_assessment.get("evidence_summary")
+                })
+                
+                # Return completion response instead of continuing
+                return {
+                    "success": True,
+                    "interview_completed": True,
+                    "completion_reason": completion_assessment.get("reason"),
+                    "evidence_summary": completion_assessment.get("evidence_summary"),
+                    "coverage_percentage": completion_assessment.get("coverage_percentage"),
+                    "next_question": new_ai_question,  # This should be the completion message
+                    "session_id": request.session_id,
+                    "timestamp": datetime.now().isoformat(),
+                    "architecture": "autonomous_interviewer_completion",
+                    "ai_completion_assessment": completion_assessment
+                }
+            
+            # Fallback: Check old completion criteria as backup
+            elif skill_progress in ["expert", "advanced"] and len(conversation_history) > 15:
+                print("🎉 Interview completed by fallback criteria (expert level + 15+ questions)")
+                session_tracker.update_session(request.session_id, {"status": "completed_fallback"})
             
         except Exception as interviewer_error:
             print(f"❌ Autonomous Interviewer failed: {interviewer_error}")
@@ -655,6 +686,7 @@ async def submit_answer(request: SubmitAnswerRequest):
             "question_type": "follow_up",
             "ai_reasoning": interviewer_result.get("chain_of_thought", []),
             "interview_state": interviewer_result.get("interview_state", {}),
+            "completion_assessment": interviewer_result.get("completion_assessment", {}),
             "response_latency_ms": interviewer_result.get("latency_ms", 0)
         })
         
@@ -666,7 +698,7 @@ async def submit_answer(request: SubmitAnswerRequest):
         except Exception as redis_error:
             print(f"⚠️  Warning: Failed to save updated history: {redis_error}")
         
-        # Return the new question
+        # Return the new question with completion assessment
         result = {
             "success": True,
             "message": "Answer processed successfully",
@@ -675,7 +707,9 @@ async def submit_answer(request: SubmitAnswerRequest):
             "timestamp": datetime.now().isoformat(),
             "architecture": "autonomous_interviewer",
             "current_stage": current_stage if 'current_stage' in locals() else "unknown",
-            "skill_progress": skill_progress if 'skill_progress' in locals() else "unknown"
+            "skill_progress": skill_progress if 'skill_progress' in locals() else "unknown",
+            "completion_assessment": interviewer_result.get("completion_assessment", {}),
+            "interview_completed": False
         }
         
         print(f"🎉 Answer processing completed successfully for session {request.session_id}")

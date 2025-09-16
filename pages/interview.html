@@ -196,6 +196,123 @@
             background: #d1d5db;
             cursor: not-allowed;
         }
+
+        /* Configuration Summary Styles */
+        .config-summary-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background-color: #f8fafc;
+        }
+        
+        .config-summary-card {
+            background-color: white;
+            padding: 3rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.08), 0 10px 10px -5px rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.05);
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .config-title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+        }
+        
+        .config-display {
+            font-size: 1.25rem;
+            color: #4b5563;
+            margin-bottom: 2rem;
+        }
+        
+        .format-info {
+            background-color: #f9fafb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .format-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        
+        .format-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .format-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            color: #4b5563;
+            font-size: 0.875rem;
+        }
+        
+        .bullet {
+            color: #3b82f6;
+            font-weight: bold;
+            margin-top: 0.125rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        @media (min-width: 640px) {
+            .action-buttons {
+                flex-direction: row;
+                justify-content: center;
+            }
+        }
+        
+        .edit-button {
+            padding: 0.75rem 1.5rem;
+            background-color: #f3f4f6;
+            color: #374151;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .edit-button:hover {
+            background-color: #e5e7eb;
+        }
+        
+        .begin-button {
+            padding: 0.75rem 1.5rem;
+            background-color: #3b82f6;
+            color: white;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .begin-button:hover {
+            background-color: #2563eb;
+        }
         
         /* Responsive design */
         @media (max-width: 768px) {
@@ -235,19 +352,55 @@
     </nav>
 
     <!-- Interview Container -->
-    <div class="interview-container">
+    <!-- Configuration Summary Section (Shows First) -->
+    <div id="config-summary" class="config-summary-container">
+        <div class="config-summary-card">
+            <h2 class="config-title">Your Personalized Mock Interview is Ready</h2>
+            <div id="interview-config-display" class="config-display">Loading configuration...</div>
+            
+            <!-- Interview Format Info -->
+            <div class="format-info">
+                <h3 class="format-title">Interview Format</h3>
+                <ul class="format-list">
+                    <li class="format-item">
+                        <span class="bullet">•</span>
+                        <span>Text-based questions and answers</span>
+                    </li>
+                    <li class="format-item">
+                        <span class="bullet">•</span>
+                        <span>Take your time to think and respond</span>
+                    </li>
+                    <li class="format-item">
+                        <span class="bullet">•</span>
+                        <span>Focus on demonstrating your skills</span>
+                    </li>
+                    <li class="format-item">
+                        <span class="bullet">•</span>
+                        <span>Press Enter to send, Shift+Enter for new lines</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button id="edit-config-btn" class="edit-button">
+                    Edit Configuration
+                </button>
+                <button id="begin-interview-btn" class="begin-button">
+                    Begin Interview
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interview Content (Hidden Initially) -->
+    <div id="interview-interface" class="interview-container hidden">
         <!-- Left Sidebar -->
         <div class="sidebar">
             <div class="mb-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">Session Time</h3>
                 <div id="timer" class="text-3xl font-mono font-bold text-gray-900">00:00</div>
             </div>
-            
-            <!-- Hidden elements that might be needed for functionality -->
-            <div id="config-summary" class="hidden"></div>
-            <div id="interview-config-display" class="hidden"></div>
-            <button id="edit-config-btn" class="hidden"></button>
-            <button id="begin-interview-btn" class="hidden"></button>
         </div>
 
         <!-- Main Chat Area -->

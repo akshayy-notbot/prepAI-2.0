@@ -47,7 +47,9 @@ app = FastAPI(title="PrepAI Autonomous Interviewer API")
 
 # --- CORS Middleware Configuration ---
 origins = [
-    "https://akshayy-notbot.github.io",
+    "https://akshayy-notbot.github.io",    # Keep during transition
+    "https://doaiprep.xyz",               # New custom domain
+    "https://www.doaiprep.xyz",           # www version
     "https://prepai-api.onrender.com",
     "http://127.0.0.1:5500",
     "http://localhost:8000",

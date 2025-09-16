@@ -114,27 +114,22 @@ async function generateEvaluation() {
         console.log('🚀 Generating enhanced evaluation...');
         showLoadingScreen();
         
-        // Prepare the evaluation request
+        // Prepare the evaluation request matching backend expectations
         const evaluationRequest = {
             role: interviewConfig.role,
             seniority: interviewConfig.seniority,
-            skill: interviewConfig.skill,
-            conversation_history: interviewTranscript,
-            signal_evidence: {}, // Will be populated by the system
-            interview_plan: {
-                top_dimensions: "Problem Scoping, User Empathy, Creativity & Vision, Business Acumen, Prioritization & Trade-offs",
-                selected_archetype: "Broad Design",
-                interview_objective: "Assess product design and strategic thinking capabilities",
-                seniority_criteria: {
-                    "mid": "Structured approach with some depth",
-                    "senior": "Strategic thinking and comprehensive analysis"
-                },
-                good_vs_great_examples: {
-                    "good": "Basic problem understanding and solution approach",
-                    "great": "Deep user empathy, innovative solutions, business impact consideration"
-                }
-            }
+            skills: interviewConfig.skills || [interviewConfig.skill || "General"], // Backend expects skills array
+            transcript: interviewTranscript // Backend expects transcript field
         };
+        
+        // Debug logging
+        console.log('📤 Sending evaluation request:', {
+            role: evaluationRequest.role,
+            seniority: evaluationRequest.seniority,
+            skills: evaluationRequest.skills,
+            transcriptLength: evaluationRequest.transcript?.length || 0,
+            sampleTranscriptItem: evaluationRequest.transcript?.[0] || null
+        });
         
         // Call the enhanced evaluation API
         const API_BASE_URL = window.PREPAI_CONFIG?.API_BASE_URL || 'https://prepai-api.onrender.com';
@@ -148,7 +143,9 @@ async function generateEvaluation() {
         });
         
         if (!response.ok) {
-            throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+            const errorText = await response.text();
+            console.error('❌ Server error response:', errorText);
+            throw new Error(`Server responded with ${response.status}: ${errorText || response.statusText}`);
         }
         
         const data = await response.json();

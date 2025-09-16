@@ -235,7 +235,21 @@ async def evaluate_interview_enhanced(request: EvaluateInterviewRequest):
     Provides comprehensive dimension-by-dimension assessment with signal evidence.
     """
     try:
+        # Validate required fields
+        if not request.role or not request.seniority:
+            raise HTTPException(status_code=422, detail="Role and seniority are required")
+        
+        if not request.transcript or len(request.transcript) == 0:
+            raise HTTPException(status_code=422, detail="Transcript is required and cannot be empty")
+        
         print(f"🔍 Enhanced evaluation for {request.role} role ({request.seniority} level)")
+        print(f"📊 Skills: {request.skills}")
+        print(f"📝 Transcript items: {len(request.transcript)}")
+        
+        # Debug: Check transcript structure
+        if request.transcript:
+            print(f"🔍 First transcript item keys: {list(request.transcript[0].keys())}")
+            print(f"🔍 Sample transcript item: {str(request.transcript[0])[:200]}...")
         
         # Get the interview plan from the session context (if available)
         # For now, we'll create a basic plan structure
@@ -257,19 +271,27 @@ async def evaluate_interview_enhanced(request: EvaluateInterviewRequest):
         
         # Convert transcript to conversation history format
         conversation_history = []
-        for item in request.transcript:
-            if item.get("question"):
-                conversation_history.append({
-                    "role": "interviewer",
-                    "content": item["question"],
-                    "timestamp": item.get("timestamp", "")
-                })
-            if item.get("answer"):
-                conversation_history.append({
-                    "role": "candidate",
-                    "content": item["answer"],
-                    "timestamp": item.get("timestamp", "")
-                })
+        for i, item in enumerate(request.transcript):
+            try:
+                if item.get("question"):
+                    conversation_history.append({
+                        "role": "interviewer",
+                        "content": str(item["question"]),
+                        "timestamp": item.get("timestamp", "")
+                    })
+                if item.get("answer"):
+                    conversation_history.append({
+                        "role": "candidate",
+                        "content": str(item["answer"]),
+                        "timestamp": item.get("timestamp", "")
+                    })
+            except Exception as item_error:
+                print(f"⚠️ Error processing transcript item {i}: {item_error}")
+                print(f"📄 Problematic item: {item}")
+                continue
+        
+        if not conversation_history:
+            raise HTTPException(status_code=422, detail="No valid conversation data found in transcript")
         
         # Create signal evidence from the transcript
         signal_evidence = {}
@@ -293,10 +315,13 @@ async def evaluate_interview_enhanced(request: EvaluateInterviewRequest):
         
         # Use the InterviewEvaluator for comprehensive evaluation
         evaluator = InterviewEvaluator()
+        primary_skill = request.skills[0] if request.skills else "General"
+        print(f"🎯 Evaluating primary skill: {primary_skill}")
+        
         evaluation_result = evaluator.evaluate_interview(
             role=request.role,
             seniority=request.seniority,
-            skill=request.skills[0] if request.skills else "General",
+            skill=primary_skill,
             conversation_history=conversation_history,
             signal_evidence=signal_evidence,
             interview_plan=interview_plan

@@ -268,13 +268,29 @@ async def evaluate_interview_enhanced(request: EvaluateInterviewRequest):
         
         # Get the interview plan from the session context (if available)
         # For now, we'll create a basic plan structure
+        # Get evaluation dimensions based on role and skill - no fallbacks
+        if request.role == "Product Manager" and "Product Sense" in request.skills:
+            evaluation_dimensions = [
+                "Problem Scoping",
+                "User Empathy", 
+                "Business Acumen",
+                "Prioritization & Trade-offs",
+                "Creative Problem Solving"
+            ]
+        else:
+            # No fallback - require proper configuration
+            raise HTTPException(
+                status_code=422, 
+                detail=f"Evaluation dimensions not configured for role '{request.role}' with skills {request.skills}. Please configure proper evaluation criteria."
+            )
+        
         interview_plan = {
-            "top_evaluation_dimensions": request.skills if request.skills else ["Problem Solving", "Communication", "Technical Knowledge"],
+            "top_evaluation_dimensions": evaluation_dimensions,
             "selected_archetype": "comprehensive",
             "interview_objective": f"Assess {request.role} capabilities at {request.seniority} level",
             "seniority_criteria": {
                 "junior": "Basic understanding and application",
-                "mid": "Structured approach with some depth",
+                "mid": "Structured approach with some depth", 
                 "senior": "Strategic thinking and comprehensive analysis",
                 "staff+": "Innovative approaches and thought leadership"
             },
@@ -294,7 +310,7 @@ async def evaluate_interview_enhanced(request: EvaluateInterviewRequest):
                         "content": str(item["question"]),
                         "timestamp": item.get("timestamp", "")
                     })
-                if item.get("answer"):
+                if item.get("answer") is not None and item.get("answer") != "":
                     conversation_history.append({
                         "role": "candidate",
                         "content": str(item["answer"]),
@@ -308,6 +324,13 @@ async def evaluate_interview_enhanced(request: EvaluateInterviewRequest):
         if not conversation_history:
             raise HTTPException(status_code=422, detail="No valid conversation data found in transcript")
         
+        # Check if we have sufficient data for evaluation
+        candidate_responses = [item for item in conversation_history if item["role"] == "candidate"]
+        if len(candidate_responses) == 0:
+            raise HTTPException(status_code=422, detail="No candidate responses found in transcript")
+        
+        print(f"📊 Found {len(candidate_responses)} candidate responses for evaluation")
+        
         # Create signal evidence from the transcript
         signal_evidence = {}
         for skill in interview_plan["top_evaluation_dimensions"]:
@@ -320,27 +343,37 @@ async def evaluate_interview_enhanced(request: EvaluateInterviewRequest):
             
             # Simple signal extraction (in production, this would be more sophisticated)
             for item in request.transcript:
-                if item.get("answer"):
-                    answer = item["answer"].lower()
+                if item.get("answer") and item["answer"] is not None and str(item["answer"]).strip():
+                    answer = str(item["answer"]).lower()
                     if any(word in answer for word in ["think", "approach", "strategy"]):
                         signal_evidence[skill]["positive_signals"].append("Shows strategic thinking")
                     if any(word in answer for word in ["user", "customer", "need"]):
                         signal_evidence[skill]["positive_signals"].append("Demonstrates user empathy")
-                    signal_evidence[skill]["quotes"].append(item["answer"][:100] + "...")
+                    signal_evidence[skill]["quotes"].append(str(item["answer"])[:100] + "...")
         
         # Use the InterviewEvaluator for comprehensive evaluation
-        evaluator = InterviewEvaluator()
-        primary_skill = request.skills[0] if request.skills else "General"
-        print(f"🎯 Evaluating primary skill: {primary_skill}")
-        
-        evaluation_result = evaluator.evaluate_interview(
-            role=request.role,
-            seniority=request.seniority,
-            skill=primary_skill,
-            conversation_history=conversation_history,
-            signal_evidence=signal_evidence,
-            interview_plan=interview_plan
-        )
+        try:
+            evaluator = InterviewEvaluator()
+            primary_skill = request.skills[0] if request.skills else "General"
+            print(f"🎯 Evaluating primary skill: {primary_skill}")
+            print(f"📊 Conversation history items: {len(conversation_history)}")
+            print(f"🎯 Evaluation dimensions: {evaluation_dimensions}")
+            
+            evaluation_result = evaluator.evaluate_interview(
+                role=request.role,
+                seniority=request.seniority,
+                skill=primary_skill,
+                conversation_history=conversation_history,
+                signal_evidence=signal_evidence,
+                interview_plan=interview_plan
+            )
+            print(f"✅ Evaluation completed successfully")
+            
+        except Exception as eval_error:
+            print(f"❌ InterviewEvaluator failed: {eval_error}")
+            print(f"📊 Debug - Conversation history: {conversation_history}")
+            print(f"📊 Debug - Signal evidence keys: {list(signal_evidence.keys())}")
+            raise HTTPException(status_code=500, detail=f"Evaluation failed: {str(eval_error)}")
         
         if "error" in evaluation_result:
             raise Exception(evaluation_result["error"])

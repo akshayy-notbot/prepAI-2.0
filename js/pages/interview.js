@@ -462,7 +462,16 @@ function handleInterviewCompletion(data) {
                 <p><strong>Interview Complete!</strong> 🎉</p>
                 <p class="mt-2">You've successfully completed your interview practice session. Great job!</p>
                 ${completionDetails}
-                <p class="mt-3 font-medium">Redirecting to your feedback report...</p>
+                <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p class="text-sm text-blue-800 mb-3">Ready to see how you performed? Click below to view your detailed evaluation and feedback.</p>
+                    <button 
+                        id="view-evaluation-btn"
+                        onclick="navigateToEvaluation()"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    >
+                        📊 View Interview Evaluation
+                    </button>
+                </div>
             </div>
             <div class="message-meta">${new Date().toLocaleTimeString()}</div>
         </div>
@@ -472,25 +481,43 @@ function handleInterviewCompletion(data) {
     chatMessages.insertAdjacentHTML('beforeend', completionMessage);
     chatMessages.scrollTop = chatMessages.scrollHeight;
     
-    updateStatus('Interview complete - Preparing feedback...');
+    updateStatus('Interview complete - Ready for evaluation');
     disableInput();
     
     // Save transcript and config for feedback analysis
     try {
         sessionStorage.setItem('prepai_interview_transcript', JSON.stringify(transcript));
         sessionStorage.setItem('prepai_interview_config', JSON.stringify(interviewConfig));
+        console.log('✅ Interview data saved for evaluation');
     } catch (error) {
         console.error('❌ Error saving interview data:', error);
+        alert('Warning: Could not save interview data. Evaluation may not work correctly.');
+    }
+}
+
+// Navigate to evaluation page when user clicks the button
+function navigateToEvaluation() {
+    console.log('🎯 User initiated navigation to evaluation');
+    
+    // Disable the button to prevent double-clicks
+    const button = document.getElementById('view-evaluation-btn');
+    if (button) {
+        button.disabled = true;
+        button.textContent = '📊 Loading Evaluation...';
+        button.classList.add('opacity-50', 'cursor-not-allowed');
     }
     
-    // Navigate to feedback page after a brief delay
+    // Update status
+    updateStatus('Generating your evaluation...');
+    
+    // Navigate to feedback page
     setTimeout(() => {
         if (window.PrepAIUtils && window.PrepAIUtils.Navigation) {
             window.PrepAIUtils.Navigation.goTo('feedback');
         } else {
             window.location.href = 'feedback.html';
         }
-    }, 2000); // 2 second delay to show completion message
+    }, 500); // Brief delay to show button state change
 }
 
 // Handle key press in chat input
@@ -525,8 +552,16 @@ function disableInput() {
     const chatInput = document.getElementById('user-input');
     const sendButton = document.getElementById('send-message-btn');
     
-    if (chatInput) chatInput.disabled = true;
-    if (sendButton) sendButton.disabled = true;
+    if (chatInput) {
+        chatInput.disabled = true;
+        chatInput.placeholder = "Interview completed - no further input needed";
+        chatInput.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+    
+    if (sendButton) {
+        sendButton.disabled = true;
+        sendButton.classList.add('opacity-50', 'cursor-not-allowed');
+    }
     
     isWaitingForAI = true;
 }

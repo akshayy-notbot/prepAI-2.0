@@ -169,7 +169,7 @@ async function generateEvaluation() {
         console.log('📦 Full request body:', JSON.stringify(evaluationRequest, null, 2));
         
         // TEMPORARY: Test with debug endpoint first
-        const USE_DEBUG_ENDPOINT = true; // Set to false to use real endpoint
+        const USE_DEBUG_ENDPOINT = false; // Set to true for debugging request issues
         
         // Call the enhanced evaluation API
         const API_BASE_URL = window.PREPAI_CONFIG?.API_BASE_URL || 'https://prepai-api.onrender.com';

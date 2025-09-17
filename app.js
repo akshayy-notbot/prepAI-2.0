@@ -268,7 +268,7 @@ function displayAIMessage(message) {
         // Add timestamp
         const metaDiv = messageElement.querySelector('.message-meta');
         if (metaDiv) {
-            metaDiv.textContent = new Date().toLocaleTimeString();
+            metaDiv.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }
         
         // Add to chat window
@@ -328,7 +328,7 @@ function addMessageToChat(message, sender) {
     messageBubble.innerHTML = `
         <div class="message-bubble ${sender === 'user' ? 'user' : 'ai'}">
             <div class="message-content leading-relaxed">${message}</div>
-            <div class="message-meta text-xs text-gray-500 mt-2 font-mono">${new Date().toLocaleTimeString()}</div>
+            <div class="message-meta text-xs text-gray-500 mt-2 font-mono">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
         </div>
     `;
     
@@ -908,7 +908,7 @@ function displayUserMessage(message) {
         // Add timestamp
         const metaDiv = messageElement.querySelector('.message-meta');
         if (metaDiv) {
-            metaDiv.textContent = new Date().toLocaleTimeString();
+            metaDiv.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }
         
         // Add to chat window

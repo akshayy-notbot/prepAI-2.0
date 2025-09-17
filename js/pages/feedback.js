@@ -869,6 +869,28 @@ function generateEnhancedTranscript() {
     });
 }
 
+// Simple markdown to HTML converter for ideal answers
+function convertMarkdownToHtml(markdown) {
+    if (!markdown) return '';
+    
+    return markdown
+        // Convert **bold** to <strong>bold</strong> (handle multiple on same line)
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        // Convert *italic* to <em>italic</em> (but not if it's part of **bold**)
+        .replace(/(?<!\*)\*([^*]+?)\*(?!\*)/g, '<em>$1</em>')
+        // Convert bullet points to HTML list (handle both * and -)
+        .replace(/^[\*\-] (.+)$/gm, '<li>$1</li>')
+        // Wrap consecutive list items in <ul> tags
+        .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
+        // Convert line breaks to <br> tags
+        .replace(/\n/g, '<br>')
+        // Clean up multiple <br> tags
+        .replace(/(<br>){3,}/g, '<br><br>')
+        // Clean up any malformed HTML from the conversion process
+        .replace(/<ul><ul>/g, '<ul>')
+        .replace(/<\/ul><\/ul>/g, '</ul>');
+}
+
 // Create individual Q&A analysis card (simplified format)
 function createQAAnalysis(item, questionNumber) {
     const qaCard = document.createElement('div');
@@ -905,7 +927,7 @@ function createQAAnalysis(item, questionNumber) {
                 <strong>Ideal Answer:</strong>
             </div>
             <div class="qa-ideal-content">
-                ${idealResponse}
+                ${convertMarkdownToHtml(idealResponse)}
             </div>
         </div>
         ` : ''}

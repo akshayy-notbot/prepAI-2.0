@@ -28,6 +28,34 @@ class SmartActionItemsGenerator:
             self._model = get_gemini_client()
         return self._model
     
+    def _ensure_signal_evidence_is_dict(self, signal_evidence: Any) -> Dict[str, Any]:
+        """
+        Ensure signal_evidence is a dictionary, handling cases where it might be a JSON string.
+        
+        Args:
+            signal_evidence: The signal evidence data (could be dict or JSON string)
+            
+        Returns:
+            Dict containing properly formatted signal evidence
+        """
+        if isinstance(signal_evidence, dict):
+            return signal_evidence
+        elif isinstance(signal_evidence, str):
+            try:
+                # Try to parse as JSON
+                parsed = json.loads(signal_evidence)
+                if isinstance(parsed, dict):
+                    return parsed
+                else:
+                    print(f"⚠️ WARNING - signal_evidence JSON string parsed to {type(parsed)}, not dict")
+                    return {}
+            except json.JSONDecodeError as e:
+                print(f"⚠️ WARNING - Failed to parse signal_evidence as JSON: {e}")
+                return {}
+        else:
+            print(f"⚠️ WARNING - signal_evidence is unexpected type {type(signal_evidence)}, returning empty dict")
+            return {}
+    
     def generate_action_items(self, evaluation_data: Dict[str, Any], 
                             interview_plan: Dict[str, Any], 
                             signal_evidence: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -43,6 +71,16 @@ class SmartActionItemsGenerator:
             List of structured action items with priorities and evidence
         """
         try:
+            # Ensure signal_evidence is a dictionary
+            signal_evidence = self._ensure_signal_evidence_is_dict(signal_evidence)
+            
+            # Debug: Check signal_evidence structure (only in debug mode)
+            if os.getenv('DEBUG_ACTION_ITEMS', '').lower() == 'true':
+                print(f"🔍 DEBUG - signal_evidence type: {type(signal_evidence)}")
+                print(f"🔍 DEBUG - signal_evidence keys: {list(signal_evidence.keys()) if isinstance(signal_evidence, dict) else 'Not a dict'}")
+                for key, value in signal_evidence.items() if isinstance(signal_evidence, dict) else []:
+                    print(f"🔍 DEBUG - signal_evidence[{key}] type: {type(value)}, value: {value}")
+            
             # Step 1: Rule-based filtering to identify critical dimensions
             critical_dimensions = self._identify_critical_dimensions(evaluation_data)
             
@@ -203,6 +241,28 @@ Focus on being specific, evidence-based, and actionable. Use the actual intervie
         # Add signal evidence for this dimension
         if signal_evidence.get(dimension_name):
             signal_data = signal_evidence[dimension_name]
+            
+            # Debug: Check the type of signal_data (only in debug mode)
+            if os.getenv('DEBUG_ACTION_ITEMS', '').lower() == 'true':
+                print(f"🔍 DEBUG - signal_data type for {dimension_name}: {type(signal_data)}")
+                print(f"🔍 DEBUG - signal_data value: {signal_data}")
+            
+            # Ensure signal_data is a dictionary
+            if not isinstance(signal_data, dict):
+                print(f"❌ ERROR - signal_data is not a dict for {dimension_name}, it's {type(signal_data)}: {signal_data}")
+                # Try to handle string case
+                if isinstance(signal_data, str):
+                    try:
+                        signal_data = json.loads(signal_data)
+                        if not isinstance(signal_data, dict):
+                            print(f"❌ ERROR - Parsed signal_data is still not a dict: {type(signal_data)}")
+                            return "\n".join(evidence_parts) if evidence_parts else "No specific evidence available."
+                    except json.JSONDecodeError:
+                        print(f"❌ ERROR - Failed to parse signal_data as JSON: {signal_data}")
+                        return "\n".join(evidence_parts) if evidence_parts else "No specific evidence available."
+                else:
+                    return "\n".join(evidence_parts) if evidence_parts else "No specific evidence available."
+            
             if signal_data.get('positive_signals'):
                 evidence_parts.append("\n**Positive Signals:**")
                 for signal in signal_data['positive_signals']:

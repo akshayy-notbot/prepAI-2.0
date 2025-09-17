@@ -385,7 +385,7 @@ function displayAIMessage(message) {
         <div class="chat-message justify-start">
             <div class="message-bubble ai">
                 ${message}
-                <div class="text-xs text-gray-500 mt-2 font-mono">${new Date().toLocaleTimeString()}</div>
+                <div class="text-xs text-gray-500 mt-2 font-mono">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
             </div>
         </div>
     `;
@@ -408,7 +408,7 @@ function displayUserMessage(message) {
         <div class="chat-message justify-end">
             <div class="message-bubble user">
                 ${message}
-                <div class="text-xs text-gray-500 mt-2 font-mono">${new Date().toLocaleTimeString()}</div>
+                <div class="text-xs text-gray-500 mt-2 font-mono">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
             </div>
         </div>
     `;
@@ -434,7 +434,7 @@ function displayErrorMessage(message) {
         <div class="chat-message justify-start">
             <div class="message-bubble ai" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;">
                 <strong>Error:</strong> ${message}
-                <div class="text-xs text-gray-500 mt-2 font-mono">${new Date().toLocaleTimeString()}</div>
+                <div class="text-xs text-gray-500 mt-2 font-mono">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
             </div>
         </div>
     `;

@@ -127,7 +127,7 @@ Be impartial, fair, and constructive in your evaluation. The ideal response shou
 def _get_evaluation_guidance(role_context: Dict[str, str]) -> str:
     """Get evaluation guidance patterns for the role/seniority combination"""
     if not role_context or not isinstance(role_context, dict):
-        raise ValueError("Role context must be a non-empty dictionary")
+        return "Use standard evaluation criteria for the role and seniority level."
     
     # Check if evaluation guidance is available in the role context
     if 'post_interview_evaluation' in role_context and role_context['post_interview_evaluation']:
@@ -138,12 +138,22 @@ def _get_evaluation_guidance(role_context: Dict[str, str]) -> str:
     if 'post_interview_evaluation' in interview_plan and interview_plan['post_interview_evaluation']:
         return interview_plan['post_interview_evaluation']
     
-    raise ValueError("No evaluation guidance found in role context. The playbook must include 'post_interview_evaluation' data.")
+    # Fallback to basic guidance based on role and seniority
+    role = role_context.get('role', 'Professional')
+    seniority = role_context.get('seniority', 'Mid')
+    
+    return f"""For a {seniority} {role} position, evaluate based on:
+- Technical competency appropriate for the seniority level
+- Problem-solving approach and methodology
+- Communication clarity and structure
+- Industry knowledge and best practices
+- Leadership and collaboration skills (for senior roles)
+- Strategic thinking and business impact (for senior+ roles)"""
 
 def _get_good_vs_great_examples(role_context: Dict[str, str]) -> str:
     """Get good vs great examples for the role/seniority combination"""
     if not role_context or not isinstance(role_context, dict):
-        raise ValueError("Role context must be a non-empty dictionary")
+        return "Use standard performance levels: Good answers cover the basics competently, while Great answers show depth, innovation, and consideration of edge cases."
     
     # Check if good vs great examples are available in the role context
     if 'good_vs_great_examples' in role_context and role_context['good_vs_great_examples']:
@@ -162,4 +172,10 @@ def _get_good_vs_great_examples(role_context: Dict[str, str]) -> str:
             return examples["content"]
         return str(examples)
     
-    raise ValueError("No good vs great examples found in role context. The playbook must include 'good_vs_great_examples' data.")
+    # Fallback to basic examples based on role and seniority
+    role = role_context.get('role', 'Professional')
+    seniority = role_context.get('seniority', 'Mid')
+    
+    return f"""For a {seniority} {role} position:
+GOOD answers: Cover the basic requirements, show understanding of fundamentals, provide clear explanations
+GREAT answers: Demonstrate deep expertise, show innovative thinking, consider edge cases, provide specific examples, show business impact and strategic thinking (for senior roles)"""

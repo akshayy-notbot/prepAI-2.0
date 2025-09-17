@@ -94,139 +94,6 @@ async def root():
         "docs": "/docs"
     }
 
-# --- Evaluation Endpoint ---
-@app.post("/api/evaluate-interview")
-async def evaluate_interview(request: EvaluateInterviewRequest):
-    """
-    Evaluate an interview transcript and generate feedback.
-    """
-    try:
-        print(f"🔍 Evaluating interview for {request.role} role ({request.seniority} level)")
-        
-        # Extract Q&A pairs from transcript
-        qa_pairs = []
-        for item in request.transcript:
-            if item.get("question") and item.get("answer"):
-                qa_pairs.append({
-                    "question": item["question"],
-                    "answer": item["answer"]
-                })
-        
-        if not qa_pairs:
-            raise HTTPException(status_code=400, detail="No valid question-answer pairs found in transcript")
-        
-        print(f"📊 Found {len(qa_pairs)} Q&A pairs for evaluation")
-        
-        # Evaluate each answer using the evaluation agent
-        evaluations = []
-        skills_to_assess = request.skills if request.skills else ["Problem Solving", "Communication", "Technical Knowledge"]
-        
-        for i, qa in enumerate(qa_pairs):
-            print(f"🔍 Evaluating Q: {qa['question'][:50]}...")
-            
-            # Get conversation history up to this point for context
-            conversation_history = qa_pairs[:i] if i > 0 else []
-            
-            # Create role context for better evaluation
-            role_context = {
-                "role": request.role,
-                "seniority": request.seniority
-            }
-            
-            evaluation = evaluate_answer(qa["answer"], qa["question"], skills_to_assess, conversation_history, role_context)
-            evaluations.append({
-                "question": qa["question"],
-                "answer": qa["answer"],
-                "evaluation": evaluation
-            })
-        
-        # Calculate overall scores and extract feedback
-        all_scores = []
-        strengths = []
-        improvements = []
-        category_feedback = {}
-        combined_scores = {}  # Aggregate scores across all questions
-        
-        for eval_data in evaluations:
-            if "evaluation" in eval_data and "scores" in eval_data["evaluation"]:
-                scores = eval_data["evaluation"]["scores"]
-                
-                # Aggregate scores across all questions for each skill
-                for skill, score_data in scores.items():
-                    if isinstance(score_data, dict) and "score" in score_data:
-                        score = score_data["score"]
-                        all_scores.append(score)
-                        
-                        # Initialize skill tracking if not exists
-                        if skill not in combined_scores:
-                            combined_scores[skill] = {
-                                "scores": [],
-                                "feedback": []
-                            }
-                        
-                        # Collect all scores and feedback for this skill
-                        combined_scores[skill]["scores"].append(score)
-                        if "feedback" in score_data:
-                            combined_scores[skill]["feedback"].append(score_data["feedback"])
-                        
-                        # Categorize feedback for strengths/improvements
-                        feedback_text = score_data.get("feedback", "")
-                        if score >= 4:
-                            strengths.append(f"{skill}: {feedback_text}")
-                        elif score <= 2:
-                            improvements.append(f"{skill}: {feedback_text}")
-                        
-                        category_feedback[skill] = feedback_text
-        
-        # Calculate average scores for each skill
-        skill_scores = {}
-        for skill, data in combined_scores.items():
-            if data["scores"]:
-                avg_score = sum(data["scores"]) / len(data["scores"])
-                # Get the most recent feedback for this skill
-                latest_feedback = data["feedback"][-1] if data["feedback"] else f"Average performance in {skill}"
-                
-                skill_scores[skill] = {
-                    "score": round(avg_score, 1),
-                    "feedback": latest_feedback
-                }
-        
-        # Calculate overall score on 0-5 scale (keep original scale)
-        overall_score_5_scale = round(sum(all_scores) / len(all_scores), 1) if all_scores else 0
-        
-        # Generate response matching feedback page expectations
-        feedback_response = {
-            "overall_score": overall_score_5_scale,  # Use 0-5 scale for frontend
-            "overall_feedback": f"Your interview performance shows {'strong' if overall_score_5_scale >= 4.0 else 'good' if overall_score_5_scale >= 3.0 else 'developing'} skills in {request.role} for {request.seniority} level.",
-            "scores": skill_scores,  # Individual skill scores for the UI
-            "strengths": strengths[:3] if strengths else ["Good communication throughout the interview"],
-            "improvements": improvements[:3] if improvements else ["Continue practicing to build confidence"],
-            "category_feedback": category_feedback,
-            "recommendations": [
-                f"Focus on practicing {request.skills[0] if request.skills else 'core skills'} with real-world examples",
-                "Review industry best practices and current trends",
-                "Practice articulating your thought process clearly"
-            ],
-            "questions_evaluated": len(qa_pairs),
-            "role": request.role,
-            "seniority": request.seniority,
-            "skills_assessed": skills_to_assess,
-            "next_steps": [
-                "Practice similar questions to build confidence",
-                "Review your answers and identify areas for improvement",
-                "Consider mock interviews with different scenarios"
-            ],
-            "detailed_evaluations": evaluations  # Include full evaluations with ideal responses
-        }
-        
-        print(f"✅ Evaluation completed successfully with overall score: {overall_score_5_scale}/5")
-        print(f"📊 Skill breakdown: {skill_scores}")
-        return feedback_response
-        
-    except Exception as e:
-        print(f"❌ Error in evaluate_interview: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to evaluate interview: {str(e)}")
-
 # --- Debug Endpoint ---
 @app.post("/api/debug-request")
 async def debug_request(request: dict):
@@ -873,9 +740,15 @@ async def complete_interview(session_id: str):
         evaluations = []
         skills_to_assess = session_data.get("skills", ["Problem Solving", "Communication", "Technical Knowledge"])
         
+        # Create role context for evaluation
+        role_context = {
+            "role": session_data.get("role", "Professional"),
+            "seniority": session_data.get("seniority", "Mid")
+        }
+        
         for qa in qa_pairs:
             print(f"🔍 Evaluating Q: {qa['question'][:50]}...")
-            evaluation = evaluate_answer(qa["answer"], qa["question"], skills_to_assess)
+            evaluation = evaluate_answer(qa["answer"], qa["question"], skills_to_assess, [], role_context)
             evaluations.append({
                 "question": qa["question"],
                 "answer": qa["answer"],

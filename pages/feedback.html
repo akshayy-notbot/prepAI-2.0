@@ -76,7 +76,7 @@
         
         .report-content {
             display: grid;
-            grid-template-columns: 1fr 400px;
+            grid-template-columns: 1fr 1fr;
             gap: 2rem;
             margin-bottom: 2rem;
         }
@@ -93,6 +93,177 @@
             border: 1px solid #e5e7eb;
             padding: 2rem;
             height: fit-content;
+        }
+        
+        .action-item-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .action-item-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .action-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+        
+        .action-item-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+        
+        .action-item-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .action-item-priority,
+        .action-item-category {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .action-item-description {
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+        
+        .qa-analysis-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .qa-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .qa-question-number {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+        
+        .qa-overall-score {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .score-label {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .score-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2563eb;
+        }
+        
+        .qa-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .qa-question,
+        .qa-answer,
+        .qa-skill-scores,
+        .qa-feedback,
+        .qa-ideal-answer {
+            background: #f8fafc;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+        
+        .qa-question h4,
+        .qa-answer h4,
+        .qa-skill-scores h4,
+        .qa-feedback h4,
+        .qa-ideal-answer h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #374151;
+            margin: 0 0 0.75rem 0;
+        }
+        
+        .qa-question p,
+        .qa-answer p,
+        .qa-feedback p {
+            color: #4b5563;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .skill-scores-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .skill-score {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+        
+        .skill-name {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .skill-rating {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #2563eb;
+            margin-bottom: 0.5rem;
+        }
+        
+        .skill-feedback {
+            color: #64748b;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        
+        .ideal-answer-content {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+        
+        .ideal-answer-content p {
+            color: #0c4a6e;
+            font-style: italic;
+            line-height: 1.6;
         }
         
         .performance-card {
@@ -143,6 +314,14 @@
             .report-content {
                 grid-template-columns: 1fr;
                 gap: 1rem;
+            }
+            
+            .performance-section {
+                order: 1;
+            }
+            
+            .action-items-section {
+                order: 2;
             }
             
             .performance-card, .action-items-section, .transcript-section {

@@ -419,6 +419,11 @@ function displayUserMessage(message) {
     // Add to transcript
     if (transcript.length > 0) {
         transcript[transcript.length - 1].answer = message;
+        
+        // Evaluate the answer if we have the required data
+        if (interviewConfig && interviewConfig.role && interviewConfig.seniority) {
+            evaluateIndividualAnswer(message, transcript[transcript.length - 1].question);
+        }
     }
 }
 
@@ -447,6 +452,13 @@ function handleInterviewCompletion(data) {
     
     updateStatus('Interview complete - Ready for evaluation');
     disableInputPermanently();
+    
+    // Calculate and add duration to interview config
+    const duration = startTime ? Math.round((Date.now() - startTime) / 1000) : 0; // Duration in seconds
+    if (interviewConfig) {
+        interviewConfig.duration = duration;
+        interviewConfig.durationFormatted = formatDuration(duration);
+    }
     
     // Save transcript and config for feedback analysis
     try {
@@ -639,6 +651,56 @@ function stopTimer() {
     }
 }
 
+function formatDuration(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+// Evaluate individual answer using the evaluation API
+async function evaluateIndividualAnswer(answer, question) {
+    try {
+        console.log('🔍 Evaluating individual answer...');
+        
+        // Prepare evaluation request
+        const evaluationRequest = {
+            answer: answer,
+            question: question,
+            skills_to_assess: interviewConfig.skills || [interviewConfig.skill || "General"],
+            conversation_history: transcript.slice(0, -1), // Previous conversation for context
+            role_context: {
+                role: interviewConfig.role,
+                seniority: interviewConfig.seniority
+            }
+        };
+        
+        // Call evaluation API
+        const API_BASE_URL = window.PREPAI_CONFIG?.API_BASE_URL || 'https://prepai-api.onrender.com';
+        const response = await fetch(`${API_BASE_URL}/api/evaluate-answer`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(evaluationRequest)
+        });
+        
+        if (response.ok) {
+            const evaluation = await response.json();
+            
+            // Store evaluation in the transcript
+            if (transcript.length > 0) {
+                transcript[transcript.length - 1].evaluation = evaluation;
+            }
+            
+            console.log('✅ Individual evaluation completed:', evaluation);
+        } else {
+            console.warn('⚠️ Individual evaluation failed:', response.status);
+        }
+        
+    } catch (error) {
+        console.error('❌ Error evaluating individual answer:', error);
+        // Don't block the interview flow if evaluation fails
+    }
+}
+
 // Handle edit configuration
 function handleEditConfiguration() {
     // Navigate back to onboarding to edit configuration
@@ -672,8 +734,15 @@ function handleBeginInterview() {
 function handleExitInterview() {
     // User exiting interview - no confirmation needed
     
-    // Stop timer
+    // Stop timer and calculate duration
     stopTimer();
+    const duration = startTime ? Math.round((Date.now() - startTime) / 1000) : 0; // Duration in seconds
+    
+    // Add duration to interview config
+    if (interviewConfig) {
+        interviewConfig.duration = duration;
+        interviewConfig.durationFormatted = formatDuration(duration);
+    }
     
     // Save transcript to sessionStorage for feedback analysis
     try {

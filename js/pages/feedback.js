@@ -249,6 +249,9 @@ function displayDashboard(data) {
     // Update role context
     updateRoleContext();
     
+    // Update duration display
+    updateDurationDisplay();
+    
     // Update overall score and description
     if (data.overall_assessment?.overall_score !== undefined && data.overall_assessment?.overall_score !== null) {
         updateOverallScore(data.overall_assessment.overall_score);
@@ -279,6 +282,12 @@ function displayDashboard(data) {
     if (data.interview_quality) {
         generateInterviewQualityAnalysis(data.interview_quality);
     }
+    
+    // Generate action items
+    generateActionItems(data.overall_assessment);
+    
+    // Generate enhanced transcript
+    generateEnhancedTranscript();
 }
 
 // Update role context
@@ -300,6 +309,23 @@ function updateRoleContext() {
     }
 }
 
+// Update duration display
+function updateDurationDisplay() {
+    const durationElement = document.getElementById('session-duration');
+    if (durationElement && interviewConfig) {
+        if (interviewConfig.durationFormatted) {
+            durationElement.textContent = interviewConfig.durationFormatted;
+        } else if (interviewConfig.duration) {
+            // Fallback: format duration from seconds
+            const minutes = Math.floor(interviewConfig.duration / 60);
+            const seconds = interviewConfig.duration % 60;
+            durationElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        } else {
+            durationElement.textContent = 'N/A';
+        }
+    }
+}
+
 // Update overall score display
 function updateOverallScore(score) {
     const scoreValueElement = document.getElementById('score-value');
@@ -308,7 +334,7 @@ function updateOverallScore(score) {
     const scoreDescription = document.getElementById('score-description');
     
     if (scoreValueElement) {
-        scoreValueElement.textContent = score;
+        scoreValueElement.textContent = `${score}/5`;
     }
     
     if (scoreCircle) {
@@ -679,6 +705,207 @@ function generateInterviewQualityAnalysis(interviewQuality) {
         `;
         qualityGrid.appendChild(flowItem);
     }
+}
+
+// Generate action items from evaluation data
+function generateActionItems(overallAssessment) {
+    const actionItemsList = document.getElementById('action-items-list');
+    if (!actionItemsList) {
+        console.error('❌ Action items list not found');
+        return;
+    }
+    
+    // Clear existing content
+    actionItemsList.innerHTML = '';
+    
+    if (!overallAssessment) {
+        actionItemsList.innerHTML = '<p class="text-gray-500">No action items available</p>';
+        return;
+    }
+    
+    // Extract action items from development areas and next steps
+    const developmentAreas = overallAssessment.development_areas || [];
+    const nextSteps = overallAssessment.next_steps || '';
+    const careerDevelopment = overallAssessment.career_development || '';
+    
+    let actionItems = [];
+    
+    // Add development areas as action items
+    if (Array.isArray(developmentAreas) && developmentAreas.length > 0) {
+        developmentAreas.forEach((area, index) => {
+            actionItems.push({
+                id: `dev-area-${index}`,
+                title: `Improve ${area}`,
+                description: `Focus on developing skills in ${area.toLowerCase()}`,
+                priority: 'High',
+                category: 'Development'
+            });
+        });
+    }
+    
+    // Add next steps as action items
+    if (nextSteps && nextSteps.trim()) {
+        actionItems.push({
+            id: 'next-steps',
+            title: 'Next Steps',
+            description: nextSteps,
+            priority: 'Medium',
+            category: 'Planning'
+        });
+    }
+    
+    // Add career development as action items
+    if (careerDevelopment && careerDevelopment.trim()) {
+        actionItems.push({
+            id: 'career-dev',
+            title: 'Career Development',
+            description: careerDevelopment,
+            priority: 'Medium',
+            category: 'Career'
+        });
+    }
+    
+    // If no action items found, show a default message
+    if (actionItems.length === 0) {
+        actionItemsList.innerHTML = '<p class="text-gray-500">No specific action items identified. Continue practicing to improve your interview skills.</p>';
+        return;
+    }
+    
+    // Generate action item cards
+    actionItems.forEach(item => {
+        const actionItemCard = createActionItemCard(item);
+        actionItemsList.appendChild(actionItemCard);
+    });
+}
+
+// Create individual action item card
+function createActionItemCard(item) {
+    const card = document.createElement('div');
+    card.className = 'action-item-card';
+    
+    const priorityColor = {
+        'High': 'text-red-600 bg-red-50',
+        'Medium': 'text-yellow-600 bg-yellow-50',
+        'Low': 'text-green-600 bg-green-50'
+    }[item.priority] || 'text-gray-600 bg-gray-50';
+    
+    const categoryColor = {
+        'Development': 'text-blue-600 bg-blue-50',
+        'Planning': 'text-purple-600 bg-purple-50',
+        'Career': 'text-green-600 bg-green-50'
+    }[item.category] || 'text-gray-600 bg-gray-50';
+    
+    card.innerHTML = `
+        <div class="action-item-header">
+            <h3 class="action-item-title">${item.title}</h3>
+            <div class="action-item-badges">
+                <span class="action-item-priority ${priorityColor}">${item.priority}</span>
+                <span class="action-item-category ${categoryColor}">${item.category}</span>
+            </div>
+        </div>
+        <p class="action-item-description">${item.description}</p>
+    `;
+    
+    return card;
+}
+
+// Generate enhanced transcript with individual analysis
+function generateEnhancedTranscript() {
+    const transcriptContent = document.getElementById('transcript-content');
+    if (!transcriptContent) {
+        console.error('❌ Transcript content container not found');
+        return;
+    }
+    
+    // Clear existing content
+    transcriptContent.innerHTML = '';
+    
+    if (!interviewTranscript || interviewTranscript.length === 0) {
+        transcriptContent.innerHTML = '<p class="text-gray-500">No interview transcript available</p>';
+        return;
+    }
+    
+    // Generate Q&A analysis for each transcript item
+    interviewTranscript.forEach((item, index) => {
+        if (item.question && item.answer) {
+            const qaAnalysis = createQAAnalysis(item, index + 1);
+            transcriptContent.appendChild(qaAnalysis);
+        }
+    });
+}
+
+// Create individual Q&A analysis card
+function createQAAnalysis(item, questionNumber) {
+    const qaCard = document.createElement('div');
+    qaCard.className = 'qa-analysis-card';
+    
+    const evaluation = item.evaluation || {};
+    const scores = evaluation.scores || {};
+    const overallScore = evaluation.overall_score || 0;
+    const idealResponse = evaluation.ideal_response || '';
+    const overallFeedback = evaluation.overall_feedback || '';
+    
+    // Create skill scores display
+    const skillScores = Object.entries(scores).map(([skill, data]) => {
+        const score = data.score || 0;
+        const feedback = data.feedback || '';
+        return `
+            <div class="skill-score">
+                <div class="skill-name">${skill}</div>
+                <div class="skill-rating">${score}/5</div>
+                <div class="skill-feedback">${feedback}</div>
+            </div>
+        `;
+    }).join('');
+    
+    qaCard.innerHTML = `
+        <div class="qa-header">
+            <h3 class="qa-question-number">Question ${questionNumber}</h3>
+            <div class="qa-overall-score">
+                <span class="score-label">Overall Score:</span>
+                <span class="score-value">${overallScore}/5</span>
+            </div>
+        </div>
+        
+        <div class="qa-content">
+            <div class="qa-question">
+                <h4>Question:</h4>
+                <p>${item.question}</p>
+            </div>
+            
+            <div class="qa-answer">
+                <h4>Your Answer:</h4>
+                <p>${item.answer}</p>
+            </div>
+            
+            ${skillScores ? `
+            <div class="qa-skill-scores">
+                <h4>Skill Breakdown:</h4>
+                <div class="skill-scores-grid">
+                    ${skillScores}
+                </div>
+            </div>
+            ` : ''}
+            
+            ${overallFeedback ? `
+            <div class="qa-feedback">
+                <h4>Feedback:</h4>
+                <p>${overallFeedback}</p>
+            </div>
+            ` : ''}
+            
+            ${idealResponse ? `
+            <div class="qa-ideal-answer">
+                <h4>Ideal Answer:</h4>
+                <div class="ideal-answer-content">
+                    <p>${idealResponse}</p>
+                </div>
+            </div>
+            ` : ''}
+        </div>
+    `;
+    
+    return qaCard;
 }
 
 // Show loading screen

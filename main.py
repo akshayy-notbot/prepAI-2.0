@@ -266,39 +266,23 @@ async def evaluate_interview_enhanced(request: EvaluateInterviewRequest):
             print(f"🔍 First transcript item keys: {list(request.transcript[0].keys())}")
             print(f"🔍 Sample transcript item: {str(request.transcript[0])[:200]}...")
         
-        # Get the interview plan from the session context (if available)
-        # For now, we'll create a basic plan structure
-        # Get evaluation dimensions based on role and skill - no fallbacks
-        if request.role == "Product Manager" and "Product Sense" in request.skills:
-            evaluation_dimensions = [
-                "Problem Scoping",
-                "User Empathy", 
-                "Business Acumen",
-                "Prioritization & Trade-offs",
-                "Creative Problem Solving"
-            ]
-        else:
+        # Retrieve the interview plan using PreInterviewPlanner
+        # This ensures we use the same LLM-selected evaluation dimensions from pre-interview planning
+        try:
+            planner = PreInterviewPlanner()
+            interview_plan = planner.create_interview_plan(
+                role=request.role,
+                skill=request.skills[0] if request.skills else "General",
+                seniority=request.seniority
+            )
+            print(f"✅ Retrieved interview plan with dimensions: {interview_plan.get('top_evaluation_dimensions', 'None')}")
+        except Exception as plan_error:
+            print(f"❌ Failed to create interview plan: {plan_error}")
             # No fallback - require proper configuration
             raise HTTPException(
                 status_code=422, 
-                detail=f"Evaluation dimensions not configured for role '{request.role}' with skills {request.skills}. Please configure proper evaluation criteria."
+                detail=f"Failed to create interview plan for role '{request.role}' with skills {request.skills}. Please ensure the playbook exists in the database. Error: {str(plan_error)}"
             )
-        
-        interview_plan = {
-            "top_evaluation_dimensions": evaluation_dimensions,
-            "selected_archetype": "comprehensive",
-            "interview_objective": f"Assess {request.role} capabilities at {request.seniority} level",
-            "seniority_criteria": {
-                "junior": "Basic understanding and application",
-                "mid": "Structured approach with some depth", 
-                "senior": "Strategic thinking and comprehensive analysis",
-                "staff+": "Innovative approaches and thought leadership"
-            },
-            "good_vs_great_examples": {
-                "good": "Competent, covers basics, logical approach",
-                "great": "Insightful, innovative, considers edge cases, shows deep understanding"
-            }
-        }
         
         # Convert transcript to conversation history format
         conversation_history = []
@@ -357,7 +341,7 @@ async def evaluate_interview_enhanced(request: EvaluateInterviewRequest):
             primary_skill = request.skills[0] if request.skills else "General"
             print(f"🎯 Evaluating primary skill: {primary_skill}")
             print(f"📊 Conversation history items: {len(conversation_history)}")
-            print(f"🎯 Evaluation dimensions: {evaluation_dimensions}")
+            print(f"🎯 Evaluation dimensions: {interview_plan.get('top_evaluation_dimensions', 'None')}")
             
             evaluation_result = evaluator.evaluate_interview(
                 role=request.role,
@@ -499,12 +483,13 @@ async def start_interview(request: StartInterviewRequest):
             session_tracker = SessionTracker()
             autonomous_interviewer = AutonomousInterviewer()
             
-            # Create new session with simplified structure
+            # Create new session with interview plan
             session_tracker.create_session(
                 session_id=session_id,
                 role=request.role,
                 seniority=request.seniority,
-                skill=request.skills[0] if request.skills else "General"
+                skill=request.skills[0] if request.skills else "General",
+                interview_plan=interview_plan  # Store the complete interview plan
             )
             
             print(f"✅ Session tracker initialized successfully")
@@ -746,10 +731,7 @@ async def submit_answer(request: SubmitAnswerRequest):
                     "ai_completion_assessment": completion_assessment
                 }
             
-            # Fallback: Check old completion criteria as backup
-            elif skill_progress in ["expert", "advanced"] and len(conversation_history) > 15:
-                print("🎉 Interview completed by fallback criteria (expert level + 15+ questions)")
-                session_tracker.update_session(request.session_id, {"status": "completed_fallback"})
+            # No fallback completion criteria - rely on AI assessment only
             
         except Exception as interviewer_error:
             print(f"❌ Autonomous Interviewer failed: {interviewer_error}")

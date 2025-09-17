@@ -102,23 +102,8 @@ class AutonomousInterviewer:
             return result
             
         except Exception as e:
-            # Enhanced fallback response with signal tracking
-            return {
-                "chain_of_thought": [
-                    "Error occurred during interview turn",
-                    "Falling back to default follow-up question"
-                ],
-                "response_text": "I see. Can you tell me more about your approach to this problem?",
-                "interview_state": {
-                    "current_stage": interview_stage,
-                    "skill_progress": "unknown",
-                    "next_focus": "continue_current_topic"
-                },
-                "signal_evidence": {},
-                "latency_ms": 0,
-                "error": str(e),
-                "timestamp": time.time()
-            }
+            # No fallback - raise the error for proper handling
+            raise Exception(f"Autonomous Interviewer failed during interview turn: {str(e)}")
     
     def _track_signals(self, conversation_history: List[Dict], 
                        top_dimensions: str, role: str, skill: str, seniority: str,

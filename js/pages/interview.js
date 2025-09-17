@@ -219,11 +219,9 @@ async function startInterview() {
                 updateStatus('Ready for your answer');
                 enableInput();
             } else {
-                console.log('⚠️ No opening statement, using fallback question');
-                // Fallback: ask first question manually
-                displayAIMessage("Let's start with your first question. Can you tell me about your experience with " + interviewConfig.skills[0].split(' (')[0] + "?");
-                updateStatus('Ready for your answer');
-                enableInput();
+                console.error('❌ No opening statement received from API');
+                displayErrorMessage('Failed to receive the opening statement. Please try again.');
+                return;
             }
             
         } else {

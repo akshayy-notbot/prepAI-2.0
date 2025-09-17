@@ -22,9 +22,9 @@ class SessionTracker:
             self._redis_client = redis.from_url(redis_url)
         return self._redis_client
     
-    def create_session(self, session_id: str, role: str, seniority: str, skill: str) -> Dict[str, Any]:
+    def create_session(self, session_id: str, role: str, seniority: str, skill: str, interview_plan: Dict[str, Any] = None) -> Dict[str, Any]:
         """
-        Create a new interview session.
+        Create a new interview session with optional interview plan.
         """
         session_data = {
             "session_id": session_id,
@@ -39,7 +39,8 @@ class SessionTracker:
                 "current_stage": "problem_understanding",
                 "skill_progress": "not_started",
                 "next_focus": "initial_problem_presentation"
-            }
+            },
+            "interview_plan": interview_plan or {}  # Store the complete interview plan
         }
         
         # Save to Redis
@@ -163,7 +164,8 @@ class SessionTracker:
                 "current_stage": session.get("current_stage"),
                 "skill_progress": session.get("skill_progress"),
                 "conversation_count": len(session.get("conversation_history", [])),
-                "estimated_duration": 45  # Default 45 minutes
+                "estimated_duration": 45,  # Default 45 minutes
+                "interview_plan": session.get("interview_plan", {})  # Include the stored interview plan
             }
         return {}
     

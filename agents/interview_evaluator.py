@@ -186,7 +186,7 @@ Return ONLY a JSON object with this exact structure:
       "good_vs_great": "Good/Great/Approaching Great",
       "good_vs_great_analysis": "What would elevate this from good to great"
     }}
-I 
+  }},
   "overall_assessment": {{
     "overall_score": "Average of all dimension ratings",
     "performance_summary": "Comprehensive summary of candidate performance",

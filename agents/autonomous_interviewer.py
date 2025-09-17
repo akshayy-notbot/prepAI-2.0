@@ -14,7 +14,7 @@ class AutonomousInterviewer:
         self.llm = None  # Lazy initialization
         self._model = None
         self._model_with_temp = None  # For temperature-controlled calls
-        self.signal_tracker = SignalTracker()
+        # Signal tracking is handled within the class methods
     
     def _get_model(self):
         """Lazy initialization of Gemini model"""

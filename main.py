@@ -382,6 +382,46 @@ async def evaluate_interview_enhanced(request: EvaluateInterviewRequest):
         print(f"❌ Error in enhanced evaluation: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to perform enhanced evaluation: {str(e)}")
 
+# --- Individual Answer Evaluation Endpoint ---
+@app.post("/api/evaluate-answer")
+async def evaluate_individual_answer(request: dict):
+    """
+    Evaluate an individual answer during the interview process.
+    """
+    try:
+        print(f"🔍 Evaluating individual answer...")
+        
+        # Extract required fields
+        answer = request.get("answer", "")
+        question = request.get("question", "")
+        skills_to_assess = request.get("skills_to_assess", ["General"])
+        conversation_history = request.get("conversation_history", [])
+        role_context = request.get("role_context", {})
+        
+        if not answer or not question:
+            raise HTTPException(status_code=400, detail="Answer and question are required")
+        
+        print(f"📝 Question: {question[:50]}...")
+        print(f"📝 Answer: {answer[:50]}...")
+        print(f"🎯 Skills: {skills_to_assess}")
+        print(f"👤 Role Context: {role_context}")
+        
+        # Call the evaluation function
+        evaluation_result = evaluate_answer(
+            answer=answer,
+            question=question,
+            skills_to_assess=skills_to_assess,
+            conversation_history=conversation_history,
+            role_context=role_context
+        )
+        
+        print(f"✅ Individual evaluation completed successfully")
+        return evaluation_result
+        
+    except Exception as e:
+        print(f"❌ Error in individual answer evaluation: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to evaluate answer: {str(e)}")
+
 # --- Health Check Endpoint ---
 @app.get("/health")
 async def health_check():

@@ -834,75 +834,46 @@ function generateEnhancedTranscript() {
     });
 }
 
-// Create individual Q&A analysis card
+// Create individual Q&A analysis card (simplified format)
 function createQAAnalysis(item, questionNumber) {
     const qaCard = document.createElement('div');
-    qaCard.className = 'qa-analysis-card';
+    qaCard.className = 'qa-simple-card';
     
     const evaluation = item.evaluation || {};
-    const scores = evaluation.scores || {};
     const overallScore = evaluation.overall_score || 0;
     const idealResponse = evaluation.ideal_response || '';
     const overallFeedback = evaluation.overall_feedback || '';
     
-    // Create skill scores display
-    const skillScores = Object.entries(scores).map(([skill, data]) => {
-        const score = data.score || 0;
-        const feedback = data.feedback || '';
-        return `
-            <div class="skill-score">
-                <div class="skill-name">${skill}</div>
-                <div class="skill-rating">${score}/5</div>
-                <div class="skill-feedback">${feedback}</div>
-            </div>
-        `;
-    }).join('');
-    
     qaCard.innerHTML = `
-        <div class="qa-header">
-            <h3 class="qa-question-number">Question ${questionNumber}</h3>
-            <div class="qa-overall-score">
-                <span class="score-label">Overall Score:</span>
-                <span class="score-value">${overallScore}/5</span>
+        <div class="qa-simple-header">
+            <div class="qa-question-text">
+                <strong>Q${questionNumber}:</strong> ${item.question}
+            </div>
+            <div class="qa-score-badge">
+                ${overallScore}/5
             </div>
         </div>
         
-        <div class="qa-content">
-            <div class="qa-question">
-                <h4>Question:</h4>
-                <p>${item.question}</p>
-            </div>
-            
-            <div class="qa-answer">
-                <h4>Your Answer:</h4>
-                <p>${item.answer}</p>
-            </div>
-            
-            ${skillScores ? `
-            <div class="qa-skill-scores">
-                <h4>Skill Breakdown:</h4>
-                <div class="skill-scores-grid">
-                    ${skillScores}
-                </div>
-            </div>
-            ` : ''}
-            
-            ${overallFeedback ? `
-            <div class="qa-feedback">
-                <h4>Feedback:</h4>
-                <p>${overallFeedback}</p>
-            </div>
-            ` : ''}
-            
-            ${idealResponse ? `
-            <div class="qa-ideal-answer">
-                <h4>Ideal Answer:</h4>
-                <div class="ideal-answer-content">
-                    <p>${idealResponse}</p>
-                </div>
-            </div>
-            ` : ''}
+        <div class="qa-answer-text">
+            <strong>Your Answer:</strong> ${item.answer}
         </div>
+        
+        ${overallFeedback ? `
+        <div class="qa-feedback-text">
+            <strong>Feedback:</strong> ${overallFeedback}
+        </div>
+        ` : ''}
+        
+        ${idealResponse ? `
+        <div class="qa-ideal-section">
+            <div class="qa-ideal-header">
+                <strong>Ideal Answer:</strong>
+            </div>
+            <div class="qa-ideal-content">
+                ${idealResponse}
+            </div>
+        </div>
+        ` : ''}
     `;
     
     return qaCard;

@@ -209,6 +209,10 @@ async function generateEvaluation() {
         
         const data = await response.json();
         console.log('✅ Response received successfully:', data);
+        console.log('📊 Response keys:', Object.keys(data));
+        if (data.overall_assessment) {
+            console.log('📊 Overall assessment keys:', Object.keys(data.overall_assessment));
+        }
         
         if (USE_DEBUG_ENDPOINT) {
             console.log('🔍 Debug response - checking what backend received:');

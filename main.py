@@ -368,6 +368,9 @@ async def evaluate_interview_enhanced(request: EvaluateInterviewRequest):
                 interview_plan=interview_plan
             )
             print(f"✅ Evaluation completed successfully")
+            print(f"📊 Evaluation result keys: {list(evaluation_result.keys())}")
+            if "overall_assessment" in evaluation_result:
+                print(f"📊 Overall assessment keys: {list(evaluation_result['overall_assessment'].keys())}")
             
         except Exception as eval_error:
             print(f"❌ InterviewEvaluator failed: {eval_error}")
@@ -381,14 +384,15 @@ async def evaluate_interview_enhanced(request: EvaluateInterviewRequest):
         # Generate human-readable summary
         summary = evaluator.generate_evaluation_summary(evaluation_result)
         
-        # Return comprehensive evaluation
-        return {
+        # Return evaluation data at top level (frontend expects this structure)
+        response = evaluation_result.copy()  # Start with the evaluation result
+        response.update({
             "success": True,
-            "evaluation": evaluation_result,
             "summary": summary,
-            "metadata": evaluation_result.get("evaluation_metadata", {}),
             "message": "Enhanced evaluation completed successfully"
-        }
+        })
+        
+        return response
         
     except Exception as e:
         print(f"❌ Error in enhanced evaluation: {e}")

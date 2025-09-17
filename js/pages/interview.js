@@ -444,45 +444,11 @@ function displayErrorMessage(message) {
 function handleInterviewCompletion(data) {
     // Interview completed
     
-    // Build completion details if available
-    let completionDetails = '';
-    if (data.completion_reason) {
-        completionDetails += `<p class="mt-2 text-sm"><strong>Completion Assessment:</strong> ${data.completion_reason}</p>`;
-    }
-    if (data.evidence_summary) {
-        completionDetails += `<p class="mt-1 text-sm"><strong>Coverage Achieved:</strong> ${data.evidence_summary}</p>`;
-    }
-    if (data.coverage_percentage) {
-        completionDetails += `<p class="mt-1 text-sm"><strong>Assessment Coverage:</strong> ${data.coverage_percentage}</p>`;
-    }
-    
-    const completionMessage = `
-        <div class="message ai">
-            <div class="message-bubble" style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0;">
-                <p><strong>Interview Complete!</strong> 🎉</p>
-                <p class="mt-2">You've successfully completed your interview practice session. Great job!</p>
-                ${completionDetails}
-                <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p class="text-sm text-blue-800 mb-3">Ready to see how you performed? Click below to view your detailed evaluation and feedback.</p>
-                    <button 
-                        id="view-evaluation-btn"
-                        onclick="navigateToEvaluation()"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                    >
-                        📊 View Interview Evaluation
-                    </button>
-                </div>
-            </div>
-            <div class="message-meta">${new Date().toLocaleTimeString()}</div>
-        </div>
-    `;
-    
-    const chatMessages = document.getElementById('chat-messages');
-    chatMessages.insertAdjacentHTML('beforeend', completionMessage);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    // Show completion pop-up instead of chat message
+    showCompletionModal(data);
     
     updateStatus('Interview complete - Ready for evaluation');
-    disableInput();
+    disableInputPermanently();
     
     // Save transcript and config for feedback analysis
     try {
@@ -495,17 +461,67 @@ function handleInterviewCompletion(data) {
     }
 }
 
+// Show interview completion modal
+function showCompletionModal(data) {
+    // Create modal HTML
+    const modalHTML = `
+        <div id="completion-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onclick="closeModalOnBackdrop(event)">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6" onclick="event.stopPropagation()">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-2xl">🎉</span>
+                    </div>
+                    <h2 class="text-xl font-semibold text-gray-900 mb-2">Interview Complete!</h2>
+                    <p class="text-gray-600 mb-6">You've successfully completed your interview practice session. Great job!</p>
+                    
+                    <div class="flex flex-col space-y-3">
+                        <button 
+                            onclick="navigateToEvaluation()"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        >
+                            📊 View Interview Evaluation
+                        </button>
+                        <button 
+                            onclick="closeCompletionModal()"
+                            class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                        >
+                            Stay Here
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+}
+
+// Close completion modal
+function closeCompletionModal() {
+    const modal = document.getElementById('completion-modal');
+    if (modal) {
+        modal.remove();
+    }
+    document.body.style.overflow = '';
+}
+
+// Close modal when clicking backdrop
+function closeModalOnBackdrop(event) {
+    if (event.target.id === 'completion-modal') {
+        closeCompletionModal();
+    }
+}
+
 // Navigate to evaluation page when user clicks the button
 function navigateToEvaluation() {
     console.log('🎯 User initiated navigation to evaluation');
     
-    // Disable the button to prevent double-clicks
-    const button = document.getElementById('view-evaluation-btn');
-    if (button) {
-        button.disabled = true;
-        button.textContent = '📊 Loading Evaluation...';
-        button.classList.add('opacity-50', 'cursor-not-allowed');
-    }
+    // Close the modal first
+    closeCompletionModal();
     
     // Update status
     updateStatus('Generating your evaluation...');
@@ -517,7 +533,7 @@ function navigateToEvaluation() {
         } else {
             window.location.href = 'feedback.html';
         }
-    }, 500); // Brief delay to show button state change
+    }, 300); // Brief delay to show status update
 }
 
 // Handle key press in chat input
@@ -547,8 +563,19 @@ function enableInput() {
     if (chatInput) chatInput.focus();
 }
 
-// Disable chat input
+// Disable chat input (temporary, during AI processing)
 function disableInput() {
+    const chatInput = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-message-btn');
+    
+    if (chatInput) chatInput.disabled = true;
+    if (sendButton) sendButton.disabled = true;
+    
+    isWaitingForAI = true;
+}
+
+// Permanently disable input when interview is complete
+function disableInputPermanently() {
     const chatInput = document.getElementById('user-input');
     const sendButton = document.getElementById('send-message-btn');
     

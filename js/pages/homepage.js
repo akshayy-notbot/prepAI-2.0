@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
 });
 
-// Check if user has existing configuration and redirect appropriately
+// Check if user has existing configuration (no auto-redirect)
 function checkExistingConfiguration() {
     if (!window.prepAIState) {
         console.warn('⚠️ State management not loaded, skipping configuration check');
@@ -21,13 +21,9 @@ function checkExistingConfiguration() {
     const stateSummary = window.prepAIState.getStateSummary();
     console.log('🔍 Current state summary:', stateSummary);
     
-    // If user has complete configuration, redirect to interview
+    // Simply log the state - no automatic redirects
     if (stateSummary.isComplete) {
-        console.log('✅ User has complete configuration, redirecting to interview');
-        // Small delay to ensure page is fully loaded
-        setTimeout(() => {
-            window.PrepAIUtils.Navigation.goTo('interview');
-        }, 100);
+        console.log('✅ User has complete configuration available');
     }
 }
 

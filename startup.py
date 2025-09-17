@@ -20,7 +20,7 @@ sys.path.append(str(Path(__file__).parent))
 def run_startup_checks():
     """Run all necessary startup checks and migrations"""
     
-    print("🚀 PrepAI Enhanced Startup Script - Render Deployment")
+    print("🚀 doaiprep Enhanced Startup Script - Render Deployment")
     print("=" * 60)
     print("Environment variables are managed through Render's dashboard")
     print()
@@ -538,7 +538,7 @@ def run_startup_checks():
     all_passed = all(status for _, status in critical_checks)
     
     if all_passed:
-        print("\n🎉 All critical checks passed! PrepAI is ready to serve requests!")
+        print("\n🎉 All critical checks passed! doaiprep is ready to serve requests!")
         print("\n🚀 Deployment Status: READY")
         print("📋 Next Steps:")
         print("   1. Monitor application logs for any runtime issues")
@@ -575,4 +575,4 @@ if __name__ == "__main__":
         print("\n❌ Startup failed - service may not work properly")
         sys.exit(1)
     else:
-        print("\n✅ PrepAI is ready to serve requests!")
+        print("\n✅ doaiprep is ready to serve requests!")

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interview Performance Dashboard - PrepAI Interview Coach</title>
-    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+    <title>Interview Performance Dashboard - doaiprep Interview Coach</title>
+    <link rel="icon" type="image/svg+xml" href="../doaiprep_logo.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -48,15 +48,17 @@
         }
         
         .logo-icon {
-            width: 32px;
+            width: 120px;
             height: 32px;
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 1rem;
+        }
+        
+        .logo-svg {
+            height: 32px;
+            width: auto;
+            max-width: 70px;
         }
         
         /* Clean report layout */
@@ -1251,8 +1253,9 @@
     <nav class="top-nav">
         <div class="nav-container">
             <a href="index.html" class="logo">
-                <div class="logo-icon">🤖</div>
-                AI Interview Prep
+                <div class="logo-icon">
+                    <img src="../doaiprep_logo.svg" alt="do prep" class="logo-svg">
+                </div>
             </a>
         </div>
     </nav>

@@ -43,7 +43,7 @@ except Exception as e:
     raise
 
 # --- FastAPI App Initialization ---
-app = FastAPI(title="PrepAI Autonomous Interviewer API")
+app = FastAPI(title="doaiprep Autonomous Interviewer API")
 
 # --- CORS Middleware Configuration ---
 origins = [
@@ -88,7 +88,7 @@ class EvaluateInterviewRequest(BaseModel):
 async def root():
     """Root endpoint for health checks and service discovery"""
     return {
-        "message": "PrepAI Autonomous Interviewer API",
+        "message": "doaiprep Autonomous Interviewer API",
         "status": "running",
         "health_check": "/health",
         "docs": "/docs"
@@ -309,7 +309,7 @@ async def health_check():
     return {
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
-        "service": "PrepAI Autonomous Interviewer Backend"
+        "service": "doaiprep Autonomous Interviewer Backend"
     }
 
 # --- Interview Endpoints ---
@@ -1096,7 +1096,7 @@ async def generate_test_prompt_data():
 @app.on_event("startup")
 async def startup_event():
     """Run startup checks when the FastAPI app starts"""
-    print("🚀 PrepAI Autonomous Interviewer Backend Starting Up...")
+    print("🚀 doaiprep Autonomous Interviewer Backend Starting Up...")
     
     # Run comprehensive startup checks including database migration verification
     try:

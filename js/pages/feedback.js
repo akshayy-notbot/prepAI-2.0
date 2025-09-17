@@ -283,8 +283,8 @@ function displayDashboard(data) {
         generateInterviewQualityAnalysis(data.interview_quality);
     }
     
-    // Generate action items
-    generateActionItems(data.overall_assessment);
+    // Generate smart action items
+    generateActionItems(data);
     
     // Generate enhanced transcript
     generateEnhancedTranscript();
@@ -707,8 +707,8 @@ function generateInterviewQualityAnalysis(interviewQuality) {
     }
 }
 
-// Generate action items from evaluation data
-function generateActionItems(overallAssessment) {
+// Generate smart action items from evaluation data
+function generateActionItems(evaluationData) {
     const actionItemsList = document.getElementById('action-items-list');
     if (!actionItemsList) {
         console.error('❌ Action items list not found');
@@ -718,95 +718,130 @@ function generateActionItems(overallAssessment) {
     // Clear existing content
     actionItemsList.innerHTML = '';
     
-    if (!overallAssessment) {
-        actionItemsList.innerHTML = '<p class="text-gray-500">No action items available</p>';
-        return;
-    }
+    // Get smart action items from backend (now pre-generated)
+    const actionItems = evaluationData.action_items || [];
     
-    // Extract action items from development areas and next steps
-    const developmentAreas = overallAssessment.development_areas || [];
-    const nextSteps = overallAssessment.next_steps || '';
-    const careerDevelopment = overallAssessment.career_development || '';
-    
-    let actionItems = [];
-    
-    // Add development areas as action items
-    if (Array.isArray(developmentAreas) && developmentAreas.length > 0) {
-        developmentAreas.forEach((area, index) => {
-            actionItems.push({
-                id: `dev-area-${index}`,
-                title: `Improve ${area}`,
-                description: `Focus on developing skills in ${area.toLowerCase()}`,
-                priority: 'High',
-                category: 'Development'
-            });
-        });
-    }
-    
-    // Add next steps as action items
-    if (nextSteps && nextSteps.trim()) {
-        actionItems.push({
-            id: 'next-steps',
-            title: 'Next Steps',
-            description: nextSteps,
-            priority: 'Medium',
-            category: 'Planning'
-        });
-    }
-    
-    // Add career development as action items
-    if (careerDevelopment && careerDevelopment.trim()) {
-        actionItems.push({
-            id: 'career-dev',
-            title: 'Career Development',
-            description: careerDevelopment,
-            priority: 'Medium',
-            category: 'Career'
-        });
-    }
-    
-    // If no action items found, show a default message
     if (actionItems.length === 0) {
         actionItemsList.innerHTML = '<p class="text-gray-500">No specific action items identified. Continue practicing to improve your interview skills.</p>';
         return;
     }
     
-    // Generate action item cards
-    actionItems.forEach(item => {
-        const actionItemCard = createActionItemCard(item);
+    console.log(`📋 Displaying ${actionItems.length} smart action items`);
+    
+    // Generate enhanced action item cards
+    actionItems.forEach((item, index) => {
+        const actionItemCard = createSmartActionItemCard(item, index);
         actionItemsList.appendChild(actionItemCard);
     });
 }
 
-// Create individual action item card
-function createActionItemCard(item) {
+// Create smart action item card with enhanced features
+function createSmartActionItemCard(item, index) {
     const card = document.createElement('div');
-    card.className = 'action-item-card';
+    card.className = 'smart-action-item-card';
+    card.setAttribute('data-priority', item.priority?.toLowerCase() || 'medium');
+    card.setAttribute('data-category', item.category?.toLowerCase().replace(/\s+/g, '-') || 'general');
     
     const priorityColor = {
-        'High': 'text-red-600 bg-red-50',
-        'Medium': 'text-yellow-600 bg-yellow-50',
-        'Low': 'text-green-600 bg-green-50'
-    }[item.priority] || 'text-gray-600 bg-gray-50';
+        'Critical': 'text-red-600 bg-red-50 border-red-200',
+        'High': 'text-orange-600 bg-orange-50 border-orange-200',
+        'Medium': 'text-yellow-600 bg-yellow-50 border-yellow-200',
+        'Low': 'text-green-600 bg-green-50 border-green-200'
+    }[item.priority] || 'text-gray-600 bg-gray-50 border-gray-200';
     
     const categoryColor = {
-        'Development': 'text-blue-600 bg-blue-50',
-        'Planning': 'text-purple-600 bg-purple-50',
-        'Career': 'text-green-600 bg-green-50'
+        'Technical Skills': 'text-blue-600 bg-blue-50',
+        'Communication': 'text-purple-600 bg-purple-50',
+        'Leadership': 'text-indigo-600 bg-indigo-50',
+        'Problem Solving': 'text-pink-600 bg-pink-50',
+        'Domain Knowledge': 'text-teal-600 bg-teal-50',
+        'General Development': 'text-gray-600 bg-gray-50'
     }[item.category] || 'text-gray-600 bg-gray-50';
+    
+    // Create evidence section if available
+    const evidenceSection = item.evidence && item.evidence.length > 0 ? `
+        <div class="action-item-evidence">
+            <button class="evidence-toggle" onclick="toggleEvidence(${index})">
+                <span class="evidence-icon">📋</span>
+                <span class="evidence-text">Evidence (${item.evidence.length})</span>
+                <span class="evidence-arrow">▼</span>
+            </button>
+            <div class="evidence-content" id="evidence-${index}" style="display: none;">
+                <ul class="evidence-list">
+                    ${item.evidence.map(quote => `<li class="evidence-quote">"${quote}"</li>`).join('')}
+                </ul>
+            </div>
+        </div>
+    ` : '';
+    
+    // Create resources section if available
+    const resourcesSection = item.resources && item.resources.length > 0 ? `
+        <div class="action-item-resources">
+            <h5 class="resources-title">Resources:</h5>
+            <ul class="resources-list">
+                ${item.resources.map(resource => `<li class="resource-item">${resource}</li>`).join('')}
+            </ul>
+        </div>
+    ` : '';
     
     card.innerHTML = `
         <div class="action-item-header">
-            <h3 class="action-item-title">${item.title}</h3>
+            <h4 class="action-item-title">${item.title}</h4>
             <div class="action-item-badges">
-                <span class="action-item-priority ${priorityColor}">${item.priority}</span>
-                <span class="action-item-category ${categoryColor}">${item.category}</span>
+                <span class="priority-badge ${priorityColor}">${item.priority || 'Medium'}</span>
+                <span class="category-badge ${categoryColor}">${item.category || 'General'}</span>
+                ${item.timeframe ? `<span class="timeframe-badge">${item.timeframe}</span>` : ''}
             </div>
         </div>
-        <p class="action-item-description">${item.description}</p>
+        <div class="action-item-content">
+            <p class="action-item-description">${item.description}</p>
+            
+            ${item.expectedOutcome ? `
+                <div class="action-item-outcome">
+                    <h5 class="outcome-title">Expected Outcome:</h5>
+                    <p class="outcome-text">${item.expectedOutcome}</p>
+                </div>
+            ` : ''}
+            
+            ${item.seniorityContext ? `
+                <div class="action-item-context">
+                    <h5 class="context-title">Why This Matters:</h5>
+                    <p class="context-text">${item.seniorityContext}</p>
+                </div>
+            ` : ''}
+            
+            ${item.goodVsGreat ? `
+                <div class="action-item-improvement">
+                    <h5 class="improvement-title">Good vs Great:</h5>
+                    <p class="improvement-text">${item.goodVsGreat}</p>
+                </div>
+            ` : ''}
+            
+            ${evidenceSection}
+            ${resourcesSection}
+        </div>
     `;
     
     return card;
+}
+
+// Toggle evidence display
+function toggleEvidence(index) {
+    const evidenceContent = document.getElementById(`evidence-${index}`);
+    const evidenceArrow = document.querySelector(`#evidence-${index}`).previousElementSibling.querySelector('.evidence-arrow');
+    
+    if (evidenceContent.style.display === 'none') {
+        evidenceContent.style.display = 'block';
+        evidenceArrow.textContent = '▲';
+    } else {
+        evidenceContent.style.display = 'none';
+        evidenceArrow.textContent = '▼';
+    }
+}
+
+// Legacy function for backward compatibility
+function createActionItemCard(item) {
+    return createSmartActionItemCard(item, 0);
 }
 
 // Generate enhanced transcript with individual analysis
@@ -945,7 +980,7 @@ function showDetailedReview(dimensionEvaluations) {
                 <div class="sticky top-0 bg-gray-50 border-b border-gray-200 px-8 py-6 rounded-t-3xl">
                     <div class="flex justify-between items-center">
                         <div>
-                            <h2 class="text-3xl font-bold text-gray-900 mb-2">Detailed Performance Review</h2>
+                            <h2 class="text-3xl font-bold text-gray-900 mb-2" style="font-family: 'Playfair Display', serif;">Detailed Performance Review</h2>
                             <p class="text-gray-600 text-lg">Review each dimension with AI evaluation and evidence</p>
                         </div>
                         <button onclick="closeReviewModal()" class="text-gray-400 hover:text-gray-600">

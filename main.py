@@ -235,11 +235,24 @@ async def evaluate_interview_enhanced(request: EvaluateInterviewRequest):
         # Generate human-readable summary
         summary = evaluator.generate_evaluation_summary(evaluation_result)
         
+        # Generate smart action items
+        try:
+            from agents.action_items_generator import SmartActionItemsGenerator
+            action_items_generator = SmartActionItemsGenerator()
+            action_items = action_items_generator.generate_action_items(
+                evaluation_result, interview_plan, signal_evidence
+            )
+            print(f"✅ Generated {len(action_items)} smart action items")
+        except Exception as action_error:
+            print(f"❌ Action items generation failed: {action_error}")
+            action_items = []  # Fallback to empty list
+        
         # Return evaluation data at top level (frontend expects this structure)
         response = evaluation_result.copy()  # Start with the evaluation result
         response.update({
             "success": True,
             "summary": summary,
+            "action_items": action_items,
             "message": "Enhanced evaluation completed successfully"
         })
         
